@@ -1,0 +1,14 @@
+h1 {
+    text-align: center;
+}
+body {
+    max-width: 1000px;
+    margin: auto;
+}
+table {
+    max-width: 500px;
+    margin: auto;
+}
+td {
+    border: none;
+}
