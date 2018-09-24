@@ -1,4 +1,7 @@
-class FileTableRow extends React.Component {
+import React from 'react';
+import axios from 'axios';
+
+export class FileTableRow extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -36,7 +39,6 @@ class FileTableRow extends React.Component {
             collapsed: false,
             childrenLoaded: true
         });
-        console.log(topFiles);
     }
     render() {
 
@@ -91,11 +93,40 @@ class FileTableRow extends React.Component {
     }
 }
 
-class FileTable extends React.Component {
+export class FileTable extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            searchTerms: ''
+        }
+
+        this.filterTable = this.filterTable.bind(this);
+    }
+
+    searchTermsChanged(newTerms) {
+        this.setState({
+            searchTerms: newTerms
+        });
+    }
+
+    filterTable() {
+
+    }
+
     render() {
         return (
             <table>
                 <thead>
+                    <tr>
+                        <th>
+                            <input type="text" onChange={this.searchTermsChanged}></input>
+                        </th>
+                        <th>
+                            <button>Search</button>
+                        </th>
+                    </tr>
                     <tr>
                         <th>Name</th>
                         <th>Size</th>
@@ -110,13 +141,3 @@ class FileTable extends React.Component {
         );
     }
 }
-
-let topFiles;
-axios.get('/api/files/top')
-.then(function(response) {
-    topFiles = response.data;
-    ReactDOM.render(<FileTable files={topFiles}/>, document.getElementById('fileTable'))
-})
-.catch(function(error) {
-    console.log(error);
-});
