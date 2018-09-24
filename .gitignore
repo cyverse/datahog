@@ -7,3 +7,9 @@ __pycache__
 
 .DS_Store
 .vscode
+
+dashboard/package-lock.json
+dashboard/node_modules
+dashboard/.cache
+dashboard/static/*.js
+dashboard/static/*.map

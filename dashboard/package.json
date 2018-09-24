@@ -1,0 +1,18 @@
+{
+  "name": "file-dashboard",
+  "author": "Chris Klimowski",
+  "scripts": {
+    "dev": "parcel watch src/main.jsx -d static"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "d3": "^5.7.0",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "parcel-bundler": "^1.9.7"
+  }
+}
