@@ -1,3 +1,7 @@
+@import './normalize.min.css';
+@import './milligram.min.css';
+@import './font-awesome.min.css';
+
 h1 {
     text-align: center;
 }

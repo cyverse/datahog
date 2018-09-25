@@ -11,5 +11,4 @@ __pycache__
 dashboard/package-lock.json
 dashboard/node_modules
 dashboard/.cache
-dashboard/static/*.js
-dashboard/static/*.map
+dashboard/static
