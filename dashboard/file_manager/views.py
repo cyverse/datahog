@@ -38,3 +38,19 @@ class GetTopLevelFiles(views.APIView):
 
         return Response(top_folders.data + top_files.data)
 
+
+class SearchFiles(views.APIView):
+    def post(self, request):
+
+        search_terms = ''
+        matching_folders = Folder.objects
+        matching_files = File.objects
+
+        if 'name' in request.data:
+            matching_folders = Folder.objects.filter(name__icontains=request.data['name'])
+            matching_files = File.objects.filter(name__icontains=request.data['name'])
+
+        matching_folders = FolderSerializer(matching_folders.all(), many=True)
+        matching_files  = FileSerializer(matching_files.all(), many=True)
+
+        return Response(matching_folders.data + matching_files.data)
