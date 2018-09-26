@@ -67,7 +67,7 @@ export class FileTableRow extends React.Component {
 
             return (
                 <React.Fragment>
-                    <tr onClick={this.handleRowClick} className={this.state.selected ? 'selected' : ''}>
+                    <tr onClick={this.handleRowClick} className={this.props.selectedRow && this.props.selectedRow === this ? 'selected' : ''}>
                         <td style={{
                             paddingLeft: 30*this.props.depth
                         }}>
@@ -80,13 +80,18 @@ export class FileTableRow extends React.Component {
                     </tr>
                     {this.state.childrenLoaded && !this.state.collapsed && 
                      this.props.file.children.map(child => {
-                        return <FileTableRow file={child} key={child.id} depth={this.props.depth + 1}/>
+                        return <FileTableRow 
+                                file={child} 
+                                key={child.id}
+                                onRowClick={this.props.onRowClick} 
+                                selectedRow={this.props.selectedRow}
+                                depth={this.props.depth + 1}/>
                      })}
                 </React.Fragment>
             )
         } else {
             return (
-                <tr>
+                <tr onClick={this.handleRowClick} className={this.props.selectedRow && this.props.selectedRow === this ? 'selected' : ''}>
                     <td style={{
                         paddingLeft: 30*this.props.depth
                     }}>

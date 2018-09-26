@@ -10,7 +10,8 @@ export class FileTable extends React.Component {
         this.state = {
             files: [],
             filesLoading: true,
-            searchTerms: ''
+            searchTerms: '',
+            selectedRow: null
         }
 
         this.filterTable = this.filterTable.bind(this);
@@ -37,15 +38,17 @@ export class FileTable extends React.Component {
         this.setState({
             files: this.state.files,
             filesLoading: this.state.filesLoading,
-            searchTerms: event.target.value
+            searchTerms: event.target.value,
+            selectedRow: this.state.selectedRow
         });
     }
 
     filterTable() {
         this.setState({
-            files: [],
+            files: this.state.files,
             filesLoading: true,
-            searchTerms: this.state.searchTerms
+            searchTerms: this.state.searchTerms,
+            selectedRow: null
         });
 
         axios.post('/api/files/search', {
@@ -57,6 +60,12 @@ export class FileTable extends React.Component {
     }
 
     rowClicked(component) {
+        this.setState({
+            files: this.state.files,
+            filesLoading: false,
+            searchTerms: this.state.searchTerms,
+            selectedRow: component
+        });
         console.log(component);
     }
 
@@ -79,7 +88,12 @@ export class FileTable extends React.Component {
                 </thead>
                 <tbody>
                     {this.state.files.map(file => {
-                        return <FileTableRow file={file} key={file.id} onRowClick={this.rowClicked} depth={0}/>
+                        return <FileTableRow 
+                                file={file} 
+                                key={file.id} 
+                                onRowClick={this.rowClicked} 
+                                selectedRow={this.state.selectedRow}
+                                depth={0}/>
                     })}
                 </tbody>
             </table>
