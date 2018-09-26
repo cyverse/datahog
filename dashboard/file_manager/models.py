@@ -1,5 +1,6 @@
-from django.db import models
+import uuid
 from enum import Enum
+from django.db import models
 
 class FileType(Enum):
     PNG = 'png'
@@ -12,6 +13,7 @@ class FileType(Enum):
     )
 
 class Folder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     is_folder = True
     name = models.CharField(max_length=255)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
@@ -22,6 +24,7 @@ class Folder(models.Model):
 
 
 class File(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     is_folder = False
     name = models.CharField(max_length=255)
     parent = models.ForeignKey('Folder', on_delete=models.CASCADE)
