@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { FileTableRow } from './fileTableRow';
+import { FileVisualizer } from './fileVisualizer';
 
 export class FileTable extends React.Component {
 
@@ -66,37 +67,49 @@ export class FileTable extends React.Component {
             searchTerms: this.state.searchTerms,
             selectedRow: component
         });
-        console.log(component);
     }
 
     render() {
         return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>
-                            <input type="text" onChange={this.searchTermsChanged}></input>
-                        </th>
-                        <th>
-                            <button onClick={this.filterTable}>Search</button>
-                        </th>
-                    </tr>
-                    <tr>
-                        <th>Name</th>
-                        <th>Size</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.state.files.map(file => {
-                        return <FileTableRow 
-                                file={file} 
-                                key={file.id} 
-                                onRowClick={this.rowClicked} 
-                                selectedRow={this.state.selectedRow}
-                                depth={0}/>
-                    })}
-                </tbody>
-            </table>
+            <div className="container">
+                <div className="row">
+                    <div className="column">
+                        <div className="container">
+                            <div className="row">
+                                <div className="column">
+                                    <input type="text" onChange={this.searchTermsChanged}></input>
+                                </div>
+                                <div className="column">
+                                    <button onClick={this.filterTable}>Search</button>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {this.state.files.map(file => {
+                                            return <FileTableRow 
+                                                    file={file} 
+                                                    key={file.id} 
+                                                    onRowClick={this.rowClicked} 
+                                                    selectedRow={this.state.selectedRow}
+                                                    depth={0}/>
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="column">
+                        <FileVisualizer file={this.state.selectedRow ? this.state.selectedRow.props.file : null}/>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
