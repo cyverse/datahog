@@ -20,6 +20,9 @@ export class FileTable extends React.Component {
         this.rowClicked = this.rowClicked.bind(this);
         this.apiResponse = this.apiResponse.bind(this);
 
+        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+        axios.defaults.xsrfCookieName = "csrftoken";
+
         axios.get('/api/files/top')
         .then(this.apiResponse)
         .catch(function(error) {

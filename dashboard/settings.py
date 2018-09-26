@@ -101,6 +101,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CSRF_COOKIE_NAME = "csrftoken"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
