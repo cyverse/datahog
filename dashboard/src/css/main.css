@@ -13,5 +13,19 @@ td {
     border: none;
 }
 tr.selected {
-    background-color: #aaeeff;
+    background-color: #eeccff;
+}
+
+.file-name {
+    font-size: 120%;
+    font-weight: bold;
+}
+
+.file-size {
+    font-size: 110%;
+}
+
+.vis-title {
+    margin-top: 30px;
+    margin-left: 75px;
 }

@@ -76,7 +76,7 @@ export class FileTable extends React.Component {
         return (
             <div className="container">
                 <div className="row">
-                    <div className="column">
+                    <div className="column column-60">
                         <div className="container">
                             <div className="row">
                                 <div className="column">
@@ -108,7 +108,7 @@ export class FileTable extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="column">
+                    <div className="column column-40">
                         <FileVisualizer file={this.state.selectedRow ? this.state.selectedRow.props.file : null}/>
                     </div>
                 </div>
