@@ -47,7 +47,7 @@ export class FileTableRow extends React.Component {
         }
     }
     render() {
-        let rawSize = this.props.file.size;
+        let rawSize = this.props.file.size ? this.props.file.size : this.props.file.total_size;
         let formattedSize;
         if (rawSize < 1000)
             formattedSize = rawSize + ' B';
