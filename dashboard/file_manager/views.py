@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.response import Response
-from .models import File, Folder
-from .serializers import FolderSerializer, FileSerializer
-
 from rest_framework import views
+
+from .models import File, Folder, FileType, UpdateLog
+from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, UpdateLogSerializer
+
 # Create your views here.
 
 def index(request):
@@ -21,10 +22,10 @@ class GetChildrenOfFolder(views.APIView):
         child_folders = Folder.objects.filter(parent=parent_folder)
         child_files   = File.objects.filter(parent=parent_folder)
 
-        child_folders = FolderSerializer(child_folders.all(), many=True)
-        child_files   = FileSerializer(child_files.all(), many=True)
+        folder_serializer = FolderSerializer(child_folders.all(), many=True)
+        file_serializer   = FileSerializer(child_files.all(), many=True)
 
-        return Response(child_folders.data + child_files.data)
+        return Response(folder_serializer.data + file_serializer.data)
 
 
 class GetTopLevelFiles(views.APIView):
@@ -33,10 +34,10 @@ class GetTopLevelFiles(views.APIView):
         top_folders = Folder.objects.filter(parent=None)
         top_files   = File.objects.filter(parent=None)
 
-        top_folders = FolderSerializer(top_folders.all(), many=True)
-        top_files   = FileSerializer(top_files.all(), many=True)
+        folder_serializer = FolderSerializer(top_folders.all(), many=True)
+        file_serializer   = FileSerializer(top_files.all(), many=True)
 
-        return Response(top_folders.data + top_files.data)
+        return Response(folder_serializer.data + file_serializer.data)
 
 
 class SearchFiles(views.APIView):
@@ -50,7 +51,36 @@ class SearchFiles(views.APIView):
             matching_folders = Folder.objects.filter(name__icontains=request.data['name'])
             matching_files = File.objects.filter(name__icontains=request.data['name'])
 
-        matching_folders = FolderSerializer(matching_folders.all(), many=True)
-        matching_files  = FileSerializer(matching_files.all(), many=True)
+        folder_serializer = FolderSerializer(matching_folders.all(), many=True)
+        file_serializer   = FileSerializer(matching_files.all(), many=True)
 
-        return Response(matching_folders.data + matching_files.data)
+        return Response(folder_serializer.data + file_serializer.data)
+
+
+class GetBiggestFiles(views.APIView):
+    def get(self, request):
+        top_ten_files = File.objects.order_by('size')[:10]
+        serializer = FileSerializer(top_ten_files.all(), many=True)
+        return Response(serializer.data)
+
+
+class GetBiggestFiles(views.APIView):
+    def get(self, request):
+        top_ten_folders = Folder.objects.order_by('size')[:10]
+        serializer = FolderSerializer(top_ten_folders.all(), many=True)
+        return Response(serializer.data)
+
+
+class GetBiggestTypes(views.APIView):
+    def get(self, request):
+        top_ten_types = FileType.objects.order_by('total_size')[:10]
+        serializer = FileTypeSerializer(top_ten_types.all(), many=True)
+        return Response(serializer.data)
+
+
+class GetTotals(views.APIView):
+    def get(self, request):
+        latest_update = UpdateLog.objects.latest('timestamp')
+        serializer = UpdateLogSerializer(latest_update)
+        return Response(serializer.data)
+
