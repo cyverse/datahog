@@ -38,3 +38,10 @@ class FileType(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class UpdateLog(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    folder_count = models.IntegerField()
+    file_count = models.IntegerField()
+    total_size = models.BigIntegerField()
