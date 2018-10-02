@@ -2,16 +2,19 @@
 @import './milligram.min.css';
 @import './font-awesome.min.css';
 
-h1 {
+header {
     text-align: center;
 }
-body {
+
+section#main {
     max-width: 1000px;
     margin: auto;
 }
+
 td {
     border: none;
 }
+
 tr.selected {
     background-color: #eeccff;
 }
@@ -28,4 +31,9 @@ tr.selected {
 .vis-title {
     margin-top: 30px;
     margin-left: 75px;
+}
+
+nav#tabs {
+    display: flex;
+    justify-content: center;
 }
