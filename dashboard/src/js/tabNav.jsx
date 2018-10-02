@@ -21,8 +21,9 @@ export class TabNav extends React.Component {
         return (
             <React.Fragment>
                 <nav id="tabs">
-                    {this.props.tabs.map(tab => {
+                    {this.props.tabs.map((tab, index) => {
                         return <TabButton 
+                            key={index}
                             tab={tab} 
                             active={tab === this.state.activeTab} 
                             onTabClick={this.tabClicked}>
