@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 import { SimpleFileTable, SimpleFileTableRow } from './simpleFileTable';
+import { Size } from './util';
 
 export class SummaryTab extends React.Component {
 
@@ -9,7 +10,10 @@ export class SummaryTab extends React.Component {
         super(props);
 
         this.state = {
-            summaries: {},
+            topTenFiles: [],
+            topTenFolders: [],
+            topTenTypes: [],
+            totals: {},
             selectedRow: null
         };
 
@@ -17,6 +21,11 @@ export class SummaryTab extends React.Component {
 
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
+
+        this.receiveTopTenTypes = this.receiveTopTenTypes.bind(this);
+        this.receiveTopTenFiles = this.receiveTopTenFiles.bind(this);
+        this.receiveTopTenFolders = this.receiveTopTenFolders.bind(this);
+        this.receiveTotals = this.receiveTotals.bind(this);
 
         axios.get('/api/summaries/totals')
         .then(this.receiveTotals)
@@ -31,32 +40,56 @@ export class SummaryTab extends React.Component {
         });
 
         axios.get('/api/summaries/files')
-        .then(this.receiveTotals)
+        .then(this.receiveTopTenFiles)
         .catch(function(error) {
             console.log(error);
         });
 
         axios.get('/api/summaries/folders')
-        .then(this.receiveTotals)
+        .then(this.receiveTopTenFolders)
         .catch(function(error) {
             console.log(error);
         });
     }
 
-    receiveTopTenTypes() {
-        
+    receiveTopTenTypes(response) {
+        this.setState({
+            selectedRow: this.state.selectedRow,
+            topTenFolders: this.state.topTenFolders,
+            topTenFiles: this.state.topTenFiles,
+            topTenTypes: response.data,
+            totals: this.state.totals
+        });
     }
 
-    receieveTopTenFiles() {
-
+    receiveTopTenFiles(response) {
+        this.setState({
+            selectedRow: this.state.selectedRow,
+            topTenFolders: this.state.topTenFolders,
+            topTenFiles: response.data,
+            topTenTypes: this.state.topTenTypes,
+            totals: this.state.totals
+        });
     }
 
-    receiveTopTenFolders() {
-
+    receiveTopTenFolders(response) {
+        this.setState({
+            selectedRow: this.state.selectedRow,
+            topTenFolders: response.data,
+            topTenFiles: this.state.topTenFiles,
+            topTenTypes: this.state.topTenTypes,
+            totals: this.state.totals
+        });
     }
 
-    receiveTotals() {
-
+    receiveTotals(response) {
+        this.setState({
+            selectedRow: this.state.selectedRow,
+            topTenFolders: this.state.topTenFolders,
+            topTenFiles: this.state.topTenFiles,
+            topTenTypes: this.state.topTenTypes,
+            totals: response.data
+        });
     }
 
     onRowClick(row) {
@@ -70,20 +103,22 @@ export class SummaryTab extends React.Component {
         return (
             <div className="container">
                 <div className="row">
-                    <div className="widget column">
-                        {this.state.summaries.totals && 
+                    <div className="column">
+                        {this.state.totals && 
                             <div>
                                 <p>
-                                    <i className="fa fa-fw fa-file"></i>
-                                    {this.state.totals.file_count}
+                                    <i className="fa fa-fw fa-file"></i>&nbsp;
+                                    <span style={{fontSize: '130%'}}>{this.state.totals.file_count} files</span>
                                 </p>
                                 <p>
-                                    <i className="fa fa-fw fa-folder-open"></i>
-                                    {this.state.totals.folder_count}
+                                    <i className="fa fa-fw fa-folder-open"></i>&nbsp;
+                                    <span style={{fontSize: '130%'}}>{this.state.totals.folder_count} folders</span>
                                 </p>
                                 <p>
-                                    <i className="fa fa-fw fa-area-chart"></i>
-                                    {this.state.totals.total_size}
+                                    <i className="fa fa-fw fa-area-chart"></i>&nbsp;
+                                    <span style={{fontSize: '130%'}}>
+                                        <Size bytes={this.state.totals.total_size}/> occupied
+                                    </span>
                                 </p>
                                 <p>
                                     Last updated {this.state.totals.timestamp}
@@ -92,7 +127,7 @@ export class SummaryTab extends React.Component {
                         }
                     </div>
                     <div className="column">
-                        {this.state.summaries.topTenTypes &&
+                        {this.state.topTenTypes &&
                             <SimpleFileTable
                                 title={'Top File Types'}
                                 files={this.state.topTenTypes}
@@ -104,7 +139,7 @@ export class SummaryTab extends React.Component {
                 </div>
                 <div className="row">
                     <div className="column">
-                        {this.state.summaries.topTenFiles &&
+                        {this.state.topTenFiles &&
                             <SimpleFileTable
                                 title={'Largest Files'}
                                 files={this.state.topTenFiles}
@@ -114,7 +149,7 @@ export class SummaryTab extends React.Component {
                         }
                     </div>
                     <div className="column">
-                        {this.state.summaries.topTenFolders &&
+                        {this.state.topTenFolders &&
                             <SimpleFileTable
                                 title={'Largest Folders'}
                                 files={this.state.topTenFolders}

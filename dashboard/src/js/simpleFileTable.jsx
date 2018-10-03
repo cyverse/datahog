@@ -1,4 +1,5 @@
 import React from 'react';
+import { Size } from './util';
 
 export class SimpleFileTable extends React.Component {
     render() {
@@ -11,12 +12,11 @@ export class SimpleFileTable extends React.Component {
                 </thead>
                 <tbody>
                     {this.props.files.map(file => {
-                        return <FileTableRow 
+                        return <SimpleFileTableRow 
                                 file={file} 
                                 key={file.id} 
                                 onRowClick={this.props.onRowClick} 
-                                selectedRow={this.props.selectedRow}
-                                depth={0}/>
+                                selectedRow={this.props.selectedRow}/>
                     })}
                 </tbody>
             </table>
@@ -33,24 +33,19 @@ export class SimpleFileTableRow extends React.Component {
         this.props.onRowClick(this);
     }
     render() {
-        let rawSize = this.props.file.size ? this.props.file.size : this.props.file.total_size;
-        let formattedSize;
-        if (rawSize < 1000)
-            formattedSize = rawSize + ' B';
-        else if (rawSize < 1000000)
-            formattedSize = rawSize/1000 + ' kB';
-        else if (rawSize < 1000000000)
-            formattedSize = rawSize/1000000 + ' MB';
-        else if (rawSize < 1000000000000)
-            formattedSize = rawSize/1000000000 + ' GB';
-        else if (rawSize < 1000000000000000)
-            formattedSize = rawSize/1000000000000 + ' TB';
-
         return (
             <tr onClick={this.handleRowClick} 
                 className={this.props.selectedRow && this.props.selectedRow === this ? 'selected' : ''}>
                 <td>{this.props.file.name}</td>
-                <td>{formattedSize}</td>
+                <td>
+                    <Size bytes={this.props.file.size || this.props.file.total_size}/>
+                </td>
+                <td>
+                    <i className="fa fa-fw fa-plus"></i>
+                </td>
+                <td>
+                    <i className="fa fa-fw fa-clone"></i>
+                </td>
             </tr>
         )
     }
