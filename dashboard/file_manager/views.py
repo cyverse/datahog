@@ -59,21 +59,21 @@ class SearchFiles(views.APIView):
 
 class GetBiggestFiles(views.APIView):
     def get(self, request):
-        top_ten_files = File.objects.order_by('size')[:10]
+        top_ten_files = File.objects.order_by('-size')[:10]
         serializer = FileSerializer(top_ten_files.all(), many=True)
         return Response(serializer.data)
 
 
-class GetBiggestFiles(views.APIView):
+class GetBiggestFolders(views.APIView):
     def get(self, request):
-        top_ten_folders = Folder.objects.order_by('size')[:10]
+        top_ten_folders = Folder.objects.order_by('-total_size')[:10]
         serializer = FolderSerializer(top_ten_folders.all(), many=True)
         return Response(serializer.data)
 
 
 class GetBiggestTypes(views.APIView):
     def get(self, request):
-        top_ten_types = FileType.objects.order_by('total_size')[:10]
+        top_ten_types = FileType.objects.order_by('-total_size')[:10]
         serializer = FileTypeSerializer(top_ten_types.all(), many=True)
         return Response(serializer.data)
 
