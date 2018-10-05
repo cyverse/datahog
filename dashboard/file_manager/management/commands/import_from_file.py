@@ -1,5 +1,6 @@
 import json
 import datetime
+import re
 from django.core.management.base import BaseCommand, CommandError
 from file_manager.models import File, Folder, FileType, UpdateLog
 
@@ -16,6 +17,10 @@ class Command(BaseCommand):
             folder_count = 0
             file_count = 0
             total_size = 0
+
+            FileType.objects.update(total_size=0)
+            File.objects.all().delete()
+            Folder.objects.all().delete()
 
             for file in files:
                 # parse file information
@@ -60,6 +65,20 @@ class Command(BaseCommand):
                     child_obj.save()
                     child_obj = parent_obj
                     parent_path = parent_path[:parent_slash]
+
+                last_dot = file_name.rfind('.')
+                if last_dot == -1:
+                    file_extension = ''
+                else:
+                    file_extension = file_name[last_dot+1:]
+                
+                for ft in FileType.objects.all():
+                    if re.fullmatch(ft.extension_pattern, file_extension) is not None:
+                        file_obj.file_type = ft
+                        ft.total_size += file_size
+                        ft.save()
+                        file_obj.save()
+                        break
 
                 file_count += 1
                 total_size += file_size
