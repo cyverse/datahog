@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import index, GetTopLevelFiles, GetChildrenOfFolder, SearchFiles, GetTotals, GetBiggestFiles, GetBiggestTypes, GetBiggestFolders
+from .views import *
 
 urlpatterns = [
     path('', index, name='index'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('api/summaries/totals', GetTotals.as_view()),
     path('api/summaries/files', GetBiggestFiles.as_view()),
     path('api/summaries/types', GetBiggestTypes.as_view()),
-    path('api/summaries/folders', GetBiggestFolders.as_view())
+    path('api/summaries/folders', GetBiggestFolders.as_view()),
+    path('api/database/update', UpdateDatabase.as_view())
 ]

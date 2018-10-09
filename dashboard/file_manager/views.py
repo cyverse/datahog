@@ -2,14 +2,31 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import views
+from celery.exceptions import CeleryError
 
 from .models import File, Folder, FileType, UpdateLog
 from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, UpdateLogSerializer
+from .celery_tasks import update_database
+
 
 # Create your views here.
 
 def index(request):
     return render(request, 'index.html')
+
+
+class UpdateDatabase(views.APIView):
+    def get(self, request):
+        latest_update = UpdateLog.objects.latest('timestamp')
+        if latest_update.in_progress:
+            return Response('A database update is already in progress.', status=400)
+        
+        try:
+            update_database.delay()
+        except CeleryError:
+            return Response('Something went wrong with Celery.', status=500)
+
+        return Response('A database update has begun.')
 
 
 class GetChildrenOfFolder(views.APIView):
