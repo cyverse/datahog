@@ -6,7 +6,7 @@ from celery.exceptions import CeleryError
 
 from .models import File, Folder, FileType, UpdateLog
 from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, UpdateLogSerializer
-from .celery_tasks import update_database
+from .tasks import update_database
 
 
 # Create your views here.
@@ -17,14 +17,19 @@ def index(request):
 
 class UpdateDatabase(views.APIView):
     def get(self, request):
-        latest_update = UpdateLog.objects.latest('timestamp')
-        if latest_update.in_progress:
-            return Response('A database update is already in progress.', status=400)
+        # try:
+        #     latest_update = UpdateLog.objects.latest('timestamp')
+        #     if latest_update.in_progress:
+        #         return Response('A database update is already in progress.', status=400)
+        # except UpdateLog.DoesNotExist:
+        #     pass
         
-        try:
-            update_database.delay()
-        except CeleryError:
-            return Response('Something went wrong with Celery.', status=500)
+        # try:
+        #     update_database.delay()
+        # except CeleryError:
+        #     return Response('Something went wrong with Celery.', status=500)
+
+        update_database.delay()
 
         return Response('A database update has begun.')
 

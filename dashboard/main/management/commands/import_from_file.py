@@ -1,7 +1,7 @@
 import json
 import datetime
 from django.core.management.base import BaseCommand, CommandError
-from file_manager.models import File, Folder, FileType, UpdateLog
+from main.models import File, Folder, FileType, UpdateLog
 
 class Command(BaseCommand):
     help = 'Closes the specified poll for voting'
