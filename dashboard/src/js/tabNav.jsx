@@ -20,25 +20,24 @@ export class TabNav extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <nav id="tabs">
+                <ul className='tab tab-block'>
                     {this.props.tabs.map((tab, index) => {
-                        return <TabButton 
+                        return <Tab 
                             key={index}
                             tab={tab} 
                             active={tab === this.state.activeTab} 
-                            onTabClick={this.tabClicked}>
-                        </TabButton>;
+                            onTabClick={this.tabClicked} />;
                     })}
-                </nav>
+                </ul>
                 <div>
-                    {this.state.activeTab && this.state.activeTab.content}
+                    {this.state.activeTab.content}
                 </div>
             </React.Fragment>
         );
     }
 }
 
-export class TabButton extends React.Component {
+export class Tab extends React.Component {
     constructor(props) {
         super(props);
         this.handleTabClick = this.handleTabClick.bind(this);
@@ -49,10 +48,12 @@ export class TabButton extends React.Component {
     }
 
     render() {
-        return <button 
-            className={this.props.active ? 'button-outline' : 'button-clear'}
-            onClick={this.handleTabClick}>
-                {this.props.tab.name}
-        </button>;
+        return (
+            <li className='tab-item c-hand'>
+                <a className={this.props.active ? 'active' : ''} onClick={this.handleTabClick}>
+                    {this.props.tab.name}
+                </a>
+            </li>
+        );
     }
 }
