@@ -15,8 +15,10 @@ def update_database_from_file(update_id):
         with open(update_log.file.path) as f:
             files = json.loads(f.read())
 
-        with transaction.atomic():
+        if len(files) == 0: 
+            raise Exception('Unreadable file')
 
+        with transaction.atomic():
             folder_count = 0
             file_count = 0
             total_size = 0
@@ -90,12 +92,10 @@ def update_database_from_file(update_id):
             update_log.file_count = file_count
             update_log.total_size = total_size
             update_log.in_progress = False
-            update_log.success = True
+            update_log.failed = False
             update_log.save()
 
     except Exception as e:
-        print(e)
         update_log.in_progress = False
-        update_log.success = False
+        update_log.failed = True
         update_log.save()
-
