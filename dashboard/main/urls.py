@@ -11,5 +11,5 @@ urlpatterns = [
     path('api/summaries/files', GetBiggestFiles.as_view()),
     path('api/summaries/types', GetBiggestTypes.as_view()),
     path('api/summaries/folders', GetBiggestFolders.as_view()),
-    path('api/database/update', UpdateDatabase.as_view())
+    path('api/database/uploadfile', UpdateDatabase.as_view())
 ]

@@ -6,7 +6,7 @@ from celery.exceptions import CeleryError
 
 from .models import File, Folder, FileType, UpdateLog
 from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, UpdateLogSerializer
-from .tasks import update_database
+from .tasks import update_database_from_file
 
 
 # Create your views here.
@@ -16,22 +16,15 @@ def index(request):
 
 
 class UpdateDatabase(views.APIView):
-    def get(self, request):
-        # try:
-        #     latest_update = UpdateLog.objects.latest('timestamp')
-        #     if latest_update.in_progress:
-        #         return Response('A database update is already in progress.', status=400)
-        # except UpdateLog.DoesNotExist:
-        #     pass
+
+    def post(self, request):
+        if 'file' not in request.data:
+            return Response('No file provided.', status=400)
         
-        # try:
-        #     update_database.delay()
-        # except CeleryError:
-        #     return Response('Something went wrong with Celery.', status=500)
-
-        update_database.delay()
-
-        return Response('A database update has begun.')
+        file = request.data['file']
+        update_log = UpdateLog.objects.create(file=file, in_progress=True)
+        update_database_from_file.delay(update_log.id)
+        return Response('Update started', status=400)
 
 
 class GetChildrenOfFolder(views.APIView):
@@ -102,7 +95,7 @@ class GetBiggestTypes(views.APIView):
 
 class GetTotals(views.APIView):
     def get(self, request):
-        latest_update = UpdateLog.objects.latest('timestamp')
+        latest_update = UpdateLog.objects.filter(success=True).latest('timestamp')
         serializer = UpdateLogSerializer(latest_update)
         return Response(serializer.data)
 

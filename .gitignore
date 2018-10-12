@@ -12,3 +12,4 @@ dashboard/package-lock.json
 dashboard/node_modules
 dashboard/.cache
 dashboard/static
+dashboard/protected
