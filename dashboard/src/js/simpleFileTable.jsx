@@ -14,9 +14,7 @@ export class SimpleFileTable extends React.Component {
                     {this.props.files.map(file => {
                         return <SimpleFileTableRow 
                                 file={file} 
-                                key={file.id} 
-                                onRowClick={this.props.onRowClick} 
-                                selectedRow={this.props.selectedRow}/>
+                                key={file.id} />
                     })}
                 </tbody>
             </table>
@@ -27,10 +25,6 @@ export class SimpleFileTable extends React.Component {
 export class SimpleFileTableRow extends React.Component {
     constructor(props) {
         super(props);
-        this.handleRowClick = this.handleRowClick.bind(this);
-    }
-    handleRowClick() {
-        this.props.onRowClick(this);
     }
     render() {
         return (

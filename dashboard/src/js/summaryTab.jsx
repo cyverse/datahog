@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { SimpleFileTable, SimpleFileTableRow } from './simpleFileTable';
+import { SimpleFileTable } from './simpleFileTable';
 import { Size } from './util';
 import { LoadingBox } from './loadingBox';
 
@@ -14,11 +14,8 @@ export class SummaryTab extends React.Component {
             topTenFiles: [],
             topTenFolders: [],
             topTenTypes: [],
-            totals: {},
-            selectedRow: null
+            totals: {}
         };
-
-        this.onRowClick = this.onRowClick.bind(this);
 
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
@@ -54,50 +51,39 @@ export class SummaryTab extends React.Component {
     }
 
     receiveTopTenTypes(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
-            topTenFolders: this.state.topTenFolders,
-            topTenFiles: this.state.topTenFiles,
+        this.setState(state => ({
+            topTenFolders: state.topTenFolders,
+            topTenFiles: state.topTenFiles,
             topTenTypes: response.data,
-            totals: this.state.totals
-        });
+            totals: state.totals
+        }));
     }
 
     receiveTopTenFiles(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
-            topTenFolders: this.state.topTenFolders,
+        this.setState(state => ({
+            topTenFolders: state.topTenFolders,
             topTenFiles: response.data,
-            topTenTypes: this.state.topTenTypes,
-            totals: this.state.totals
-        });
+            topTenTypes: state.topTenTypes,
+            totals: state.totals
+        }));
     }
 
     receiveTopTenFolders(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
+        this.setState(state => ({
             topTenFolders: response.data,
-            topTenFiles: this.state.topTenFiles,
-            topTenTypes: this.state.topTenTypes,
-            totals: this.state.totals
-        });
+            topTenFiles: state.topTenFiles,
+            topTenTypes: state.topTenTypes,
+            totals: state.totals
+        }));
     }
 
     receiveTotals(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
-            topTenFolders: this.state.topTenFolders,
-            topTenFiles: this.state.topTenFiles,
-            topTenTypes: this.state.topTenTypes,
+        this.setState(state => ({
+            topTenFolders: state.topTenFolders,
+            topTenFiles: state.topTenFiles,
+            topTenTypes: state.topTenTypes,
             totals: response.data
-        });
-    }
-
-    onRowClick(row) {
-        this.setState({
-            selectedRow: row,
-            summaries: this.state.summaries
-        });
+        }));
     }
 
     render() {
@@ -133,8 +119,6 @@ export class SummaryTab extends React.Component {
                                 <SimpleFileTable
                                     title={'Top File Types'}
                                     files={this.state.topTenTypes}
-                                    selectedRow={this.state.selectedRow}
-                                    onRowClick={this.onRowClick}
                                 />
                             }
                         </div>
@@ -145,8 +129,6 @@ export class SummaryTab extends React.Component {
                                 <SimpleFileTable
                                     title={'Largest Files'}
                                     files={this.state.topTenFiles}
-                                    selectedRow={this.state.selectedRow}
-                                    onRowClick={this.onRowClick}
                                 />
                             }
                         </div>
@@ -155,8 +137,6 @@ export class SummaryTab extends React.Component {
                                 <SimpleFileTable
                                     title={'Largest Folders'}
                                     files={this.state.topTenFolders}
-                                    selectedRow={this.state.selectedRow}
-                                    onRowClick={this.onRowClick}
                                 />
                             }
                         </div>
