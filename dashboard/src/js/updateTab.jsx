@@ -35,7 +35,7 @@ export class UpdateTab extends React.Component {
         let formData = new FormData();
         formData.append('file', this.state.file);
         if (this.state.file) {
-            axios.post('/api/database/uploadfile', formData)
+            axios.post('/api/updates/uploadfile', formData)
             .then(function(response) {
                 console.log(response);
             })

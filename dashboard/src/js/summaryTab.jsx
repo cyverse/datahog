@@ -25,7 +25,7 @@ export class SummaryTab extends React.Component {
         this.receiveTopTenFolders = this.receiveTopTenFolders.bind(this);
         this.receiveTotals = this.receiveTotals.bind(this);
 
-        axios.get('/api/summaries/totals')
+        axios.get('/api/updates/latest')
         .then(this.receiveTotals)
         .catch(function(error) {
             console.log(error);

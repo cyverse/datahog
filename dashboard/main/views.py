@@ -15,14 +15,21 @@ def index(request):
     return render(request, 'index.html')
 
 
-class UpdateDatabase(views.APIView):
+class GetLastUpdate(views.APIView):
+    def get(self, request):
+        latest_update = UpdateLog.objects.filter(failed=False).latest('timestamp')
+        serializer = UpdateLogSerializer(latest_update)
+        return Response(serializer.data)
+
+
+class UpdateFromFile(views.APIView):
 
     def post(self, request):
         if 'file' not in request.data:
             return Response('No file provided.', status=400)
         
         file = request.data['file']
-        update_log = UpdateLog.objects.create(file=file, in_progress=True)
+        update_log = UpdateLog.objects.create(file=file)
         update_database_from_file.delay(update_log.id)
         return Response('Update started', status=400)
 
@@ -93,9 +100,4 @@ class GetBiggestTypes(views.APIView):
         return Response(serializer.data)
 
 
-class GetTotals(views.APIView):
-    def get(self, request):
-        latest_update = UpdateLog.objects.filter(success=True).latest('timestamp')
-        serializer = UpdateLogSerializer(latest_update)
-        return Response(serializer.data)
 

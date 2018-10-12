@@ -25,7 +25,7 @@ export class LoadingBox extends React.Component {
     }
 
     getStatus() {
-        axios.get('/api/summaries/totals')
+        axios.get('/api/updates/latest')
         .then(function(response) {
             if (response.data.in_progress) {
                 this.setState(state => ({
