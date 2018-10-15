@@ -54,35 +54,29 @@ export class LoadingBox extends React.Component {
     }
 
     render() {
-        if (this.state.updateInProgress) return (
+        if (this.state.updateInProgress || this.props.childUpdateInProgress) return (
             <div className="empty">
                 <div className="empty-icon">
-                    <i className="icon icon-people"></i>
+                    <div className="loading loading-lg"></div>
                 </div>
-                <p className="empty-title h5">You have no new messages</p>
-                <p className="empty-subtitle">Click the button to start a conversation.</p>
-                <div className="empty-action">
-                    <button className="btn btn-primary">Send a message</button>
-                </div>
+                <p className="empty-title h5">A database update is in progress</p>
+                <p className="empty-subtitle">This may take several minutes</p>
             </div>
         );
 
         if (this.state.error || this.props.childError) return (
             <div className="empty">
                 <div className="empty-icon">
-                    <i className="icon icon-people"></i>
+                    <i className="icon icon-cross"></i>
                 </div>
-                <p className="empty-title h5">You have no new messages</p>
-                <p className="empty-subtitle">Click the button to start a conversation.</p>
-                <div className="empty-action">
-                    <button className="btn btn-primary">Send a message</button>
-                </div>
+                <p className="empty-title h5">Unable to retrieve files</p>
+                <p className="empty-subtitle">An error occurred, please try again later</p>
             </div>
         );
 
         if (this.state.loading || this.props.childLoading) return (
             <div className="loading loading-lg"></div>
-        );
+        );  
 
         return (
             <React.Fragment>

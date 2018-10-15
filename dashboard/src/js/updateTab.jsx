@@ -14,27 +14,35 @@ export class UpdateTab extends React.Component {
         this.fileChanged = this.fileChanged.bind(this);
 
         this.state = {
-            file: null
+            file: null,
+            updateInProgress: false
         };
     }
 
     fileChanged(event) {
         let selectedFiles = event.target.files;
         if (selectedFiles.length > 0) {
-            this.setState({
-                file: selectedFiles[0]
-            });
+            this.setState(state => ({
+                file: selectedFiles[0],
+                updateInProgress: state.updateInProgress
+            }));
         } else {
-            this.setState({
-                file: null
-            });
+            this.setState(state => ({
+                file: null,
+                updateInProgress: state.updateInProgress
+            }));
         }
     }
 
     requestUpdate() {
-        let formData = new FormData();
-        formData.append('file', this.state.file);
+        
         if (this.state.file) {
+            let formData = new FormData();
+            formData.append('file', this.state.file);
+            this.setState(state => ({
+                file: state.file,
+                updateInProgress: true
+            }));
             axios.post('/api/updates/uploadfile', formData)
             .then(function(response) {
                 console.log(response);
@@ -47,7 +55,7 @@ export class UpdateTab extends React.Component {
 
     render() {
         return (
-            <LoadingBox childLoading={false} childError={false}>
+            <LoadingBox childLoading={false} childError={false} childUpdateInProgress={this.state.updateInProgress}>
                 <div className="container">
                     <div className="columns">
                         <input type="file" onChange={this.fileChanged}/>
