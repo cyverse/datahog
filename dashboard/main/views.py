@@ -2,14 +2,36 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import views
+from celery.exceptions import CeleryError
 
 from .models import File, Folder, FileType, UpdateLog
 from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, UpdateLogSerializer
+from .tasks import update_database_from_file
+
 
 # Create your views here.
 
 def index(request):
     return render(request, 'index.html')
+
+
+class GetLastUpdate(views.APIView):
+    def get(self, request):
+        latest_update = UpdateLog.objects.filter(failed=False).latest('timestamp')
+        serializer = UpdateLogSerializer(latest_update)
+        return Response(serializer.data)
+
+
+class UpdateFromFile(views.APIView):
+
+    def post(self, request):
+        if 'file' not in request.data:
+            return Response('No file provided.', status=400)
+        
+        file = request.data['file']
+        update_log = UpdateLog.objects.create(file=file)
+        update_database_from_file.delay(update_log.id)
+        return Response('Update started', status=400)
 
 
 class GetChildrenOfFolder(views.APIView):
@@ -78,9 +100,4 @@ class GetBiggestTypes(views.APIView):
         return Response(serializer.data)
 
 
-class GetTotals(views.APIView):
-    def get(self, request):
-        latest_update = UpdateLog.objects.latest('timestamp')
-        serializer = UpdateLogSerializer(latest_update)
-        return Response(serializer.data)
 

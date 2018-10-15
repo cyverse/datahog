@@ -1,19 +1,24 @@
+from celery import shared_task
+from django.db import transaction
+import time
+import re
 import json
 import datetime
-import re
-from django.core.management.base import BaseCommand, CommandError
-from file_manager.models import File, Folder, FileType, UpdateLog
 
-class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+from .models import *
 
-    def add_arguments(self, parser):
-        parser.add_argument('filename', type=str)
-
-    def handle(self, *args, **options):
-        with open(options['filename'], 'r') as f:
+@shared_task
+def update_database_from_file(update_id):
+    update_log = UpdateLog.objects.get(id=update_id)
+    
+    try:
+        with open(update_log.file.path) as f:
             files = json.loads(f.read())
 
+        if len(files) == 0: 
+            raise Exception('Unreadable file')
+
+        with transaction.atomic():
             folder_count = 0
             file_count = 0
             total_size = 0
@@ -81,11 +86,16 @@ class Command(BaseCommand):
                         break
 
                 file_count += 1
-                total_size += file_size
+                total_size += file_size        
 
-        UpdateLog.objects.create(
-            folder_count=folder_count,
-            file_count=file_count,
-            total_size=total_size
-        )
-        
+            update_log.folder_count = folder_count
+            update_log.file_count = file_count
+            update_log.total_size = total_size
+            update_log.in_progress = False
+            update_log.failed = False
+            update_log.save()
+
+    except Exception as e:
+        update_log.in_progress = False
+        update_log.failed = True
+        update_log.save()

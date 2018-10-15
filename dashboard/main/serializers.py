@@ -24,4 +24,4 @@ class FileTypeSerializer(serializers.ModelSerializer):
 class UpdateLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = UpdateLog
-        fields = ('id', 'timestamp', 'folder_count', 'file_count', 'total_size')
+        fields = ('id', 'timestamp', 'in_progress', 'folder_count', 'file_count', 'total_size')

@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 
-import { SimpleFileTable, SimpleFileTableRow } from './simpleFileTable';
+import { SimpleFileTable } from './simpleFileTable';
 import { Size } from './util';
+import { LoadingBox } from './loadingBox';
 
 export class SummaryTab extends React.Component {
 
@@ -13,11 +14,8 @@ export class SummaryTab extends React.Component {
             topTenFiles: [],
             topTenFolders: [],
             topTenTypes: [],
-            totals: {},
-            selectedRow: null
+            totals: {}
         };
-
-        this.onRowClick = this.onRowClick.bind(this);
 
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
         axios.defaults.xsrfCookieName = "csrftoken";
@@ -27,7 +25,7 @@ export class SummaryTab extends React.Component {
         this.receiveTopTenFolders = this.receiveTopTenFolders.bind(this);
         this.receiveTotals = this.receiveTotals.bind(this);
 
-        axios.get('/api/summaries/totals')
+        axios.get('/api/updates/latest')
         .then(this.receiveTotals)
         .catch(function(error) {
             console.log(error);
@@ -53,113 +51,98 @@ export class SummaryTab extends React.Component {
     }
 
     receiveTopTenTypes(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
-            topTenFolders: this.state.topTenFolders,
-            topTenFiles: this.state.topTenFiles,
+        this.setState(state => ({
+            topTenFolders: state.topTenFolders,
+            topTenFiles: state.topTenFiles,
             topTenTypes: response.data,
-            totals: this.state.totals
-        });
+            totals: state.totals
+        }));
     }
 
     receiveTopTenFiles(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
-            topTenFolders: this.state.topTenFolders,
+        this.setState(state => ({
+            topTenFolders: state.topTenFolders,
             topTenFiles: response.data,
-            topTenTypes: this.state.topTenTypes,
-            totals: this.state.totals
-        });
+            topTenTypes: state.topTenTypes,
+            totals: state.totals
+        }));
     }
 
     receiveTopTenFolders(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
+        this.setState(state => ({
             topTenFolders: response.data,
-            topTenFiles: this.state.topTenFiles,
-            topTenTypes: this.state.topTenTypes,
-            totals: this.state.totals
-        });
+            topTenFiles: state.topTenFiles,
+            topTenTypes: state.topTenTypes,
+            totals: state.totals
+        }));
     }
 
     receiveTotals(response) {
-        this.setState({
-            selectedRow: this.state.selectedRow,
-            topTenFolders: this.state.topTenFolders,
-            topTenFiles: this.state.topTenFiles,
-            topTenTypes: this.state.topTenTypes,
+        this.setState(state => ({
+            topTenFolders: state.topTenFolders,
+            topTenFiles: state.topTenFiles,
+            topTenTypes: state.topTenTypes,
             totals: response.data
-        });
-    }
-
-    onRowClick(row) {
-        this.setState({
-            selectedRow: row,
-            summaries: this.state.summaries
-        });
+        }));
     }
 
     render() {
         return (
-            <div className="container">
-                <div className="row">
-                    <div className="column">
-                        {this.state.totals && 
-                            <div>
-                                <p>
-                                    <i className="fa fa-fw fa-file"></i>&nbsp;
-                                    <span style={{fontSize: '130%'}}>{this.state.totals.file_count} files</span>
-                                </p>
-                                <p>
-                                    <i className="fa fa-fw fa-folder-open"></i>&nbsp;
-                                    <span style={{fontSize: '130%'}}>{this.state.totals.folder_count} folders</span>
-                                </p>
-                                <p>
-                                    <i className="fa fa-fw fa-area-chart"></i>&nbsp;
-                                    <span style={{fontSize: '130%'}}>
-                                        <Size bytes={this.state.totals.total_size}/> occupied
-                                    </span>
-                                </p>
-                                <p>
-                                    Last updated {this.state.totals.timestamp}
-                                </p>
-                            </div>
-                        }
+            <LoadingBox childLoading={this.state.loading} childError={this.state.error}>
+                <div className="container">
+                    <div className="columns">
+                        <div className="column">
+                            {this.state.totals && 
+                                <div>
+                                    <p>
+                                        <i className="fa fa-fw fa-file"></i>&nbsp;
+                                        <span style={{fontSize: '130%'}}>{this.state.totals.file_count} files</span>
+                                    </p>
+                                    <p>
+                                        <i className="fa fa-fw fa-folder-open"></i>&nbsp;
+                                        <span style={{fontSize: '130%'}}>{this.state.totals.folder_count} folders</span>
+                                    </p>
+                                    <p>
+                                        <i className="fa fa-fw fa-area-chart"></i>&nbsp;
+                                        <span style={{fontSize: '130%'}}>
+                                            <Size bytes={this.state.totals.total_size}/> occupied
+                                        </span>
+                                    </p>
+                                    <p>
+                                        Last updated {this.state.totals.timestamp}
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                        <div className="column">
+                            {this.state.topTenTypes &&
+                                <SimpleFileTable
+                                    title={'Top File Types'}
+                                    files={this.state.topTenTypes}
+                                />
+                            }
+                        </div>
                     </div>
-                    <div className="column">
-                        {this.state.topTenTypes &&
-                            <SimpleFileTable
-                                title={'Top File Types'}
-                                files={this.state.topTenTypes}
-                                selectedRow={this.state.selectedRow}
-                                onRowClick={this.onRowClick}
-                            />
-                        }
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="column">
-                        {this.state.topTenFiles &&
-                            <SimpleFileTable
-                                title={'Largest Files'}
-                                files={this.state.topTenFiles}
-                                selectedRow={this.state.selectedRow}
-                                onRowClick={this.onRowClick}
-                            />
-                        }
-                    </div>
-                    <div className="column">
-                        {this.state.topTenFolders &&
-                            <SimpleFileTable
-                                title={'Largest Folders'}
-                                files={this.state.topTenFolders}
-                                selectedRow={this.state.selectedRow}
-                                onRowClick={this.onRowClick}
-                            />
-                        }
+                    <div className="columns">
+                        <div className="column">
+                            {this.state.topTenFiles &&
+                                <SimpleFileTable
+                                    title={'Largest Files'}
+                                    files={this.state.topTenFiles}
+                                />
+                            }
+                        </div>
+                        <div className="column">
+                            {this.state.topTenFolders &&
+                                <SimpleFileTable
+                                    title={'Largest Folders'}
+                                    files={this.state.topTenFolders}
+                                />
+                            }
+                        </div>
                     </div>
                 </div>
-            </div>
+            </LoadingBox>
         );
     }
 }
