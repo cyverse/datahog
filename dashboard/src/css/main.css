@@ -5,26 +5,23 @@ header {
     text-align: center;
 }
 
-section#main {
+#main {
     max-width: 1000px;
     margin: auto;
 }
 
-td {
-    border: none;
+.card {
+    margin-top: 18px;
 }
 
-tr.selected {
-    background-color: #eeccff;
+.file-table td {
+    border: none !important;
+    padding: 0;
+    height: 40px;
 }
 
-.file-name {
-    font-size: 120%;
-    font-weight: bold;
-}
-
-.file-size {
-    font-size: 110%;
+.file-table .click-to-copy {
+    font-size: 0.6rem;
 }
 
 .vis-title {

@@ -56,13 +56,13 @@ export class ClickToCopy extends React.Component {
 
     render() {
         let snippedText;
-        if (this.props.text.length > 15) {
-            snippedText = this.props.text.substring(0, 14) + '…';
+        if (this.props.text.length > 25) {
+            snippedText = this.props.text.substring(0, 24) + '…';
         } else {
             snippedText = this.props.text;
         }
         return (
-            <a className="btn btn-link tooltip" data-tooltip={this.state.toolTipText} onMouseEnter={this.resetText} onClick={this.copyText}>{snippedText}</a>
+            <a className="btn btn-link tooltip click-to-copy" data-tooltip={this.state.toolTipText} onMouseEnter={this.resetText} onClick={this.copyText}>{snippedText}</a>
         )
     }
 }

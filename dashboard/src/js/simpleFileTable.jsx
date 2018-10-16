@@ -4,10 +4,11 @@ import { Size, ClickToCopy } from './util';
 export class SimpleFileTable extends React.Component {
     render() {
         return (
-            <table>
-                <thead>
+            <table className='table file-table'>
+                <thead className='light-head'>
                     <tr>
-                        <th>{this.props.title}</th>
+                        <th>Name</th>
+                        <th>Size</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -23,9 +24,6 @@ export class SimpleFileTable extends React.Component {
 }
 
 export class SimpleFileTableRow extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
         return (
             <tr>
