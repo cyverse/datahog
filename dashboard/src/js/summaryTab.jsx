@@ -17,9 +17,6 @@ export class SummaryTab extends React.Component {
             totals: {}
         };
 
-        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
-
         this.receiveTopTenTypes = this.receiveTopTenTypes.bind(this);
         this.receiveTopTenFiles = this.receiveTopTenFiles.bind(this);
         this.receiveTopTenFolders = this.receiveTopTenFolders.bind(this);

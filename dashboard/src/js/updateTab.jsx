@@ -7,9 +7,6 @@ export class UpdateTab extends React.Component {
     constructor(props) {
         super(props);
 
-        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
-
         this.requestUpdate = this.requestUpdate.bind(this);
         this.fileChanged = this.fileChanged.bind(this);
 

@@ -6,9 +6,6 @@ export class LoadingBox extends React.Component {
     constructor(props) {
         super(props);
 
-        axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
-
         this.getStatus = this.getStatus.bind(this);
         this.getStatus();
 
