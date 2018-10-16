@@ -28,28 +28,25 @@ export class LoadingBox extends React.Component {
         axios.get('/api/updates/latest')
         .then(function(response) {
             if (response.data.in_progress) {
-                this.setState(state => ({
+                this.setState({
                     updateInProgress: true,
                     error: false,
-                    loading: false,
-                    interval: state.interval
-                }));
+                    loading: false
+                });
             } else {
-                this.setState(state => ({
+                this.setState({
                     updateInProgress: false,
                     error: false,
-                    loading: false,
-                    interval: state.interval
-                }));
+                    loading: false
+                });
             }
         }.bind(this))
         .catch(function(error) {
-            this.setState(state => ({
+            this.setState({
                 updateInProgress: false,
                 error: true,
-                loading: false,
-                interval: state.interval
-            }));
+                loading: false
+            });
         }.bind(this));
     }
 
