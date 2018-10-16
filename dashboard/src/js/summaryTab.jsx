@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { SimpleFileTable } from './simpleFileTable';
+import { FileTable } from './fileTable';
 import { Size } from './util';
 import { LoadingBox } from './loadingBox';
 
@@ -121,7 +121,7 @@ export class SummaryTab extends React.Component {
                                         <div className="card-title h5">Top File Types</div>
                                     </div>
                                     <div className="card-body">
-                                        <SimpleFileTable
+                                        <FileTable
                                             title={'Top File Types'}
                                             files={this.state.topTenTypes}
                                         />
@@ -138,7 +138,7 @@ export class SummaryTab extends React.Component {
                                         <div className="card-title h5">Largest Files</div>
                                     </div>
                                     <div className="card-body">
-                                        <SimpleFileTable
+                                        <FileTable
                                             title={'Largest Files'}
                                             files={this.state.topTenFiles}
                                         />
@@ -153,7 +153,7 @@ export class SummaryTab extends React.Component {
                                         <div className="card-title h5">Largest Folders</div>
                                     </div>
                                     <div className="card-body">
-                                        <SimpleFileTable
+                                        <FileTable
                                             title={'Largest Folders'}
                                             files={this.state.topTenFolders}
                                         />
