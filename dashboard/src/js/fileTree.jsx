@@ -3,27 +3,25 @@ import axios from 'axios';
 
 import { Size } from './util';
 
-export class FileTree extends React.Component {
-    render() {
-        return (
-            <table className='table file-table table-hover'>
-                <thead className='light-head'>
-                    <tr>
-                        <th>Name</th>
-                        <th>Size</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.props.files.map(file => {
-                        return <FileTreeNode 
-                                file={file} 
-                                key={file.id}
-                                depth={0} />
-                    })}
-                </tbody>
-            </table>
-        );
-    }
+export function FileTree(props) {
+    return (
+        <table className='table file-table table-hover'>
+            <thead className='light-head'>
+                <tr>
+                    <th>Name</th>
+                    <th>Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                {props.files.map(file => {
+                    return <FileTreeNode 
+                            file={file} 
+                            key={file.id}
+                            depth={0} />
+                })}
+            </tbody>
+        </table>
+    );
 }
 
 export class FileTreeNode extends React.Component {
@@ -93,7 +91,7 @@ export class FileTreeNode extends React.Component {
                         })
                     }
                 </React.Fragment>
-            )
+            );
         } else {
             return (
                 <tr>
@@ -104,8 +102,7 @@ export class FileTreeNode extends React.Component {
                         <Size bytes={this.props.file.size}/>
                     </td>
                 </tr>
-            )
+            );
         }
-
     }
 }
