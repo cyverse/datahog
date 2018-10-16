@@ -64,7 +64,7 @@ export class UpdateTab extends React.Component {
                                     <div className="card-title h5">Update from File</div>
                                 </div>
                                 <div className="card-body">
-                                    <input class="form-input" type="file" onChange={this.fileChanged}/>
+                                    <input className="form-input" type="file" onChange={this.fileChanged}/>
                                 </div>
                                 <div className="card-footer">
                                     <button className="btn btn-primary" onClick={this.requestUpdate}>Update from File</button>

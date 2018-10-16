@@ -111,7 +111,7 @@ export class SummaryTab extends React.Component {
                                                 <Size bytes={this.state.totals.total_size}/> occupied
                                         </p>
                                     </div>
-                                    <div class="card-footer">
+                                    <div className="card-footer">
                                         Last updated {this.state.totals.timestamp}
                                     </div>
                                 </div>
