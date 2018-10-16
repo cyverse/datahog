@@ -1,5 +1,5 @@
 import { TabNav } from './tabNav';
-import { FileTable } from './fileTable';
+import { BrowseTab } from './browseTab';
 import { SummaryTab } from './summaryTab';
 import { UpdateTab } from './updateTab';
 import React from 'react';
@@ -12,7 +12,7 @@ let tabs = [
     },
     {
         name: 'Browse Files',
-        content: <FileTable />
+        content: <BrowseTab />
     },
     {
         name: 'Update Files',
