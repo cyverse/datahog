@@ -92,52 +92,76 @@ export class SummaryTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column">
-                            {this.state.totals && 
-                                <div>
-                                    <p>
-                                        <i className="fa fa-fw fa-file"></i>&nbsp;
-                                        <span style={{fontSize: '130%'}}>{this.state.totals.file_count} files</span>
-                                    </p>
-                                    <p>
-                                        <i className="fa fa-fw fa-folder-open"></i>&nbsp;
-                                        <span style={{fontSize: '130%'}}>{this.state.totals.folder_count} folders</span>
-                                    </p>
-                                    <p>
-                                        <i className="fa fa-fw fa-area-chart"></i>&nbsp;
-                                        <span style={{fontSize: '130%'}}>
-                                            <Size bytes={this.state.totals.total_size}/> occupied
-                                        </span>
-                                    </p>
-                                    <p>
+                            {this.state.totals &&
+                                <div className="card">
+                                    <div className="card-header">
+                                        <div className="card-title h5">You have...</div>
+                                    </div>
+                                    <div className="card-body">
+                                        <p>
+                                            <i className="fa fa-fw fa-file"></i>&nbsp;
+                                            {this.state.totals.file_count} files
+                                        </p>
+                                        <p>
+                                            <i className="fa fa-fw fa-folder-open"></i>&nbsp;
+                                            {this.state.totals.folder_count} folders
+                                        </p>
+                                        <p>
+                                            <i className="fa fa-fw fa-area-chart"></i>&nbsp;
+                                                <Size bytes={this.state.totals.total_size}/> occupied
+                                        </p>
+                                    </div>
+                                    <div class="card-footer">
                                         Last updated {this.state.totals.timestamp}
-                                    </p>
+                                    </div>
                                 </div>
                             }
                         </div>
                         <div className="column">
                             {this.state.topTenTypes &&
-                                <SimpleFileTable
-                                    title={'Top File Types'}
-                                    files={this.state.topTenTypes}
-                                />
+                                <div className="card">
+                                    <div className="card-header">
+                                        <div className="card-title h5">Top File Types</div>
+                                    </div>
+                                    <div className="card-body">
+                                        <SimpleFileTable
+                                            title={'Top File Types'}
+                                            files={this.state.topTenTypes}
+                                        />
+                                    </div>
+                                </div>
                             }
                         </div>
                     </div>
                     <div className="columns">
                         <div className="column">
                             {this.state.topTenFiles &&
-                                <SimpleFileTable
-                                    title={'Largest Files'}
-                                    files={this.state.topTenFiles}
-                                />
+                                <div className="card">
+                                    <div className="card-header">
+                                        <div className="card-title h5">Largest Files</div>
+                                    </div>
+                                    <div className="card-body">
+                                        <SimpleFileTable
+                                            title={'Largest Files'}
+                                            files={this.state.topTenFiles}
+                                        />
+                                    </div>
+                                </div>
                             }
                         </div>
                         <div className="column">
                             {this.state.topTenFolders &&
-                                <SimpleFileTable
-                                    title={'Largest Folders'}
-                                    files={this.state.topTenFolders}
-                                />
+                                <div className="card">
+                                    <div className="card-header">
+                                        <div className="card-title h5">Largest Folders</div>
+                                    </div>
+                                    <div className="card-body">
+                                        <SimpleFileTable
+                                            title={'Largest Folders'}
+                                            files={this.state.topTenFolders}
+                                        />
+                                    </div>
+                                </div>
                             }
                         </div>
                     </div>

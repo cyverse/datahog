@@ -58,8 +58,37 @@ export class UpdateTab extends React.Component {
             <LoadingBox childLoading={false} childError={false} childUpdateInProgress={this.state.updateInProgress}>
                 <div className="container">
                     <div className="columns">
-                        <input type="file" onChange={this.fileChanged}/>
-                        <button onClick={this.requestUpdate}>Update from File</button>
+                        <div className="column">
+                            <div className="card">
+                                <div className="card-header">
+                                    <div className="card-title h5">Update from File</div>
+                                </div>
+                                <div className="card-body">
+                                    <input class="form-input" type="file" onChange={this.fileChanged}/>
+                                </div>
+                                <div className="card-footer">
+                                    <button className="btn btn-primary" onClick={this.requestUpdate}>Update from File</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="column">
+                            <div className="card">
+                                <div className="card-header">
+                                    <div className="card-title h5">Update from iRODS</div>
+                                </div>
+                                <div className="card-body form-horizontal">
+                                    <div className="form-group">
+                                        <input className="form-input" type="text" placeholder="Username"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <input className="form-input" type="password" placeholder="Password"/>
+                                    </div>
+                                </div>
+                                <div className="card-footer">
+                                    <button className="btn btn-primary" disabled>Update from iRODS</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </LoadingBox>
