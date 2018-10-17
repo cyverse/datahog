@@ -1,4 +1,5 @@
 from rest_framework import serializers
+import datetime
 
 from .models import File, Folder, FileType, UpdateLog
 
@@ -22,6 +23,7 @@ class FileTypeSerializer(serializers.ModelSerializer):
 
 
 class UpdateLogSerializer(serializers.ModelSerializer):
+    timestamp = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
         model = UpdateLog
-        fields = ('id', 'timestamp', 'in_progress', 'folder_count', 'file_count', 'total_size')
+        fields = ('id', 'timestamp', 'in_progress', 'failed', 'folder_count', 'file_count', 'total_size')
