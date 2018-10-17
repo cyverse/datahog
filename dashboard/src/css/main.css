@@ -10,14 +10,18 @@ header {
     margin: auto;
 }
 
-.card {
+.card, .panel {
     margin-top: 18px;
 }
 
-.file-table td {
+.file-table td, .file-tree td {
     border: none !important;
     padding: 0;
     height: 40px;
+}
+
+.light-head th {
+    color: #999;
 }
 
 .file-table .click-to-copy {

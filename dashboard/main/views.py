@@ -22,6 +22,12 @@ class GetLastUpdate(views.APIView):
         return Response(serializer.data)
 
 
+class GetRecentUpdates(views.APIView):
+    def get(self, request):
+        serializer = UpdateLogSerializer(UpdateLog.objects.order_by('-timestamp').all(), many=True)
+        return Response(serializer.data)
+
+
 class UpdateFromFile(views.APIView):
 
     def post(self, request):

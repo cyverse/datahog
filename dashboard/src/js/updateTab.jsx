@@ -12,22 +12,37 @@ export class UpdateTab extends React.Component {
 
         this.state = {
             file: null,
-            updateInProgress: false
+            updateInProgress: false,
+            loading: false,
+            error: false,
+            updates: []
         };
+
+        axios.get('/api/updates/list')
+        .then(function(response) {
+            this.setState({
+                updates: response.data,
+                loading: false
+            });
+        }.bind(this))
+        .catch(function(error) {
+            this.setState({
+                loading: false,
+                error: true
+            });
+        }.bind(this));
     }
 
     fileChanged(event) {
         let selectedFiles = event.target.files;
         if (selectedFiles.length > 0) {
-            this.setState(state => ({
-                file: selectedFiles[0],
-                updateInProgress: state.updateInProgress
-            }));
+            this.setState({
+                file: selectedFiles[0]
+            });
         } else {
-            this.setState(state => ({
-                file: null,
-                updateInProgress: state.updateInProgress
-            }));
+            this.setState({
+                file: null
+            });
         }
     }
 
@@ -52,7 +67,7 @@ export class UpdateTab extends React.Component {
 
     render() {
         return (
-            <LoadingBox childLoading={false} childError={false} childUpdateInProgress={this.state.updateInProgress}>
+            <LoadingBox childLoading={this.state.loading} childError={this.state.error}>
                 <div className="container">
                     <div className="columns">
                         <div className="column">
@@ -83,6 +98,34 @@ export class UpdateTab extends React.Component {
                                 </div>
                                 <div className="card-footer">
                                     <button className="btn btn-primary" disabled>Update from iRODS</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="columns">
+                        <div className="column">
+                            <div className="panel">
+                                <div className="panel-header">
+                                    <div className="card-title h5">Update Log</div>
+                                </div>
+                                <div className="panel-body" style={{maxHeight: '400px'}}>
+                                    <table className="table">
+                                        <tbody>
+                                        {this.state.updates.map(update => {
+                                            return (
+                                                <tr key={update.id}>
+                                                    <td>{update.timestamp}</td>
+                                                    <td>
+                                                        {update.failed ? 
+                                                            <span className="label label-error">Failed</span> : 
+                                                            <span>Successfully imported {update.file_count} files.</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
