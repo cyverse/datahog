@@ -5,7 +5,7 @@ from django.db import models
 
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=128)
     path = models.CharField(max_length=512)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     total_size = models.BigIntegerField()
@@ -18,12 +18,14 @@ class Folder(models.Model):
 
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=128)
     path = models.CharField(max_length=512)
-    parent = models.ForeignKey('Folder', on_delete=models.CASCADE, blank=True, null=True)
+    parent = models.ForeignKey('Folder', on_delete=models.SET_NULL, blank=True, null=True)
     size = models.BigIntegerField()
     file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True)
     date_created = models.DateTimeField()
+    checksum = models.CharField(max_length=32)
+    is_duplicate = models.BooleanField(default=False)
     
     is_folder = False
 
