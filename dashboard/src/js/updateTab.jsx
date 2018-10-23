@@ -67,7 +67,7 @@ export class UpdateTab extends React.Component {
 
     render() {
         return (
-            <LoadingBox childLoading={this.state.loading} childError={this.state.error}>
+            <LoadingBox childLoading={this.state.loading} childError={this.state.error} childUpdateInProgress={this.state.updateInProgress}>
                 <div className="container">
                     <div className="columns">
                         <div className="column">
