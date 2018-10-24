@@ -29,7 +29,6 @@ class GetRecentUpdates(views.APIView):
 
 
 class UpdateFromFile(views.APIView):
-
     def post(self, request):
         if 'file' not in request.data:
             return Response('No file provided.', status=400)
@@ -37,7 +36,32 @@ class UpdateFromFile(views.APIView):
         file = request.data['file']
         update_log = UpdateLog.objects.create(file=file)
         update_database_from_file.delay(update_log.id)
-        return Response('Update started', status=400)
+
+        return Response('Update started', status=200)
+
+
+class RestoreFromUpdate(views.APIView):
+    def post(self, request):
+        if 'update_id' not in request.data:
+            return Response('No prior update provided.', status=400)
+
+        try:
+            update_log = UpdateLog.objects.get(pk=request.data['update_id'])
+        except UpdateLog.DoesNotExist:
+            return Response('That update does not exist!', status=404)
+
+        new_log = UpdateLog.objects.create(file=update_log.file)
+        result = update_database_from_file.delay(new_log.id)
+
+        try:
+            status = result.status
+        except:
+            new_log.in_progress = False
+            new_log.failed = True
+            new_log.save()
+            return Response('Update failed', status=500)
+
+        return Response('Update started', status=200)
 
 
 class GetChildrenOfFolder(views.APIView):

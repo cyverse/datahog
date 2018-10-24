@@ -5,7 +5,7 @@ import { Size } from './util';
 
 export function FileTree(props) {
     return (
-        <table className='table file-table table-hover'>
+        <table className='table file-tree table-hover'>
             <thead className='light-head'>
                 <tr>
                     <th>Name</th>
@@ -13,11 +13,12 @@ export function FileTree(props) {
                 </tr>
             </thead>
             <tbody>
-                {props.files.map(file => {
-                    return <FileTreeNode 
-                            file={file} 
-                            key={file.id}
-                            depth={0} />
+                {props.files.map((file, index) => {
+                    return (
+                        <React.Fragment key={file.id}>
+                            <FileTreeNode file={file} depth={0} />
+                        </React.Fragment>
+                    )
                 })}
             </tbody>
         </table>

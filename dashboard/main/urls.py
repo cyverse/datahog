@@ -12,5 +12,6 @@ urlpatterns = [
     path('api/summaries/folders', GetBiggestFolders.as_view()),
     path('api/updates/latest', GetLastUpdate.as_view()),
     path('api/updates/uploadfile', UpdateFromFile.as_view()),
-    path('api/updates/list', GetRecentUpdates.as_view())
+    path('api/updates/list', GetRecentUpdates.as_view()),
+    path('api/updates/restore', RestoreFromUpdate.as_view())
 ]

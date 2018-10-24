@@ -9,11 +9,12 @@ export class UpdateTab extends React.Component {
 
         this.requestUpdate = this.requestUpdate.bind(this);
         this.fileChanged = this.fileChanged.bind(this);
+        this.restoreUpdate = this.restoreUpdate.bind(this);
 
         this.state = {
             file: null,
             updateInProgress: false,
-            loading: false,
+            loading: true,
             error: false,
             updates: []
         };
@@ -47,14 +48,12 @@ export class UpdateTab extends React.Component {
     }
 
     requestUpdate() {
-        
         if (this.state.file) {
             let formData = new FormData();
             formData.append('file', this.state.file);
-            this.setState(state => ({
-                file: state.file,
+            this.setState({
                 updateInProgress: true
-            }));
+            });
             axios.post('/api/updates/uploadfile', formData)
             .then(function(response) {
                 console.log(response);
@@ -62,7 +61,25 @@ export class UpdateTab extends React.Component {
             .catch(function(error) {
                 console.log(error);
             });
+     
         }
+    }
+
+    restoreUpdate(update) {
+        console.log(arguments);
+        axios.post('/api/updates/restore', {
+            update_id: update.id
+        })
+        .then(function(response) {
+            this.setState({
+                updateInProgress: true
+            });
+        }.bind(this))
+        .catch(function(error) {
+            this.setState({
+                updateInProgress: true
+            });
+        }.bind(this));
     }
 
     render() {
@@ -113,15 +130,7 @@ export class UpdateTab extends React.Component {
                                         <tbody>
                                         {this.state.updates.map(update => {
                                             return (
-                                                <tr key={update.id}>
-                                                    <td>{update.timestamp}</td>
-                                                    <td>
-                                                        {update.failed ? 
-                                                            <span className="label label-error">Failed</span> : 
-                                                            <span>Successfully imported {update.file_count} files.</span>
-                                                        }
-                                                    </td>
-                                                </tr>
+                                                <UpdateLogRow key={update.id} update={update} onRestore={this.restoreUpdate} />
                                             );
                                         })}
                                         </tbody>
@@ -134,4 +143,35 @@ export class UpdateTab extends React.Component {
             </LoadingBox>
         );
     }
+}
+
+class UpdateLogRow extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.handleRestore = this.handleRestore.bind(this);
+    }
+
+    handleRestore() {
+        this.props.onRestore(this.props.update);
+    }
+
+    render() {
+        return (
+            <tr>
+                <td>{this.props.update.timestamp}</td>
+                <td>
+                    {this.props.update.failed ? 
+                        <span className="label label-error">Failed</span> : 
+                        <span>Successfully imported {this.props.update.file_count} files.</span>
+                    }
+                </td>
+                <td>
+                    {!this.props.update.failed &&
+                        <button className="btn btn-primary" onClick={this.handleRestore}>Restore</button>
+                    }
+                </td>
+            </tr>
+        );
+    } 
 }
