@@ -53,14 +53,6 @@ class RestoreFromUpdate(views.APIView):
         new_log = UpdateLog.objects.create(file=update_log.file)
         result = update_database_from_file.delay(new_log.id)
 
-        try:
-            status = result.status
-        except:
-            new_log.in_progress = False
-            new_log.failed = True
-            new_log.save()
-            return Response('Update failed', status=500)
-
         return Response('Update started', status=200)
 
 
