@@ -1,59 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import views
-from celery.exceptions import CeleryError
 
-from .models import File, Folder, FileType, UpdateLog
-from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, UpdateLogSerializer
-from .tasks import update_database_from_file
+from .models import File, Folder, FileType
+from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer
 
-
-# Create your views here.
 
 def index(request):
     return render(request, 'index.html')
-
-
-class GetLastUpdate(views.APIView):
-    def get(self, request):
-        latest_update = UpdateLog.objects.filter(failed=False).latest('timestamp')
-        serializer = UpdateLogSerializer(latest_update)
-        return Response(serializer.data)
-
-
-class GetRecentUpdates(views.APIView):
-    def get(self, request):
-        serializer = UpdateLogSerializer(UpdateLog.objects.order_by('-timestamp').all(), many=True)
-        return Response(serializer.data)
-
-
-class UpdateFromFile(views.APIView):
-    def post(self, request):
-        if 'file' not in request.data:
-            return Response('No file provided.', status=400)
-        
-        file = request.data['file']
-        update_log = UpdateLog.objects.create(file=file)
-        update_database_from_file.delay(update_log.id)
-
-        return Response('Update started', status=200)
-
-
-class RestoreFromUpdate(views.APIView):
-    def post(self, request):
-        if 'update_id' not in request.data:
-            return Response('No prior update provided.', status=400)
-
-        try:
-            update_log = UpdateLog.objects.get(pk=request.data['update_id'])
-        except UpdateLog.DoesNotExist:
-            return Response('That update does not exist!', status=404)
-
-        new_log = UpdateLog.objects.create(file=update_log.file)
-        result = update_database_from_file.delay(new_log.id)
-
-        return Response('Update started', status=200)
 
 
 class GetChildrenOfFolder(views.APIView):
@@ -120,6 +74,4 @@ class GetBiggestTypes(views.APIView):
         top_ten_types = FileType.objects.order_by('-total_size')[:10]
         serializer = FileTypeSerializer(top_ten_types.all(), many=True)
         return Response(serializer.data)
-
-
 

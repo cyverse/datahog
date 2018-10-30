@@ -6,7 +6,8 @@ import datetime
 from celery import shared_task
 from django.db import transaction
 
-from .models import *
+from .models import UpdateLog
+from apps.main.models import File, Folder, FileType
 
 @shared_task
 def update_database_from_file(update_id):
@@ -91,7 +92,7 @@ def update_database_from_file(update_id):
                 file_obj.file_type = file_type
         
         # update database
-        with transaction.atomic():
+        with transaction.atomic(using='default'):
             FileType.objects.all().delete()
             File.objects.all().delete()
             Folder.objects.all().delete()
@@ -100,14 +101,22 @@ def update_database_from_file(update_id):
             Folder.objects.bulk_create(folder_objects_by_path.values())
             FileType.objects.bulk_create(file_types_by_extension.values())
 
-            update_log.folder_count = folder_count
-            update_log.file_count = file_count
-            update_log.total_size = total_size
-            update_log.in_progress = False
-            update_log.failed = False
-            update_log.save()
+        update_log.folder_count = folder_count
+        update_log.file_count = file_count
+        update_log.total_size = total_size
+        update_log.in_progress = False
+        update_log.failed = False
+        update_log.save()
 
     except Exception as e:
+        print(e)
         update_log.in_progress = False
         update_log.failed = True
         update_log.save()
+
+@shared_task
+def endless_task():
+    with transaction.atomic(using='default'):
+        while True:
+            time.sleep(1)
+            print('this is going to last forever')

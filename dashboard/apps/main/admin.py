@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import File, Folder, FileType, UpdateLog
+from .models import File, Folder, FileType
 
 
 class FileAdmin(admin.ModelAdmin):
@@ -23,4 +23,3 @@ class FolderAdmin(admin.ModelAdmin):
 admin.site.register(File, FileAdmin)
 admin.site.register(Folder, FolderAdmin)
 admin.site.register(FileType)
-admin.site.register(UpdateLog)

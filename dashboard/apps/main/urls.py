@@ -9,9 +9,5 @@ urlpatterns = [
     path('api/files/<slug:folder_id>/children', GetChildrenOfFolder.as_view()),
     path('api/summaries/files', GetBiggestFiles.as_view()),
     path('api/summaries/types', GetBiggestTypes.as_view()),
-    path('api/summaries/folders', GetBiggestFolders.as_view()),
-    path('api/updates/latest', GetLastUpdate.as_view()),
-    path('api/updates/uploadfile', UpdateFromFile.as_view()),
-    path('api/updates/list', GetRecentUpdates.as_view()),
-    path('api/updates/restore', RestoreFromUpdate.as_view())
+    path('api/summaries/folders', GetBiggestFolders.as_view())
 ]
