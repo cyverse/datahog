@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.main',
-    'apps.logs'
+    'apps.file_data',
+    'apps.importer'
 ]
 
 MIDDLEWARE = [
@@ -82,13 +82,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'main.sqlite3'),
     },
-    'logs': {
+    'file_data': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'logs.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'file_data.sqlite3'),
     }
 }
 
-DATABASE_ROUTERS = ['apps.logs.routers.LogsRouter']
+DATABASE_ROUTERS = ['apps.file_data.routers.FileDataRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

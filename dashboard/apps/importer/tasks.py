@@ -7,7 +7,7 @@ from celery import shared_task
 from django.db import transaction
 
 from .models import UpdateLog
-from apps.main.models import File, Folder, FileType
+from apps.file_data.models import File, Folder, FileType
 
 @shared_task
 def update_database_from_file(update_id):
