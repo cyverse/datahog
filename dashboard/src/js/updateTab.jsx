@@ -167,7 +167,7 @@ class UpdateLogRow extends React.Component {
                     }
                 </td>
                 <td>
-                    {!this.props.update.failed &&
+                    {this.props.update.file && !this.props.update.failed &&
                         <button className="btn btn-primary" onClick={this.handleRestore}>Restore</button>
                     }
                 </td>
