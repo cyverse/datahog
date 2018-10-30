@@ -16,5 +16,6 @@ class LogsRouter:
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         if app_label == 'logs':
             return db == 'logs'
-        
+        elif db == 'logs':
+            return False
         return None
