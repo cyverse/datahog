@@ -7,31 +7,15 @@ export class UpdateTab extends React.Component {
     constructor(props) {
         super(props);
 
-        this.requestUpdate = this.requestUpdate.bind(this);
-        this.fileChanged = this.fileChanged.bind(this);
-        this.restoreUpdate = this.restoreUpdate.bind(this);
-
         this.state = {
             file: null,
-            updateInProgress: false,
-            loading: true,
-            error: false,
             updates: []
         };
 
-        axios.get('/api/updates/list')
-        .then(function(response) {
-            this.setState({
-                updates: response.data,
-                loading: false
-            });
-        }.bind(this))
-        .catch(function(error) {
-            this.setState({
-                loading: false,
-                error: true
-            });
-        }.bind(this));
+        this.requestUpdate = this.requestUpdate.bind(this);
+        this.fileChanged = this.fileChanged.bind(this);
+        this.restoreUpdate = this.restoreUpdate.bind(this);
+        this.onLoad = this.onLoad.bind(this);
     }
 
     fileChanged(event) {
@@ -51,9 +35,6 @@ export class UpdateTab extends React.Component {
         if (this.state.file) {
             let formData = new FormData();
             formData.append('file', this.state.file);
-            this.setState({
-                updateInProgress: true
-            });
             axios.post('/api/updates/uploadfile', formData)
             .then(function(response) {
                 console.log(response);
@@ -71,20 +52,22 @@ export class UpdateTab extends React.Component {
             update_id: update.id
         })
         .then(function(response) {
-            this.setState({
-                updateInProgress: true
-            });
+            console.log(response);
         }.bind(this))
         .catch(function(error) {
-            this.setState({
-                updateInProgress: true
-            });
+            console.log(error);
         }.bind(this));
+    }
+
+    onLoad(response) {
+        this.setState({
+            updates: response.data
+        });
     }
 
     render() {
         return (
-            <LoadingBox childLoading={this.state.loading} childError={this.state.error} childUpdateInProgress={this.state.updateInProgress}>
+            <LoadingBox get="/api/updates/list" callback={this.onLoad} checkForUpdate={false}>
                 <div className="container">
                     <div className="columns">
                         <div className="column">

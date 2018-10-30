@@ -11,8 +11,6 @@ export class BrowseTab extends React.Component {
 
         this.state = {
             files: [],
-            loading: true,
-            error: false,
             searching: false,
             searchTerms: '',
             searchResults: [],
@@ -20,23 +18,16 @@ export class BrowseTab extends React.Component {
         };
 
         this.searchBar = React.createRef();
-
+        
         this.searchFiles = this.searchFiles.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
+        this.onLoad = this.onLoad.bind(this);
+    }
 
-        axios.get('/api/files/top')
-        .then(function(response) {
-            this.setState({
-                files: response.data,
-                loading: false
-            });
-        }.bind(this))
-        .catch(function(error) {
-            this.setState({
-                loading: false,
-                error: true
-            });
-        }.bind(this));
+    onLoad(response) {
+        this.setState({
+            files: response.data
+        });
     }
 
     clearSearch() {
@@ -72,9 +63,10 @@ export class BrowseTab extends React.Component {
         }.bind(this));
     }
 
+
     render() {
         return (
-            <LoadingBox childLoading={this.state.loading} childError={this.state.error}>
+            <LoadingBox get="/api/files/top" callback={this.onLoad} checkForUpdate={true}>
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">

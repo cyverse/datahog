@@ -17,75 +17,21 @@ export class SummaryTab extends React.Component {
             totals: {}
         };
 
-        this.receiveTopTenTypes = this.receiveTopTenTypes.bind(this);
-        this.receiveTopTenFiles = this.receiveTopTenFiles.bind(this);
-        this.receiveTopTenFolders = this.receiveTopTenFolders.bind(this);
-        this.receiveTotals = this.receiveTotals.bind(this);
-
-        axios.get('/api/updates/latest')
-        .then(this.receiveTotals)
-        .catch(function(error) {
-            console.log(error);
-        });
-
-        axios.get('/api/summaries/types')
-        .then(this.receiveTopTenTypes)
-        .catch(function(error) {
-            console.log(error);
-        });
-
-        axios.get('/api/summaries/files')
-        .then(this.receiveTopTenFiles)
-        .catch(function(error) {
-            console.log(error);
-        });
-
-        axios.get('/api/summaries/folders')
-        .then(this.receiveTopTenFolders)
-        .catch(function(error) {
-            console.log(error);
-        });
+        this.onLoad = this.onLoad.bind(this);
     }
 
-    receiveTopTenTypes(response) {
-        this.setState(state => ({
-            topTenFolders: state.topTenFolders,
-            topTenFiles: state.topTenFiles,
-            topTenTypes: response.data,
-            totals: state.totals
-        }));
-    }
-
-    receiveTopTenFiles(response) {
-        this.setState(state => ({
-            topTenFolders: state.topTenFolders,
-            topTenFiles: response.data,
-            topTenTypes: state.topTenTypes,
-            totals: state.totals
-        }));
-    }
-
-    receiveTopTenFolders(response) {
-        this.setState(state => ({
-            topTenFolders: response.data,
-            topTenFiles: state.topTenFiles,
-            topTenTypes: state.topTenTypes,
-            totals: state.totals
-        }));
-    }
-
-    receiveTotals(response) {
-        this.setState(state => ({
-            topTenFolders: state.topTenFolders,
-            topTenFiles: state.topTenFiles,
-            topTenTypes: state.topTenTypes,
-            totals: response.data
-        }));
+    onLoad(response) {
+        this.setState({
+            topTenFolders: response.data.top_ten_files,
+            topTenFiles: response.data.top_ten_files,
+            topTenTypes: response.data.top_ten_types,
+            totals: response.data.last_update
+        });
     }
 
     render() {
         return (
-            <LoadingBox childLoading={this.state.loading} childError={this.state.error}>
+            <LoadingBox get="/api/files/summary" callback={this.onLoad} checkForUpdate={true}>
                 <div className="container">
                     <div className="columns">
                         <div className="column">
