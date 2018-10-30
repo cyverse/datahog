@@ -36,7 +36,8 @@ class UpdateFromFile(views.APIView):
         update_log = UpdateLog.objects.create(file=file)
         update_database_from_file.delay(update_log.id)
 
-        return Response('Update started', status=200)
+        serializer = UpdateLogSerializer(update_log)
+        return Response(serializer.data, status=200)
 
 
 class RestoreFromUpdate(views.APIView):
@@ -50,9 +51,10 @@ class RestoreFromUpdate(views.APIView):
             return Response('That update does not exist!', status=404)
 
         new_log = UpdateLog.objects.create(file=update_log.file)
-        result = update_database_from_file.delay(new_log.id)
+        update_database_from_file.delay(new_log.id)
 
-        return Response('Update started', status=200)
+        serializer = UpdateLogSerializer(new_log)
+        return Response(serializer.data, status=200)
 
 
 

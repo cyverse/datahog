@@ -37,11 +37,13 @@ export class UpdateTab extends React.Component {
             formData.append('file', this.state.file);
             axios.post('/api/updates/uploadfile', formData)
             .then(function(response) {
-                console.log(response);
-            })
+                this.setState({
+                    updates: [response.data].concat(this.state.updates)
+                });
+            }.bind(this))
             .catch(function(error) {
                 console.log(error);
-            });
+            }.bind(this));
      
         }
     }
@@ -52,7 +54,9 @@ export class UpdateTab extends React.Component {
             update_id: update.id
         })
         .then(function(response) {
-            console.log(response);
+            this.setState({
+                updates: [response.data].concat(this.state.updates)
+            });
         }.bind(this))
         .catch(function(error) {
             console.log(error);
@@ -144,13 +148,15 @@ class UpdateLogRow extends React.Component {
             <tr>
                 <td>{this.props.update.timestamp}</td>
                 <td>
-                    {this.props.update.failed ? 
+                    {this.props.update.in_progress ? 
+                        <span className="label label-warning">In Progress</span> :
+                    this.props.update.failed ? 
                         <span className="label label-error">Failed</span> : 
-                        <span>Successfully imported {this.props.update.file_count} files.</span>
+                    <span>Successfully imported {this.props.update.file_count} files.</span>
                     }
                 </td>
                 <td>
-                    {this.props.update.file && !this.props.update.failed &&
+                    {this.props.update.file && !this.props.update.failed && !this.props.update.in_progress && 
                         <button className="btn btn-primary" onClick={this.handleRestore}>Restore</button>
                     }
                 </td>
