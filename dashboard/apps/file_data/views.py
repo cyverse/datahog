@@ -2,9 +2,11 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import views
 
-from .models import File, Folder, FileType
+from .models import *
 from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer
 
+from apps.importer.helpers import get_last_update
+from apps.importer.serializers import UpdateLogSerializer
 
 def index(request):
     return render(request, 'index.html')
@@ -55,23 +57,23 @@ class SearchFiles(views.APIView):
         return Response(folder_serializer.data + file_serializer.data)
 
 
-class GetBiggestFiles(views.APIView):
+class GetSummary(views.APIView):
     def get(self, request):
+        last_update = get_last_update()
         top_ten_files = File.objects.order_by('-size')[:10]
-        serializer = FileSerializer(top_ten_files.all(), many=True)
-        return Response(serializer.data)
-
-
-class GetBiggestFolders(views.APIView):
-    def get(self, request):
         top_ten_folders = Folder.objects.order_by('-total_size')[:10]
-        serializer = FolderSerializer(top_ten_folders.all(), many=True)
-        return Response(serializer.data)
-
-
-class GetBiggestTypes(views.APIView):
-    def get(self, request):
         top_ten_types = FileType.objects.order_by('-total_size')[:10]
-        serializer = FileTypeSerializer(top_ten_types.all(), many=True)
-        return Response(serializer.data)
 
+        files_serialized = FileSerializer(top_ten_files.all(), many=True)
+        folders_serialized = FolderSerializer(top_ten_folders.all(), many=True)
+        types_serialized = FileTypeSerializer(top_ten_types.all(), many=True)
+        update_serialized = UpdateLogSerializer(last_update)
+
+        response_object = {
+            'last_update': update_serialized.data,
+            'top_ten_files': files_serialized.data,
+            'top_ten_folders': folders_serialized.data,
+            'top_ten_types': types_serialized.data
+        }
+
+        return Response(response_object)
