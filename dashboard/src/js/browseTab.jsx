@@ -70,14 +70,14 @@ export class BrowseTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
-                            <div className="card">
-                                <div className="card-header">
+                            <div className="panel">
+                                <div className="panel-header">
                                     <div className="input-group">
                                         <input type="text" className="form-input" placeholder="Search..." ref={this.searchBar}/>
                                         <button className="btn btn-primary input-group-btn" onClick={this.searchFiles}>Go</button>
                                     </div>
                                 </div>
-                                <div className="card-body">
+                                <div className="panel-body">
                                     { this.state.searching ? 
                                         (this.state.searchLoading ? 
                                             <div className="loading loading-lg"></div> :

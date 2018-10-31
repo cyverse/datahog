@@ -22,10 +22,16 @@ export function FileTable(props) {
 }
 
 export function FileTableRow(props) {
+    let snippedName;
+    if (props.file.name.length > 20) {
+        snippedName = props.file.name.substring(0, 19) + '…';
+    } else {
+        snippedName = props.file.name;
+    }
     return (
         <tr>
             <td>
-                {props.file.name}
+                {snippedName}
                 {props.file.path && <ClickToCopy text={props.file.path} />}
             </td>
             <td>

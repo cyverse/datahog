@@ -22,7 +22,7 @@ export class SummaryTab extends React.Component {
 
     onLoad(response) {
         this.setState({
-            topTenFolders: response.data.top_ten_files,
+            topTenFolders: response.data.top_ten_folders,
             topTenFiles: response.data.top_ten_files,
             topTenTypes: response.data.top_ten_types,
             totals: response.data.last_update
@@ -36,11 +36,11 @@ export class SummaryTab extends React.Component {
                     <div className="columns">
                         <div className="column">
                             {this.state.totals &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">You have...</div>
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <div className="panel-title h5">You have...</div>
                                     </div>
-                                    <div className="card-body">
+                                    <div className="panel-body">
                                         <p>
                                             <i className="fa fa-fw fa-file"></i>&nbsp;
                                             {this.state.totals.file_count} files
@@ -54,7 +54,7 @@ export class SummaryTab extends React.Component {
                                                 <Size bytes={this.state.totals.total_size}/> occupied
                                         </p>
                                     </div>
-                                    <div className="card-footer">
+                                    <div className="panel-footer">
                                         Last updated {this.state.totals.timestamp}
                                     </div>
                                 </div>
@@ -62,11 +62,11 @@ export class SummaryTab extends React.Component {
                         </div>
                         <div className="column">
                             {this.state.topTenTypes &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">Top File Types</div>
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <div className="panel-title h5">Top File Types</div>
                                     </div>
-                                    <div className="card-body">
+                                    <div className="panel-body">
                                         <FileTable
                                             title={'Top File Types'}
                                             files={this.state.topTenTypes}
@@ -79,11 +79,11 @@ export class SummaryTab extends React.Component {
                     <div className="columns">
                         <div className="column">
                             {this.state.topTenFiles &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">Largest Files</div>
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <div className="panel-title h5">Largest Files</div>
                                     </div>
-                                    <div className="card-body">
+                                    <div className="panel-body">
                                         <FileTable
                                             title={'Largest Files'}
                                             files={this.state.topTenFiles}
@@ -94,11 +94,11 @@ export class SummaryTab extends React.Component {
                         </div>
                         <div className="column">
                             {this.state.topTenFolders &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">Largest Folders</div>
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <div className="panel-title h5">Largest Folders</div>
                                     </div>
-                                    <div className="card-body">
+                                    <div className="panel-body">
                                         <FileTable
                                             title={'Largest Folders'}
                                             files={this.state.topTenFolders}

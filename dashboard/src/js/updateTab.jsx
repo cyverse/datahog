@@ -70,54 +70,58 @@ export class UpdateTab extends React.Component {
     }
 
     render() {
+        let disabled = this.state.updates.length > 0 && this.state.updates[0].in_progress;
+        //console.log(buttons_disabled);
         return (
             <LoadingBox get="/api/updates/list" callback={this.onLoad} checkForUpdate={false}>
                 <div className="container">
-                    <div className="columns">
-                        <div className="column">
-                            <div className="card">
-                                <div className="card-header">
-                                    <div className="card-title h5">Update from File</div>
+                    {!disabled &&
+                        <div className="columns">
+                            <div className="column">
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <div className="panel-title h5">Update from File</div>
+                                    </div>
+                                    <div className="panel-body">
+                                        <input className="form-input" type="file" onChange={this.fileChanged}/>
+                                    </div>
+                                    <div className="panel-footer">
+                                        <button className="btn btn-primary" onClick={this.requestUpdate} disabled={disabled}>Update from File</button>
+                                    </div>
                                 </div>
-                                <div className="card-body">
-                                    <input className="form-input" type="file" onChange={this.fileChanged}/>
-                                </div>
-                                <div className="card-footer">
-                                    <button className="btn btn-primary" onClick={this.requestUpdate}>Update from File</button>
+                            </div>
+                            <div className="column">
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <div className="panel-title h5">Update from iRODS</div>
+                                    </div>
+                                    <div className="panel-body form-horizontal">
+                                        <div className="form-group">
+                                            <input className="form-input" type="text" placeholder="Username"/>
+                                        </div>
+                                        <div className="form-group">
+                                            <input className="form-input" type="password" placeholder="Password"/>
+                                        </div>
+                                    </div>
+                                    <div className="panel-footer">
+                                        <button className="btn btn-primary" disabled>Update from iRODS</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="column">
-                            <div className="card">
-                                <div className="card-header">
-                                    <div className="card-title h5">Update from iRODS</div>
-                                </div>
-                                <div className="card-body form-horizontal">
-                                    <div className="form-group">
-                                        <input className="form-input" type="text" placeholder="Username"/>
-                                    </div>
-                                    <div className="form-group">
-                                        <input className="form-input" type="password" placeholder="Password"/>
-                                    </div>
-                                </div>
-                                <div className="card-footer">
-                                    <button className="btn btn-primary" disabled>Update from iRODS</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    }
                     <div className="columns">
                         <div className="column">
                             <div className="panel">
                                 <div className="panel-header">
-                                    <div className="card-title h5">Update Log</div>
+                                    <div className="panel-title h5">Update Log</div>
                                 </div>
                                 <div className="panel-body" style={{maxHeight: '400px'}}>
                                     <table className="table">
                                         <tbody>
                                         {this.state.updates.map(update => {
                                             return (
-                                                <UpdateLogRow key={update.id} update={update} onRestore={this.restoreUpdate} />
+                                                <UpdateLogRow key={update.id} update={update} onRestore={this.restoreUpdate} disabled={disabled}/>
                                             );
                                         })}
                                         </tbody>
@@ -157,7 +161,7 @@ class UpdateLogRow extends React.Component {
                 </td>
                 <td>
                     {this.props.update.file && !this.props.update.failed && !this.props.update.in_progress && 
-                        <button className="btn btn-primary" onClick={this.handleRestore}>Restore</button>
+                        <button className="btn btn-primary" onClick={this.handleRestore} disabled={this.props.disabled}>Restore</button>
                     }
                 </td>
             </tr>

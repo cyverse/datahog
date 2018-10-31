@@ -15,9 +15,7 @@ export function FileTree(props) {
             <tbody>
                 {props.files.map((file, index) => {
                     return (
-                        <React.Fragment key={file.id}>
-                            <FileTreeNode file={file} depth={0} />
-                        </React.Fragment>
+                        <FileTreeNode key={file.id} file={file} depth={0} />
                     )
                 })}
             </tbody>

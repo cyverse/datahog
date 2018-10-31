@@ -54,8 +54,8 @@ export class ClickToCopy extends React.Component {
 
     render() {
         let snippedText;
-        if (this.props.text.length > 25) {
-            snippedText = this.props.text.substring(0, 24) + '…';
+        if (this.props.text.length > 20) {
+            snippedText = this.props.text.substring(0, 19) + '…';
         } else {
             snippedText = this.props.text;
         }
