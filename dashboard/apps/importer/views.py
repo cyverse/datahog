@@ -3,7 +3,7 @@ from rest_framework import views
 
 from .models import UpdateLog
 from .serializers import UpdateLogSerializer
-from .tasks import update_database_from_file, endless_task
+from .tasks import update_database_from_file
 
 
 class GetLastUpdate(views.APIView):

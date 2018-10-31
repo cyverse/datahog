@@ -11,8 +11,9 @@ from apps.file_data.models import File, Folder, FileType
 
 @shared_task
 def update_database_from_file(update_id):
+    print('Database update started.')
+
     update_log = UpdateLog.objects.get(id=update_id)
-    
     try:
         # parse data file
         with open(update_log.file.path) as f:
@@ -20,6 +21,8 @@ def update_database_from_file(update_id):
 
         if len(files) == 0: 
             raise Exception('Unreadable file')
+
+        print('{} files found in source file.'.format(len(files)))
 
         # stats for this update
         file_count = len(files)
@@ -91,8 +94,10 @@ def update_database_from_file(update_id):
 
                 file_obj.file_type = file_type
         
+        print('Performing insert operation.'.format(len(files)))
+
         # update database
-        with transaction.atomic(using='default'):
+        with transaction.atomic(using='file_data'):
             FileType.objects.all().delete()
             File.objects.all().delete()
             Folder.objects.all().delete()
@@ -108,15 +113,10 @@ def update_database_from_file(update_id):
         update_log.failed = False
         update_log.save()
 
+        print('Database update successful.'.format(len(files)))
+
     except Exception as e:
-        print(e)
+        print('Database update failed due to error: {}'.format(e))
         update_log.in_progress = False
         update_log.failed = True
         update_log.save()
-
-@shared_task
-def endless_task():
-    with transaction.atomic(using='default'):
-        while True:
-            time.sleep(1)
-            print('this is going to last forever')
