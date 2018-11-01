@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: docker/python.dockerfile
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py migrate --database=file_data && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/python
+    ports:
+      - 8000:8000
+  node:
+    build:
+      context: .
+      dockerfile: docker/node.dockerfile
+    command: npm run dev
+    volumes:
+      - .:/node
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3.7
+    environment:
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=pass
+    ports:
+      - "5672:5672"
+  
+  celery:
+    build:
+      context: .
+      dockerfile: docker/python.dockerfile
+    command: celery -A celery_app worker -l warning
+    volumes:
+      - .:/python
+    links:
+      - rabbit
+    depends_on:
+      - rabbit
+

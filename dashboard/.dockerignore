@@ -1,0 +1,6 @@
+*.pyc
+__pycache__
+node_modules
+npm-debug.log
+protected
+*.sqlite3
