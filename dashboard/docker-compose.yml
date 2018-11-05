@@ -1,27 +1,23 @@
-version: '3'
+version: '3.2'
 
 services:
   django:
-    build:
-      context: .
-      dockerfile: docker/python.dockerfile
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py migrate --database=file_data && python manage.py runserver 0.0.0.0:8000"
+    image: python:3.6
+    command: bash -c "cd /dashboard && pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && python manage.py migrate --database=file_data && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/python
+      - type: bind
+        source: .
+        target: /dashboard
     ports:
       - 8000:8000
-    depends_on:
-      - rabbitmq
-
+  
   node:
-    build:
-      context: .
-      dockerfile: docker/node.dockerfile
-    command: npm run dev
+    image: node:8.12
+    command: bash -c "cd /dashboard && npm install && npm run dev"
     volumes:
-      - .:/node
-    depends_on:
-      - rabbitmq
+      - type: bind
+        source: .
+        target: /dashboard
 
   rabbitmq:
     image: rabbitmq:3.7
@@ -32,14 +28,13 @@ services:
       - 5672:5672
   
   celery:
-    build:
-      context: .
-      dockerfile: docker/python.dockerfile
-    command: celery -A celery_app worker -l warning
+    image: python:3.6
+    command: bash -c "cd /dashboard && pip install -r requirements.txt && celery -A celery_app worker -l warning"
     volumes:
-      - .:/python
+      - type: bind
+        source: .
+        target: /dashboard
     links:
       - rabbitmq
     depends_on:
       - rabbitmq
-
