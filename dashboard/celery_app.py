@@ -5,7 +5,7 @@ from celery import Celery
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 
-app = Celery('dashboard')
+app = Celery('dashboard', broker='amqp://admin:pass@rabbitmq:5672')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 

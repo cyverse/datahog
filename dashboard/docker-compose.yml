@@ -10,6 +10,9 @@ services:
       - .:/python
     ports:
       - 8000:8000
+    depends_on:
+      - rabbitmq
+
   node:
     build:
       context: .
@@ -17,14 +20,16 @@ services:
     command: npm run dev
     volumes:
       - .:/node
-  rabbit:
-    hostname: rabbit
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
     image: rabbitmq:3.7
     environment:
         - RABBITMQ_DEFAULT_USER=admin
         - RABBITMQ_DEFAULT_PASS=pass
     ports:
-      - "5672:5672"
+      - 5672:5672
   
   celery:
     build:
@@ -34,7 +39,7 @@ services:
     volumes:
       - .:/python
     links:
-      - rabbit
+      - rabbitmq
     depends_on:
-      - rabbit
+      - rabbitmq
 
