@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-COPY . /dashboard
+COPY django /dashboard
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 WORKDIR /dashboard
 

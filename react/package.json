@@ -2,9 +2,8 @@
   "name": "file-dashboard",
   "author": "Chris Klimowski",
   "scripts": {
-    "dev": "parcel build src/css/main.css -d static/css && parcel watch src/js/main.jsx -d static/js",
-    "js": "parcel watch src/js/main.jsx -d static/js",
-    "css": "parcel watch src/css/main.css -d static/css"
+    "js": "parcel watch js/main.jsx -d ../dashboard/static/js",
+    "css": "parcel watch css/main.css -d ../dashboard/static/css"
   },
   "dependencies": {
     "axios": "^0.18.0",
