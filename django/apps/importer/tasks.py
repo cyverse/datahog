@@ -3,6 +3,10 @@ import re
 import json
 import datetime
 
+from irods.session import iRODSSession
+from irods.models import DataObject, Collection
+from irods.column import Between
+
 from celery import shared_task
 from django.db import transaction
 
@@ -113,10 +117,128 @@ def update_database_from_file(update_id):
         update_log.failed = False
         update_log.save()
 
-        print('Database update successful.'.format(len(files)))
+        print('Database update successful.')
 
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         update_log.in_progress = False
         update_log.failed = True
         update_log.save()
+
+
+
+@shared_task
+def update_database_from_irods(update_id, password):
+    ul = UpdateLog.objects.get(id=update_id)
+
+    total_size = 0
+    file_count = 0
+    folder_count = 0
+
+    file_objects = []
+    folder_objects_by_path = {}
+    file_types_by_extension = {}
+
+    try:
+        with iRODSSession(
+            user=ul.irods_user,
+            password=password,
+            host=ul.irods_host,
+            port=ul.irods_port,
+            zone=ul.irods_zone
+        ) as session:
+            query = session.query(
+                Collection.name,
+                DataObject.name,
+                DataObject.checksum,
+                DataObject.size,
+                DataObject.create_time
+            ).filter(
+                Between(Collection.name, (
+                    ul.top_folder, 
+                    ul.top_folder + '~'
+                ))
+            )
+
+            for result_set in query.get_batches():
+                for row in result_set:
+                    file_path = '{}/{}'.format(row[Collection.name], row[DataObject.name])
+
+                    file_objects.append(File(
+                        name=row[DataObject.name],
+                        path=file_path,
+                        size=row[DataObject.size],
+                        date_created=row[DataObject.create_time],
+                        checksum=row[DataObject.checksum]
+                    ))
+    
+        # create related objects
+        for file_obj in file_objects:
+            
+            # find parent folder's path
+            last_slash = file_obj.path.rfind('/')
+            parent_path = file_obj.path[:last_slash]
+            child_obj = file_obj
+
+            # update all parent folders
+            while len(parent_path) > 0:
+                last_slash = parent_path.rfind('/')
+                if parent_path in folder_objects_by_path:
+                    parent_obj = folder_objects_by_path[parent_path]
+                    parent_obj.total_size += file_obj.size
+                else:
+                    # if the parent folder doesn't exist yet, create it
+                    parent_obj = Folder(
+                        path=parent_path,
+                        name=parent_path[last_slash+1:],
+                        total_size=file_obj.size
+                    )
+                    folder_objects_by_path[parent_path] = parent_obj
+                    folder_count += 1
+
+                # iterate up the hierarchy
+                child_obj.parent = parent_obj
+                child_obj = parent_obj
+                parent_path = parent_path[:last_slash]
+
+            # find file type
+            last_dot = file_obj.name.rfind('.')
+            if last_dot != -1:
+                extension = file_obj.name[last_dot+1:]
+                if extension in file_types_by_extension:
+                    file_type = file_types_by_extension[extension]
+                    file_type.total_size += file_obj.size
+                else:
+                    # if this file type doesn't exist yet, create it
+                    file_type = FileType(
+                        name=extension,
+                        extension_pattern=extension,
+                        total_size=file_obj.size
+                    )
+                    file_types_by_extension[extension] = file_type
+
+                file_obj.file_type = file_type
+
+        with transaction.atomic(using='file_data'):
+            FileType.objects.all().delete()
+            File.objects.all().delete()
+            Folder.objects.all().delete()
+
+            File.objects.bulk_create(file_objects)
+            Folder.objects.bulk_create(folder_objects_by_path.values())
+            FileType.objects.bulk_create(file_types_by_extension.values())
+
+            ul.folder_count = folder_count
+            ul.file_count = file_count
+            ul.total_size = total_size
+            ul.in_progress = False
+            ul.failed = False
+            ul.save()
+
+        print('Database update successful.')
+            
+    except Exception as e:
+        print('Database update failed due to error: {}'.format(e))
+        ul.in_progress = False
+        ul.failed = True
+        ul.save()

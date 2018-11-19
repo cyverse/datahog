@@ -8,58 +8,55 @@ export class UpdateTab extends React.Component {
         super(props);
 
         this.state = {
-            file: null,
-            updates: []
+            user: '',
+            password: '',
+            host: 'data.cyverse.org',
+            port: '1247',
+            zone: 'iplant',
+            folder: '',
+            updates: [],
+            waiting: false,
+            error: ''
         };
 
-        this.requestUpdate = this.requestUpdate.bind(this);
-        this.fileChanged = this.fileChanged.bind(this);
-        this.restoreUpdate = this.restoreUpdate.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.submitForm = this.submitForm.bind(this);
         this.onLoad = this.onLoad.bind(this);
     }
 
-    fileChanged(event) {
-        let selectedFiles = event.target.files;
-        if (selectedFiles.length > 0) {
-            this.setState({
-                file: selectedFiles[0]
-            });
-        } else {
-            this.setState({
-                file: null
-            });
-        }
+    handleChange(event) {
+        this.setState({
+            [event.target.name]: event.target.value
+        });
     }
 
-    requestUpdate() {
-        if (this.state.file) {
-            let formData = new FormData();
-            formData.append('file', this.state.file);
-            axios.post('/api/updates/uploadfile', formData)
-            .then(function(response) {
-                this.setState({
-                    updates: [response.data].concat(this.state.updates)
-                });
-            }.bind(this))
-            .catch(function(error) {
-                console.log(error);
-            }.bind(this));
-     
-        }
-    }
-
-    restoreUpdate(update) {
-        console.log(arguments);
-        axios.post('/api/updates/restore', {
-            update_id: update.id
+    submitForm(event) {
+        event.preventDefault();
+        this.setState({
+            waiting: true,
+            error: ''
+        });
+        axios.post('/api/updates/irodslogin', {
+            user: this.state.user,
+            password: this.state.password,
+            host: this.state.host,
+            port: this.state.port,
+            zone: this.state.zone,
+            folder: this.state.folder
         })
         .then(function(response) {
             this.setState({
-                updates: [response.data].concat(this.state.updates)
+                waiting: false,
+                lastUpdate: response.data
             });
         }.bind(this))
         .catch(function(error) {
-            console.log(error);
+            console.log(error.response.data);
+            debugger;
+            this.setState({
+                waiting: false,
+                error: error.response.data
+            });
         }.bind(this));
     }
 
@@ -70,101 +67,50 @@ export class UpdateTab extends React.Component {
     }
 
     render() {
-        let disabled = this.state.updates.length > 0 && this.state.updates[0].in_progress;
-        //console.log(buttons_disabled);
+        let submitDisabled = this.state.waiting || !this.state.user.length || !this.state.password.length || !this.state.host.length || !this.state.folder.length || !this.state.port.length || !this.state.zone.length;
         return (
             <LoadingBox get="/api/updates/list" callback={this.onLoad} checkForUpdate={false}>
                 <div className="container">
-                    {!disabled &&
-                        <div className="columns">
-                            <div className="column">
-                                <div className="panel">
-                                    <div className="panel-header">
-                                        <div className="panel-title h5">Update from File</div>
-                                    </div>
-                                    <div className="panel-body">
-                                        <input className="form-input" type="file" onChange={this.fileChanged}/>
-                                    </div>
-                                    <div className="panel-footer">
-                                        <button className="btn btn-primary" onClick={this.requestUpdate} disabled={disabled}>Update from File</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="column">
-                                <div className="panel">
-                                    <div className="panel-header">
-                                        <div className="panel-title h5">Update from iRODS</div>
-                                    </div>
-                                    <div className="panel-body form-horizontal">
-                                        <div className="form-group">
-                                            <input className="form-input" type="text" placeholder="Username"/>
-                                        </div>
-                                        <div className="form-group">
-                                            <input className="form-input" type="password" placeholder="Password"/>
-                                        </div>
-                                    </div>
-                                    <div className="panel-footer">
-                                        <button className="btn btn-primary" disabled>Update from iRODS</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
                     <div className="columns">
                         <div className="column">
-                            <div className="panel">
+                            <form className="panel" onSubmit={this.submitForm}>
                                 <div className="panel-header">
-                                    <div className="panel-title h5">Update Log</div>
+                                    <div className="panel-title h5">Update from iRODS</div>
                                 </div>
-                                <div className="panel-body" style={{maxHeight: '400px'}}>
-                                    <table className="table">
-                                        <tbody>
-                                        {this.state.updates.map(update => {
-                                            return (
-                                                <UpdateLogRow key={update.id} update={update} onRestore={this.restoreUpdate} disabled={disabled}/>
-                                            );
-                                        })}
-                                        </tbody>
-                                    </table>
+                                <div className="panel-body form-horizontal">
+                                    <div className="form-group">
+                                        <input value={this.state.user} onChange={this.handleChange} name="user" className="form-input" type="text" placeholder="Username"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <input value={this.state.password} onChange={this.handleChange} name="password" className="form-input" type="password" placeholder="Password"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <input value={this.state.host} onChange={this.handleChange} name="host" className="form-input" type="text" placeholder="Host"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <input value={this.state.port} onChange={this.handleChange} name="port" className="form-input" type="text" placeholder="Port"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <input value={this.state.zone} onChange={this.handleChange} name="zone" className="form-input" type="text" placeholder="Zone"/>
+                                    </div>
+                                    <div className="form-group">
+                                        <input value={this.state.folder} onChange={this.handleChange} name="folder" className="form-input" type="text" placeholder="Folder"/>
+                                    </div>
                                 </div>
-                            </div>
+                                <div className="panel-footer">
+                                    <input type="submit" className="btn btn-primary" value="Update from iRODS" disabled={submitDisabled} />
+                                    { this.state.waiting && 
+                                        <React.Fragment>
+                                            <i className="loading"></i> Connecting to iRODS...
+                                        </React.Fragment>
+                                    }
+                                    <React.Fragment>{this.state.error}</React.Fragment>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </LoadingBox>
         );
     }
-}
-
-class UpdateLogRow extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.handleRestore = this.handleRestore.bind(this);
-    }
-
-    handleRestore() {
-        this.props.onRestore(this.props.update);
-    }
-
-    render() {
-        return (
-            <tr>
-                <td>{this.props.update.timestamp}</td>
-                <td>
-                    {this.props.update.in_progress ? 
-                        <span className="label label-warning">In Progress</span> :
-                    this.props.update.failed ? 
-                        <span className="label label-error">Failed</span> : 
-                    <span>Successfully imported {this.props.update.file_count} files.</span>
-                    }
-                </td>
-                <td>
-                    {this.props.update.file && !this.props.update.failed && !this.props.update.in_progress && 
-                        <button className="btn btn-primary" onClick={this.handleRestore} disabled={this.props.disabled}>Restore</button>
-                    }
-                </td>
-            </tr>
-        );
-    } 
 }
