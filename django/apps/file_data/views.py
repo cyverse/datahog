@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import views
 
@@ -7,10 +6,6 @@ from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer
 
 from apps.importer.helpers import get_last_update
 from apps.importer.serializers import UpdateLogSerializer
-
-def index(request):
-    return render(request, 'index.html')
-
 
 class GetChildrenOfFolder(views.APIView):
     def get(self, request, folder_id):
