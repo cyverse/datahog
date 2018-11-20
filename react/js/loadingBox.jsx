@@ -7,68 +7,16 @@ export class LoadingBox extends React.Component {
         super(props);
 
         this.state = {
-            updateInProgress: false,
             error: false,
             loading: true
         };
-
-        this.checkForUpdate = this.checkForUpdate.bind(this);
-        this.getFromServer = this.getFromServer.bind(this);
-
-        this.interval = setInterval(this.checkForUpdate, 10000);
-
-        if (props.checkForUpdate) {
-            this.checkForUpdate();
-        } else {
-            this.getFromServer();
-        }
     }
 
-    componentWillUnmount() {
-        clearInterval(this.interval);
-    }
-
-    checkForUpdate() {
-        if (this.props.checkForUpdate) {
-            axios.get('/api/updates/latest')
-            .then(function(response) {
-                if (response.data.in_progress) {
-                    this.setState({
-                        updateInProgress: true,
-                        error: false,
-                        loading: false
-                    });
-                } else if (this.state.updateInProgress || this.state.error || this.state.loading) {
-                    this.setState({
-                        updateInProgress: false,
-                        error: false,
-                        loading: true
-                    });
-                    this.getFromServer();
-                } else {
-                    this.setState({
-                        updateInProgress: false,
-                        error: false,
-                        loading: false
-                    });
-                }
-            }.bind(this))
-            .catch(function(error) {
-                this.setState({
-                    updateInProgress: false,
-                    error: true,
-                    loading: false
-                });
-            }.bind(this));
-        }
-    }
-
-    getFromServer() {
+    componentDidMount() {
         axios.get(this.props.get)
         .then(function(response) {
             this.setState({
                 loading: false,
-                updateInProgress: false,
                 error: false
             });
             this.props.callback(response);
@@ -76,23 +24,12 @@ export class LoadingBox extends React.Component {
         .catch(function(error) {
             this.setState({
                 loading: false,
-                updateInProgress: false,
                 error: true
-            })
+            });
         }.bind(this));
     }
 
     render() {
-        if (this.state.updateInProgress) return (
-            <div className="empty">
-                <div className="empty-icon">
-                    <div className="loading loading-lg"></div>
-                </div>
-                <p className="empty-title h5">A database update is in progress</p>
-                <p className="empty-subtitle">This may take several minutes</p>
-            </div>
-        );
-
         if (this.state.error) return (
             <div className="empty">
                 <div className="empty-icon">
