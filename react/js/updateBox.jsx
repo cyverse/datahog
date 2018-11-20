@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React from 'react';
 
+export const UpdateContext = React.createContext(null);
+
 export class UpdateBox extends React.Component {
 
     constructor(props) {
@@ -16,7 +18,7 @@ export class UpdateBox extends React.Component {
     }
 
     componentDidMount() {
-        this.interval = setInterval(this.checkForUpdate, 10000);
+        this.interval = setInterval(this.checkForUpdate, 1000);
         this.checkForUpdate();
     }
 
@@ -24,30 +26,40 @@ export class UpdateBox extends React.Component {
         clearInterval(this.interval);
     }
 
+    updateTriggered() {
+        this.setState({
+            updateInProgress: true,
+            error: false,
+            loading: false
+        });
+    }
+
     checkForUpdate() {
-        axios.get('/api/updates/latest')
-        .then(function(response) {
-            if (response.data.in_progress) {
-                this.setState({
-                    updateInProgress: true,
-                    error: false,
-                    loading: false
-                });
-            } else {
+        if (this.state.updateInProgress || this.state.error || this.state.loading) {
+            axios.get('/api/updates/latest')
+            .then(function(response) {
+                if (response.data.in_progress) {
+                    this.setState({
+                        updateInProgress: true,
+                        error: false,
+                        loading: false
+                    });
+                } else {
+                    this.setState({
+                        updateInProgress: false,
+                        error: false,
+                        loading: false
+                    });
+                }
+            }.bind(this))
+            .catch(function(error) {
                 this.setState({
                     updateInProgress: false,
-                    error: false,
+                    error: true,
                     loading: false
                 });
-            }
-        }.bind(this))
-        .catch(function(error) {
-            this.setState({
-                updateInProgress: false,
-                error: true,
-                loading: false
-            });
-        }.bind(this));
+            }.bind(this));
+        }
     }
 
     render() {
@@ -76,9 +88,9 @@ export class UpdateBox extends React.Component {
         );
 
         return (
-            <React.Fragment>
+            <UpdateContext.Provider value={this}>
                 {this.props.children}
-            </React.Fragment>
+            </UpdateContext.Provider>
         );
     }
 }

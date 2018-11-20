@@ -2,6 +2,17 @@ import React from 'react';
 import axios from 'axios';
 import { LoadingBox } from './loadingBox';
 import { LabeledInput } from './util';
+import { UpdateContext } from './updateBox';
+
+export function UpdateTabWithContext() {
+    return  (
+        <UpdateContext.Consumer>
+            {context =>
+                <UpdateTab context={context}/>
+            }
+        </UpdateContext.Consumer>
+    )
+}
 
 export class UpdateTab extends React.Component {
     constructor(props) {
@@ -55,6 +66,9 @@ export class UpdateTab extends React.Component {
                 waiting: false,
                 lastUpdate: response.data
             });
+            if (this.props.context) {
+                this.props.context.updateTriggered();
+            }
         }.bind(this))
         .catch(function(error) {
             console.log(error.response.data);

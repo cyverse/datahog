@@ -1,10 +1,10 @@
-import { TabNav } from './tabNav';
-import { BrowseTab } from './browseTab';
-import { SummaryTab } from './summaryTab';
-import { UpdateTab } from './updateTab';
 import React from 'react';
 import axios from 'axios';
 import ReactDOM from 'react-dom';
+import { TabNav } from './tabNav';
+import { BrowseTab } from './browseTab';
+import { SummaryTab } from './summaryTab';
+import { UpdateTabWithContext } from './updateTab';
 
 let tabs = [
     {
@@ -20,7 +20,7 @@ let tabs = [
     {
         name: 'Import File Data',
         path: '/import',
-        component: UpdateTab
+        component: UpdateTabWithContext
     }
 ];
 
