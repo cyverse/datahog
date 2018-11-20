@@ -1,6 +1,4 @@
 import React from 'react';
-import axios from 'axios';
-
 import { FileTable } from './fileTable';
 import { Size } from './util';
 import { LoadingBox } from './loadingBox';
