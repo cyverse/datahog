@@ -64,3 +64,13 @@ export class ClickToCopy extends React.Component {
         );
     }
 }
+
+export function LabeledInput(props) {
+    let labelPos = props.value.length > 0 ? 0 : 20;
+    return (
+        <React.Fragment>
+            <label htmlFor={props.name} className="form-input-hint" style={{top: labelPos}}>{props.label}</label>
+            <input type={props.type || 'text'} className="form-input" name={props.name} placeholder={props.label} value={props.value} onChange={props.onChange}/>
+        </React.Fragment>
+    );
+}

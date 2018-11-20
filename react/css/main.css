@@ -38,3 +38,9 @@ nav#tabs {
     justify-content: center;
     margin-bottom: 50px;
 }
+
+.form-input-hint {
+    position: relative;
+    top: 0;
+    transition: top 200ms;
+}
