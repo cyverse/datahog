@@ -3,8 +3,8 @@ iRODS File Dashboard
 
 Running the Docker Image
 ------------------------
-1. Use `docker build . <name>` to create the image
-2. Use `docker run -it -p 8000:8000 <name>` to start it.
+1. Use `docker build . -t <name>` to create the image.
+2. Use `docker run -it -p 8000:8000 <name>` to start it in a container.
 
 Running Locally
 ---------------
