@@ -140,6 +140,7 @@ def update_database_from_irods(update_id, password):
     file_types_by_extension = {}
 
     try:
+        print('Getting data from iRODS...')
         with iRODSSession(
             user=ul.irods_user,
             password=password,
@@ -172,9 +173,12 @@ def update_database_from_irods(update_id, password):
                         checksum=row[DataObject.checksum]
                     ))
     
-        # create related objects
+        print('Creating objects...')
         for file_obj in file_objects:
-            
+
+            file_count += 1
+            total_size += file_obj.size
+
             # find parent folder's path
             last_slash = file_obj.path.rfind('/')
             parent_path = file_obj.path[:last_slash]
@@ -219,6 +223,7 @@ def update_database_from_irods(update_id, password):
 
                 file_obj.file_type = file_type
 
+        print('Filling database...')
         with transaction.atomic(using='file_data'):
             FileType.objects.all().delete()
             File.objects.all().delete()
