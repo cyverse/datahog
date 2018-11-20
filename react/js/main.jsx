@@ -9,15 +9,18 @@ import ReactDOM from 'react-dom';
 let tabs = [
     {
         name: 'Summary',
-        content: <SummaryTab />
+        path: '/summary',
+        component: SummaryTab
     },
     {
         name: 'Browse Files',
-        content: <BrowseTab />
+        path: '/browse',
+        component: BrowseTab
     },
     {
-        name: 'Update Files',
-        content: <UpdateTab />
+        name: 'Import File Data',
+        path: '/import',
+        component: UpdateTab
     }
 ];
 

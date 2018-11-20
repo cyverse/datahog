@@ -1,59 +1,30 @@
 import React from 'react';
+import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
+import { UpdateBox } from './updateBox';
 
-export class TabNav extends React.Component {
-    constructor(props) {
-        super(props);
-
-        if (props.tabs.length > 0) this.state = {
-            activeTab: props.tabs[0]
-        }
-
-        this.tabClicked = this.tabClicked.bind(this);
-    }
-
-    tabClicked(tab) {
-        this.setState({
-            activeTab: tab
-        });
-    }
-
-    render() {
-        return (
-            <React.Fragment>
-                <ul className='tab tab-block'>
-                    {this.props.tabs.map((tab, index) => {
-                        return <Tab 
-                            key={index}
-                            tab={tab} 
-                            active={tab === this.state.activeTab} 
-                            onTabClick={this.tabClicked} />;
-                    })}
-                </ul>
-                <div>
-                    {this.state.activeTab.content}
-                </div>
-            </React.Fragment>
-        );
-    }
-}
-
-export class Tab extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleTabClick = this.handleTabClick.bind(this);
-    }
-    
-    handleTabClick() {
-        this.props.onTabClick(this.props.tab);
-    }
-
-    render() {
-        return (
-            <li className='tab-item c-hand'>
-                <a className={this.props.active ? 'active' : ''} onClick={this.handleTabClick}>
-                    {this.props.tab.name}
-                </a>
-            </li>
-        );
-    }
+export function TabNav(props) {
+    return (
+        <UpdateBox>
+            <HashRouter>
+                <React.Fragment>
+                    <ul className='tab tab-block'>
+                        {props.tabs.map((tab, index) => {
+                            return (
+                                <li key={index} className='tab-item c-hand'>
+                                    <NavLink to={tab.path}>
+                                        {tab.name}
+                                    </NavLink>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                    <Switch>
+                        {props.tabs.map((tab, index) => {
+                            return <Route key={index}  path={tab.path} component={tab.component} />;
+                        })}
+                    </Switch>
+                </React.Fragment>
+            </HashRouter>
+        </UpdateBox>
+    );
 }

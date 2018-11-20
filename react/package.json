@@ -2,20 +2,21 @@
   "name": "file-dashboard",
   "author": "Chris Klimowski",
   "scripts": {
-    "js": "parcel watch js/main.jsx -d ../dashboard/static/js",
-    "css": "parcel watch css/main.css -d ../dashboard/static/css"
+    "js": "parcel watch js/main.jsx -d ../django/static/js",
+    "css": "parcel watch css/main.css -d ../django/static/css"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "d3": "^5.7.0",
     "d3-svg-legend": "^2.25.6",
     "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react-dom": "^16.5.2",
+    "react-router-dom": "^4.3.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "parcel-bundler": "^1.9.7"
+    "parcel-bundler": "^1.10.3"
   }
 }
