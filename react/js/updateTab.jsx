@@ -158,14 +158,18 @@ export class UpdateTab extends React.Component {
                                 <div className="panel-footer">
                                     <input type="submit" 
                                         className="btn btn-primary"
-                                        value="Update from iRODS"
+                                        value="Import from iRODS"
                                         disabled={submitDisabled} />
-                                    { this.state.waiting && 
-                                        <React.Fragment>
-                                            <i className="loading"></i> Connecting to iRODS...
-                                        </React.Fragment>
-                                    }
-                                    <React.Fragment>{this.state.error}</React.Fragment>
+                                    <div class="float-right text-right">
+                                        { this.state.waiting ?
+                                            <span class="text-primary">
+                                                <i className="loading">load</i> Connecting to iRODS...
+                                            </span> :
+                                            <span class="text-error">
+                                                {this.state.error}
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
                             </form>
                         </div>
