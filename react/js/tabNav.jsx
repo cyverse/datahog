@@ -1,11 +1,11 @@
 import React from 'react';
-import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
+import { HashRouter, Route, Switch, NavLink, Redirect } from 'react-router-dom';
 import { UpdateBox } from './updateBox';
 
 export function TabNav(props) {
     return (
-        <UpdateBox>
-            <HashRouter>
+        <HashRouter>
+            <UpdateBox>
                 <React.Fragment>
                     <ul className='tab tab-block'>
                         {props.tabs.map((tab, index) => {
@@ -22,9 +22,10 @@ export function TabNav(props) {
                         {props.tabs.map((tab, index) => {
                             return <Route key={index}  path={tab.path} component={tab.component} />;
                         })}
+                        <Redirect to="/import" />
                     </Switch>
                 </React.Fragment>
-            </HashRouter>
-        </UpdateBox>
+            </UpdateBox>
+        </HashRouter>
     );
 }
