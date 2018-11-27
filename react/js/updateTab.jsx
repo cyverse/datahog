@@ -21,12 +21,12 @@ export class UpdateTab extends React.Component {
         this.state = {
             user: '',
             password: '',
-            host: 'data.cyverse.org',
-            port: '1247',
-            zone: 'iplant',
+            host: '',
+            port: '',
+            zone: '',
             folder: '',
-            updates: [],
             waiting: false,
+            failed: false,
             error: ''
         };
 
@@ -36,8 +36,14 @@ export class UpdateTab extends React.Component {
     }
 
     onLoad(response) {
+        let lastAttempt = response.data;
         this.setState({
-            updates: response.data
+            user: lastAttempt.irods_user,
+            host: lastAttempt.irods_host,
+            port: lastAttempt.irods_port,
+            zone: lastAttempt.irods_zone,
+            folder: lastAttempt.top_folder,
+            failed: lastAttempt.failed
         });
     }
 
@@ -53,7 +59,7 @@ export class UpdateTab extends React.Component {
             waiting: true,
             error: ''
         });
-        axios.post('/api/updates/irodslogin', {
+        axios.post('/api/import/irodslogin', {
             user: this.state.user,
             password: this.state.password,
             host: this.state.host,
@@ -63,8 +69,7 @@ export class UpdateTab extends React.Component {
         })
         .then(function(response) {
             this.setState({
-                waiting: false,
-                lastUpdate: response.data
+                waiting: false
             });
             if (this.props.context) {
                 this.props.context.updateTriggered();
@@ -90,7 +95,12 @@ export class UpdateTab extends React.Component {
             !this.state.zone.length
         );
         return (
-            <LoadingBox get="/api/updates/list" callback={this.onLoad} checkForUpdate={false}>
+            <LoadingBox get="/api/import/latest" callback={this.onLoad} checkForUpdate={false}>
+                { this.state.failed && 
+                    <div className="toast toast-error">
+                        Your last import could not be completed. The folder you requested is likely too large.
+                    </div>
+                }
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
@@ -160,12 +170,12 @@ export class UpdateTab extends React.Component {
                                         className="btn btn-primary"
                                         value="Import from iRODS"
                                         disabled={submitDisabled} />
-                                    <div class="float-right text-right">
+                                    <div className="float-right text-right">
                                         { this.state.waiting ?
-                                            <span class="text-primary">
+                                            <span className="text-primary">
                                                 <i className="loading">load</i> Connecting to iRODS...
                                             </span> :
-                                            <span class="text-error">
+                                            <span className="text-error">
                                                 {this.state.error}
                                             </span>
                                         }
