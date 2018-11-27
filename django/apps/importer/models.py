@@ -1,13 +1,11 @@
 from django.db import models
 
 
-class UpdateLog(models.Model):
+class ImportAttempt(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     in_progress = models.BooleanField(default=True)
+    current_step = models.IntegerField(default=0)
     failed = models.BooleanField(default=False)
-    folder_count = models.IntegerField(default=0)
-    file_count = models.IntegerField(default=0)
-    total_size = models.BigIntegerField(default=0)
     irods_user = models.CharField(max_length=64, blank=True)
     irods_host = models.CharField(max_length=64, blank=True)
     irods_port = models.CharField(max_length=64, blank=True)

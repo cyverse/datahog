@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import UpdateLog
+from .models import ImportAttempt
 
-admin.site.register(UpdateLog)
+admin.site.register(ImportAttempt)

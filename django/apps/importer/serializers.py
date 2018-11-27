@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from .models import UpdateLog
+from .models import ImportAttempt
 
 
-class UpdateLogSerializer(serializers.ModelSerializer):
+class ImportAttemptSerializer(serializers.ModelSerializer):
     timestamp = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
     class Meta:
-        model = UpdateLog
-        fields = ('id', 'timestamp', 'in_progress', 'failed', 'folder_count', 'file_count', 'total_size')
+        model = ImportAttempt
+        fields = ('id', 'timestamp', 'in_progress', 'current_step', 'failed', 
+            'irods_user', 'irods_host', 'irods_port', 'irods_zone', 'top_folder')

@@ -23,7 +23,7 @@ export class SummaryTab extends React.Component {
             topTenFolders: response.data.top_ten_folders,
             topTenFiles: response.data.top_ten_files,
             topTenTypes: response.data.top_ten_types,
-            totals: response.data.last_update
+            totals: response.data.summary
         });
     }
 

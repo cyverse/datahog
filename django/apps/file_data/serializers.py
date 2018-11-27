@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import File, Folder, FileType
+from .models import File, Folder, FileType, FileSummary
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -18,3 +18,8 @@ class FileTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileType
         fields = ('id', 'name', 'total_size')
+
+class FileSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileSummary
+        fields = ('id', 'timestamp', 'folder_count', 'file_count', 'total_size')

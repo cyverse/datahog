@@ -5,12 +5,12 @@ from irods.column import Between
 from celery import shared_task
 from django.db import transaction
 
-from .models import UpdateLog
-from apps.file_data.models import File, Folder, FileType
+from .models import ImportAttempt
+from apps.file_data.models import File, Folder, FileType, FileSummary
 
 @shared_task
-def update_database_from_irods(update_id, password):
-    ul = UpdateLog.objects.get(id=update_id)
+def import_files_from_irods(attempt_id, password):
+    attempt = ImportAttempt.objects.get(id=attempt_id)
 
     total_size = 0
     file_count = 0
@@ -21,13 +21,15 @@ def update_database_from_irods(update_id, password):
     file_types_by_extension = {}
 
     try:
-        print('Getting data from iRODS...')
+        attempt.current_step = 1
+        attempt.save()
+        print('Requesting data from iRODS...')
         with iRODSSession(
-            user=ul.irods_user,
+            user=attempt.irods_user,
             password=password,
-            host=ul.irods_host,
-            port=ul.irods_port,
-            zone=ul.irods_zone
+            host=attempt.irods_host,
+            port=attempt.irods_port,
+            zone=attempt.irods_zone
         ) as session:
             query = session.query(
                 Collection.name,
@@ -36,13 +38,19 @@ def update_database_from_irods(update_id, password):
                 DataObject.size,
                 DataObject.create_time
             ).filter(
+                DataObject.replica_number == 0
+            ).filter(
                 Between(Collection.name, (
-                    ul.top_folder, 
-                    ul.top_folder + '~'
+                    attempt.top_folder, 
+                    attempt.top_folder + '~'
                 ))
-            ).limit(100)
+            ).limit(1000)
 
             for result_set in query.get_batches():
+                if attempt.current_step != 2:
+                    attempt.current_step = 2
+                    attempt.save()
+                    print('Receiving data batches...')
                 for row in result_set:
                     file_path = '{}/{}'.format(row[Collection.name], row[DataObject.name])
 
@@ -53,7 +61,9 @@ def update_database_from_irods(update_id, password):
                         date_created=row[DataObject.create_time],
                         checksum=row[DataObject.checksum]
                     ))
-    
+
+        attempt.current_step = 3
+        attempt.save()
         print('Creating objects...')
         for file_obj in file_objects:
 
@@ -104,6 +114,9 @@ def update_database_from_irods(update_id, password):
 
                 file_obj.file_type = file_type
 
+
+        attempt.current_step = 4
+        attempt.save()
         print('Filling database...')
         with transaction.atomic(using='file_data'):
             FileType.objects.all().delete()
@@ -113,18 +126,20 @@ def update_database_from_irods(update_id, password):
             File.objects.bulk_create(file_objects)
             Folder.objects.bulk_create(folder_objects_by_path.values())
             FileType.objects.bulk_create(file_types_by_extension.values())
+            FileSummary.objects.create(
+                folder_count=folder_count,
+                file_count=file_count,
+                total_size=total_size
+            )
 
-            ul.folder_count = folder_count
-            ul.file_count = file_count
-            ul.total_size = total_size
-            ul.in_progress = False
-            ul.failed = False
-            ul.save()
+            attempt.in_progress = False
+            attempt.failed = False
+            attempt.save()
 
         print('Database update successful.')
             
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
-        ul.in_progress = False
-        ul.failed = True
-        ul.save()
+        attempt.in_progress = False
+        attempt.failed = True
+        attempt.save()

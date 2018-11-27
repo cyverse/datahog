@@ -41,4 +41,8 @@ class FileType(models.Model):
         return self.name
 
 
-
+class FileSummary(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    folder_count = models.IntegerField(default=0)
+    file_count = models.IntegerField(default=0)
+    total_size = models.BigIntegerField(default=0)

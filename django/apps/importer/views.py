@@ -2,27 +2,27 @@ import irods
 from rest_framework.response import Response
 from rest_framework import views
 
-from .models import UpdateLog
-from .serializers import UpdateLogSerializer
-from .tasks import update_database_from_irods
+from .models import ImportAttempt
+from .serializers import ImportAttemptSerializer
+from .tasks import import_files_from_irods
 
 
-class GetLastUpdate(views.APIView):
+class GetLastAttempt(views.APIView):
     def get(self, request):
         try:
-            latest_update = UpdateLog.objects.filter(failed=False).latest('timestamp')
-        except UpdateLog.DoesNotExist:
-            latest_update = UpdateLog.objects.create(
+            latest_attempt = ImportAttempt.objects.latest('timestamp')
+        except ImportAttempt.DoesNotExist:
+            latest_attempt = ImportAttempt.objects.create(
                 in_progress=False,
-                folder_count=0,
-                file_count=0,
-                total_size=0
+                irods_host='data.cyverse.org',
+                irods_port='1247',
+                irods_zone='iplant'
             )
-        serializer = UpdateLogSerializer(latest_update)
+        serializer = ImportAttemptSerializer(latest_attempt)
         return Response(serializer.data)
 
 
-class UpdateFromIrods(views.APIView):
+class ImportFromIrods(views.APIView):
     def post(self, request):
         required_fields = ('user', 'password', 'host', 'port', 'zone', 'folder')
         for field in required_fields:
@@ -54,7 +54,7 @@ class UpdateFromIrods(views.APIView):
             except Exception as e:
                 return Response('Error: {}'.format(e))
         
-        new_log = UpdateLog.objects.create(
+        new_attempt = ImportAttempt.objects.create(
             in_progress=True,
             irods_user=user,
             irods_host=host,
@@ -62,7 +62,7 @@ class UpdateFromIrods(views.APIView):
             irods_zone=zone,
             top_folder=folder,
         )
-        update_database_from_irods.delay(new_log.id, password=password)
+        import_files_from_irods.delay(new_attempt.id, password=password)
 
-        serializer = UpdateLogSerializer(new_log)
+        serializer = ImportAttemptSerializer(new_attempt)
         return Response(serializer.data, status=200)

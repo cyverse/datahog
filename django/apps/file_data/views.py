@@ -2,10 +2,7 @@ from rest_framework.response import Response
 from rest_framework import views
 
 from .models import *
-from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer
-
-from apps.importer.helpers import get_last_update
-from apps.importer.serializers import UpdateLogSerializer
+from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, FileSummarySerializer
 
 class GetChildrenOfFolder(views.APIView):
     def get(self, request, folder_id):
@@ -54,7 +51,10 @@ class SearchFiles(views.APIView):
 
 class GetSummary(views.APIView):
     def get(self, request):
-        last_update = get_last_update()
+        try:
+            summary = FileSummary.objects.latest('timestamp')
+        except FileSummary.DoesNotExist:
+            summary = FileSummary.objects.create()
         top_ten_files = File.objects.order_by('-size')[:10]
         top_ten_folders = Folder.objects.order_by('-total_size')[:10]
         top_ten_types = FileType.objects.order_by('-total_size')[:10]
@@ -62,10 +62,10 @@ class GetSummary(views.APIView):
         files_serialized = FileSerializer(top_ten_files.all(), many=True)
         folders_serialized = FolderSerializer(top_ten_folders.all(), many=True)
         types_serialized = FileTypeSerializer(top_ten_types.all(), many=True)
-        update_serialized = UpdateLogSerializer(last_update)
+        summary_serialized = FileSummarySerializer(summary)
 
         response_object = {
-            'last_update': update_serialized.data,
+            'summary': summary_serialized.data,
             'top_ten_files': files_serialized.data,
             'top_ten_folders': folders_serialized.data,
             'top_ten_types': types_serialized.data
