@@ -12,8 +12,7 @@ export class UpdateBox extends React.Component {
             updateInProgress: false,
             loading: true,
             error: false,
-            currentStep: 0,
-            updateFailed: false
+            currentStep: 0
         };
 
         this.checkForUpdate = this.checkForUpdate.bind(this);
@@ -49,12 +48,13 @@ export class UpdateBox extends React.Component {
                         loading: false
                     });
                 } else {
-                    if (response.data.failed) {
-                        window.history.pushState()
+                    if (response.data.failed || response.data.current_step === 0) {
+                        window.location.hash = '/import';
+                    } else {
+                        window.location.hash = '/summary';
                     }
                     this.setState({
                         updateInProgress: false,
-                        updateFailed: response.data.failed,
                         error: false,
                         loading: false
                     });

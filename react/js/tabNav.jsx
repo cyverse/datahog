@@ -22,7 +22,6 @@ export function TabNav(props) {
                         {props.tabs.map((tab, index) => {
                             return <Route key={index}  path={tab.path} component={tab.component} />;
                         })}
-                        <Redirect to="/import" />
                     </Switch>
                 </React.Fragment>
             </UpdateBox>
