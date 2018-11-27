@@ -93,6 +93,8 @@ def import_files_from_irods(attempt_id, password):
 
                 # iterate up the hierarchy
                 child_obj.parent = parent_obj
+                if parent_path == attempt.top_folder:
+                    break
                 child_obj = parent_obj
                 parent_path = parent_path[:last_slash]
 
@@ -114,6 +116,8 @@ def import_files_from_irods(attempt_id, password):
 
                 file_obj.file_type = file_type
 
+        if attempt.top_folder in folder_objects_by_path:
+            folder_objects_by_path[attempt.top_folder].name = attempt.top_folder
 
         attempt.current_step = 4
         attempt.save()
