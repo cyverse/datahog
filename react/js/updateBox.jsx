@@ -11,14 +11,16 @@ export class UpdateBox extends React.Component {
         this.state = {
             updateInProgress: false,
             loading: true,
-            error: false
+            error: false,
+            currentStep: 0,
+            updateFailed: false
         };
 
         this.checkForUpdate = this.checkForUpdate.bind(this);
     }
 
     componentDidMount() {
-        this.interval = setInterval(this.checkForUpdate, 1000);
+        this.interval = setInterval(this.checkForUpdate, 2000);
         this.checkForUpdate();
     }
 
@@ -29,6 +31,7 @@ export class UpdateBox extends React.Component {
     updateTriggered() {
         this.setState({
             updateInProgress: true,
+            currentStep: 0,
             error: false,
             loading: false
         });
@@ -36,17 +39,22 @@ export class UpdateBox extends React.Component {
 
     checkForUpdate() {
         if (this.state.updateInProgress || this.state.error || this.state.loading) {
-            axios.get('/api/updates/latest')
+            axios.get('/api/import/latest')
             .then(function(response) {
                 if (response.data.in_progress) {
                     this.setState({
                         updateInProgress: true,
+                        currentStep: response.data.current_step,
                         error: false,
                         loading: false
                     });
                 } else {
+                    if (response.data.failed) {
+                        window.history.pushState()
+                    }
                     this.setState({
                         updateInProgress: false,
+                        updateFailed: response.data.failed,
                         error: false,
                         loading: false
                     });
@@ -68,8 +76,16 @@ export class UpdateBox extends React.Component {
                 <div className="empty-icon">
                     <div className="loading loading-lg"></div>
                 </div>
-                <p className="empty-title h5">A database update is in progress</p>
-                <p className="empty-subtitle">This may take several minutes</p>
+                <p className="empty-title h5">
+                    {[
+                        <span>Starting file import process...</span>,
+                        <span>Waiting for iRODS server...</span>,
+                        <span>Downloading file information...</span>,
+                        <span>Analyzing files...</span>,
+                        <span>Building file database...</span>
+                    ][this.state.currentStep]}
+                </p>
+                <p className="empty-subtitle">This may take several minutes.</p>
             </div>
         );
 
