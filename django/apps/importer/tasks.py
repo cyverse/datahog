@@ -108,8 +108,7 @@ def import_files_from_irods(attempt_id, password):
                 else:
                     # if this file type doesn't exist yet, create it
                     file_type = FileType(
-                        name=extension,
-                        extension_pattern=extension,
+                        extension=extension,
                         total_size=file_obj.size
                     )
                     file_types_by_extension[extension] = file_type
