@@ -22,6 +22,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '1#4)h_cq=l_q7-ygv(3v!#@(*%7!*9#q%pgyedotv%lp@9nfbj'
 
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'rogue.iplantcollaborative.org', 'data.cyverse.org', '*']
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
