@@ -11,3 +11,6 @@ __pycache__
 react/.cache
 react/node_modules
 react/package-lock.json
+react/npm-debug.log
+
+django/protected/thumbnails
