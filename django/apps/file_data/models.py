@@ -33,12 +33,11 @@ class File(models.Model):
 
 
 class FileType(models.Model):
-    name = models.CharField(max_length=50)
-    extension_pattern = models.CharField(max_length=50)
+    extension = models.CharField(max_length=50)
     total_size = models.BigIntegerField()
 
     def __str__(self):
-        return self.name
+        return self.extension
 
 
 class FileSummary(models.Model):

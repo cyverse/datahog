@@ -17,7 +17,7 @@ class FolderSerializer(serializers.ModelSerializer):
 class FileTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileType
-        fields = ('id', 'name', 'total_size')
+        fields = ('id', 'extension', 'total_size')
 
 class FileSummarySerializer(serializers.ModelSerializer):
     class Meta:
