@@ -3,16 +3,10 @@ import { Size, ClickToCopy } from './util';
 
 export function FileTable(props) {
     return (
-        <table className='table file-table'>
-            <thead className='light-head'>
-                <tr>
-                    <th>Name</th>
-                    <th>Size</th>
-                </tr>
-            </thead>
+        <table className='table file-table table-hover'>
             <tbody>
                 {props.files.map(file => {
-                    return <FileTableRow 
+                    return <FileRow 
                             file={file} 
                             key={file.id} />
                 })}
@@ -21,20 +15,16 @@ export function FileTable(props) {
     );
 }
 
-export function FileTableRow(props) {
-    let snippedName;
-    if (props.file.name.length > 20) {
-        snippedName = props.file.name.substring(0, 19) + '…';
-    } else {
-        snippedName = props.file.name;
-    }
+export function FileRow(props) {
     return (
         <tr>
-            <td>
-                {snippedName}
-                {props.file.path && <ClickToCopy text={props.file.path} />}
+            <td className="name-cell" style={props.depth ? {paddingLeft: 30*props.depth} : null}>
+                {props.file.name}
             </td>
-            <td>
+            <td className="options-cell">
+                <ClickToCopy text={props.file.path}>Copy path</ClickToCopy>
+            </td>
+            <td className="size-cell">
                 <Size bytes={props.file.size || props.file.total_size}/>
             </td>
         </tr>

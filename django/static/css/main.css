@@ -7,8 +7,50 @@ header {
     margin: auto;
 }
 
-.panel {
+.panel, .card {
     margin-top: 18px;
+}
+
+.tooltip {
+    position: relative;
+}
+
+.panel {
+    max-height: 600px;
+}
+
+.card {
+    min-height: 500px;
+}
+
+.file-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.file-table .name-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-table .size-cell {
+    width: 100px;
+    text-align: right;
+}
+
+.file-table .options-cell {
+    width: 100px;
+    text-align: right;
+}
+
+.file-table .click-to-copy {
+    font-size: 0.6rem;
+    display: none;
+}
+
+.file-table tr:hover .click-to-copy {
+    display: inline;
 }
 
 .file-table td, .file-tree td {
@@ -19,10 +61,6 @@ header {
 
 .light-head th {
     color: #999;
-}
-
-.file-table .click-to-copy {
-    font-size: 0.6rem;
 }
 
 .vis-title {

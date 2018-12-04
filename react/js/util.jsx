@@ -60,7 +60,12 @@ export class ClickToCopy extends React.Component {
             snippedText = this.props.text;
         }
         return (
-            <a className="btn btn-link tooltip click-to-copy" data-tooltip={this.state.toolTipText} onMouseEnter={this.resetText} onClick={this.copyText}>{snippedText}</a>
+            <a className="btn btn-link tooltip click-to-copy"
+                data-tooltip={this.state.toolTipText}
+                onMouseEnter={this.resetText}
+                onClick={this.copyText}>
+                {this.props.children}
+            </a>
         );
     }
 }

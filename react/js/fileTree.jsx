@@ -2,16 +2,11 @@ import React from 'react';
 import axios from 'axios';
 
 import { Size } from './util';
+import { FileRow } from './fileTable';
 
 export function FileTree(props) {
     return (
-        <table className='table file-tree table-hover'>
-            <thead className='light-head'>
-                <tr>
-                    <th>Name</th>
-                    <th>Size</th>
-                </tr>
-            </thead>
+        <table className='table file-table table-hover'>
             <tbody>
                 {props.files.map((file, index) => {
                     return (
@@ -73,11 +68,12 @@ export class FileTreeNode extends React.Component {
             return (
                 <React.Fragment>
                     <tr className="c-hand" onClick={this.handleClick}>
-                        <td style={{paddingLeft: 30*this.props.depth}}>
+                        <td className="name-cell" style={{paddingLeft: 30*this.props.depth}}>
                             <i className={"fa fa-fw " + icon}/>
                             {this.props.file.name}
                         </td>
-                        <td>
+                        <td className="options-cell"></td>
+                        <td className="size-cell">
                             <Size bytes={this.props.file.total_size}/>
                         </td>
                     </tr>
@@ -93,14 +89,7 @@ export class FileTreeNode extends React.Component {
             );
         } else {
             return (
-                <tr>
-                    <td style={{paddingLeft: 30*this.props.depth}}>
-                        {this.props.file.name}
-                    </td>
-                    <td>
-                        <Size bytes={this.props.file.size}/>
-                    </td>
-                </tr>
+                <FileRow file={this.props.file} depth={this.props.depth}/>
             );
         }
     }
