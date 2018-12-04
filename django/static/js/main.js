@@ -28581,7 +28581,7 @@ function (_React$Component) {
         "data-tooltip": this.state.toolTipText,
         onMouseEnter: this.resetText,
         onClick: this.copyText
-      }, snippedText);
+      }, this.props.children);
     }
   }]);
 
@@ -28607,7 +28607,49 @@ function LabeledInput(props) {
     onChange: props.onChange
   }));
 }
-},{"react":"../node_modules/react/index.js"}],"fileTree.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js"}],"fileTable.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.FileTable = FileTable;
+exports.FileRow = FileRow;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _util = require("./util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function FileTable(props) {
+  return _react.default.createElement("table", {
+    className: "table file-table table-hover"
+  }, _react.default.createElement("tbody", null, props.files.map(function (file) {
+    return _react.default.createElement(FileRow, {
+      file: file,
+      key: file.id
+    });
+  })));
+}
+
+function FileRow(props) {
+  return _react.default.createElement("tr", null, _react.default.createElement("td", {
+    className: "name-cell",
+    style: props.depth ? {
+      paddingLeft: 30 * props.depth
+    } : null
+  }, props.file.name), _react.default.createElement("td", {
+    className: "options-cell"
+  }, _react.default.createElement(_util.ClickToCopy, {
+    text: props.file.path
+  }, "Copy path")), _react.default.createElement("td", {
+    className: "size-cell"
+  }, _react.default.createElement(_util.Size, {
+    bytes: props.file.size || props.file.total_size
+  })));
+}
+},{"react":"../node_modules/react/index.js","./util":"util.jsx"}],"fileTree.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28621,6 +28663,8 @@ var _react = _interopRequireDefault(require("react"));
 var _axios = _interopRequireDefault(require("axios"));
 
 var _util = require("./util");
+
+var _fileTable = require("./fileTable");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28644,10 +28688,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 function FileTree(props) {
   return _react.default.createElement("table", {
-    className: "table file-tree table-hover"
-  }, _react.default.createElement("thead", {
-    className: "light-head"
-  }, _react.default.createElement("tr", null, _react.default.createElement("th", null, "Name"), _react.default.createElement("th", null, "Size"))), _react.default.createElement("tbody", null, props.files.map(function (file, index) {
+    className: "table file-table table-hover"
+  }, _react.default.createElement("tbody", null, props.files.map(function (file, index) {
     return _react.default.createElement(FileTreeNode, {
       key: file.id,
       file: file,
@@ -28716,12 +28758,17 @@ function (_React$Component) {
           className: "c-hand",
           onClick: this.handleClick
         }, _react.default.createElement("td", {
+          className: "name-cell",
           style: {
             paddingLeft: 30 * this.props.depth
           }
         }, _react.default.createElement("i", {
           className: "fa fa-fw " + icon
-        }), this.props.file.name), _react.default.createElement("td", null, _react.default.createElement(_util.Size, {
+        }), this.props.file.name), _react.default.createElement("td", {
+          className: "options-cell"
+        }), _react.default.createElement("td", {
+          className: "size-cell"
+        }, _react.default.createElement(_util.Size, {
           bytes: this.props.file.total_size
         }))), this.state.childrenLoaded && !this.state.collapsed && this.props.file.children.map(function (child) {
           return _react.default.createElement(FileTreeNode, {
@@ -28731,13 +28778,10 @@ function (_React$Component) {
           });
         }));
       } else {
-        return _react.default.createElement("tr", null, _react.default.createElement("td", {
-          style: {
-            paddingLeft: 30 * this.props.depth
-          }
-        }, this.props.file.name), _react.default.createElement("td", null, _react.default.createElement(_util.Size, {
-          bytes: this.props.file.size
-        })));
+        return _react.default.createElement(_fileTable.FileRow, {
+          file: this.props.file,
+          depth: this.props.depth
+        });
       }
     }
   }]);
@@ -28746,7 +28790,7 @@ function (_React$Component) {
 }(_react.default.Component);
 
 exports.FileTreeNode = FileTreeNode;
-},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./util":"util.jsx"}],"loadingBox.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./util":"util.jsx","./fileTable":"fileTable.jsx"}],"loadingBox.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -28987,50 +29031,7 @@ function (_React$Component) {
 }(_react.default.Component);
 
 exports.BrowseTab = BrowseTab;
-},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./fileTree":"fileTree.jsx","./loadingBox":"loadingBox.jsx"}],"fileTable.jsx":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FileTable = FileTable;
-exports.FileTableRow = FileTableRow;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _util = require("./util");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function FileTable(props) {
-  return _react.default.createElement("table", {
-    className: "table file-table"
-  }, _react.default.createElement("thead", {
-    className: "light-head"
-  }, _react.default.createElement("tr", null, _react.default.createElement("th", null, "Name"), _react.default.createElement("th", null, "Size"))), _react.default.createElement("tbody", null, props.files.map(function (file) {
-    return _react.default.createElement(FileTableRow, {
-      file: file,
-      key: file.id
-    });
-  })));
-}
-
-function FileTableRow(props) {
-  var snippedName;
-
-  if (props.file.name.length > 20) {
-    snippedName = props.file.name.substring(0, 19) + '…';
-  } else {
-    snippedName = props.file.name;
-  }
-
-  return _react.default.createElement("tr", null, _react.default.createElement("td", null, snippedName, props.file.path && _react.default.createElement(_util.ClickToCopy, {
-    text: props.file.path
-  })), _react.default.createElement("td", null, _react.default.createElement(_util.Size, {
-    bytes: props.file.size || props.file.total_size
-  })));
-}
-},{"react":"../node_modules/react/index.js","./util":"util.jsx"}],"summaryTab.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./fileTree":"fileTree.jsx","./loadingBox":"loadingBox.jsx"}],"summaryTab.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29111,61 +29112,70 @@ function (_React$Component) {
       }, _react.default.createElement("div", {
         className: "column"
       }, this.state.totals && _react.default.createElement("div", {
-        className: "panel"
+        className: "card"
       }, _react.default.createElement("div", {
-        className: "panel-header"
+        className: "card-header"
       }, _react.default.createElement("div", {
-        className: "panel-title h5"
+        className: "card-title h5"
       }, "You have...")), _react.default.createElement("div", {
-        className: "panel-body"
+        className: "card-body"
       }, _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-file"
-      }), "\xA0", this.state.totals.file_count, " files"), _react.default.createElement("p", null, _react.default.createElement("i", {
+      }), this.state.totals.file_count, " files"), _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-folder-open"
-      }), "\xA0", this.state.totals.folder_count, " folders"), _react.default.createElement("p", null, _react.default.createElement("i", {
+      }), this.state.totals.folder_count, " folders"), _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-area-chart"
-      }), "\xA0", _react.default.createElement(_util.Size, {
+      }), _react.default.createElement(_util.Size, {
         bytes: this.state.totals.total_size
       }), " occupied")), _react.default.createElement("div", {
-        className: "panel-footer"
+        className: "card-footer"
       }, "Last updated ", this.state.totals.timestamp))), _react.default.createElement("div", {
         className: "column"
       }, this.state.topTenTypes && _react.default.createElement("div", {
-        className: "panel"
+        className: "card"
       }, _react.default.createElement("div", {
-        className: "panel-header"
+        className: "card-header"
       }, _react.default.createElement("div", {
-        className: "panel-title h5"
+        className: "card-title h5"
       }, "Top File Types")), _react.default.createElement("div", {
-        className: "panel-body"
-      }, _react.default.createElement(_fileTable.FileTable, {
-        title: 'Top File Types',
-        files: this.state.topTenTypes
-      }))))), _react.default.createElement("div", {
+        className: "card-body"
+      }, _react.default.createElement("table", {
+        className: "table file-table"
+      }, _react.default.createElement("tbody", null, this.state.topTenTypes.map(function (type) {
+        return _react.default.createElement("tr", {
+          key: type.id
+        }, _react.default.createElement("td", {
+          className: "name-cell"
+        }, type.extension), _react.default.createElement("td", {
+          className: "size-cell"
+        }, _react.default.createElement(_util.Size, {
+          bytes: type.total_size
+        })));
+      }))))))), _react.default.createElement("div", {
         className: "columns"
       }, _react.default.createElement("div", {
         className: "column"
       }, this.state.topTenFiles && _react.default.createElement("div", {
-        className: "panel"
+        className: "card"
       }, _react.default.createElement("div", {
-        className: "panel-header"
+        className: "card-header"
       }, _react.default.createElement("div", {
-        className: "panel-title h5"
+        className: "card-title h5"
       }, "Largest Files")), _react.default.createElement("div", {
-        className: "panel-body"
+        className: "card-body"
       }, _react.default.createElement(_fileTable.FileTable, {
         title: 'Largest Files',
         files: this.state.topTenFiles
       })))), _react.default.createElement("div", {
         className: "column"
       }, this.state.topTenFolders && _react.default.createElement("div", {
-        className: "panel"
+        className: "card"
       }, _react.default.createElement("div", {
-        className: "panel-header"
+        className: "card-header"
       }, _react.default.createElement("div", {
-        className: "panel-title h5"
+        className: "card-title h5"
       }, "Largest Folders")), _react.default.createElement("div", {
-        className: "panel-body"
+        className: "card-body"
       }, _react.default.createElement(_fileTable.FileTable, {
         title: 'Largest Folders',
         files: this.state.topTenFolders
@@ -29472,7 +29482,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38832" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34820" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
