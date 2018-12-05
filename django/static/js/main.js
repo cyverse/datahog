@@ -28615,12 +28615,158 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FileTable = FileTable;
 exports.FileRow = FileRow;
+exports.PaginatedFileTable = void 0;
 
 var _react = _interopRequireDefault(require("react"));
+
+var _axios = _interopRequireDefault(require("axios"));
 
 var _util = require("./util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+var PaginatedFileTable =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(PaginatedFileTable, _React$Component);
+
+  function PaginatedFileTable(props) {
+    var _this;
+
+    _classCallCheck(this, PaginatedFileTable);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(PaginatedFileTable).call(this, props));
+    _this.state = {
+      files: [],
+      loading: true,
+      error: false,
+      prev: null,
+      next: null,
+      page: 0
+    };
+    _this.onLoad = _this.onLoad.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onError = _this.onError.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.prevPage = _this.prevPage.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.nextPage = _this.nextPage.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+
+    _axios.default.get(_this.props.get + '?limit=10').then(_this.onLoad).catch(_this.onError);
+
+    return _this;
+  }
+
+  _createClass(PaginatedFileTable, [{
+    key: "onLoad",
+    value: function onLoad(response) {
+      this.setState({
+        files: response.data.results,
+        loading: false,
+        error: false,
+        prev: response.data.previous,
+        next: response.data.next
+      });
+      console.log(response);
+    }
+  }, {
+    key: "onError",
+    value: function onError(error) {
+      this.setState({
+        files: [],
+        loading: false,
+        error: true,
+        prev: null,
+        next: null
+      });
+      console.log(error);
+    }
+  }, {
+    key: "nextPage",
+    value: function nextPage() {
+      this.setState({
+        loading: true,
+        page: this.state.page + 1
+      });
+
+      _axios.default.get(this.state.next).then(this.onLoad).catch(this.onError);
+    }
+  }, {
+    key: "prevPage",
+    value: function prevPage() {
+      this.setState({
+        loading: true,
+        page: this.state.page - 1
+      });
+
+      _axios.default.get(this.state.prev).then(this.onLoad).catch(this.onError);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var cardBody;
+
+      if (this.state.error) {
+        cardBody = _react.default.createElement("div", null, "An error occurred.");
+      } else if (this.state.files.length) {
+        cardBody = _react.default.createElement(FileTable, {
+          files: this.state.files
+        });
+      } else {
+        cardBody = _react.default.createElement("div", {
+          className: "loading"
+        });
+      }
+
+      return _react.default.createElement("div", {
+        className: "card"
+      }, _react.default.createElement("div", {
+        className: "card-header"
+      }, _react.default.createElement("div", {
+        className: "card-title h5"
+      }, this.props.title)), _react.default.createElement("div", {
+        className: "card-body"
+      }, cardBody), _react.default.createElement("div", {
+        className: "card-footer"
+      }, _react.default.createElement("div", {
+        className: "float-left text-gray"
+      }, !this.state.loading && this.state.page * 10 + 1 + '-' + (this.state.page * 10 + this.state.files.length)), _react.default.createElement("div", {
+        className: "btn-group float-right"
+      }, _react.default.createElement("button", {
+        className: "btn btn-action btn-sm",
+        onClick: this.prevPage,
+        disabled: this.state.loading || !this.state.prev
+      }, _react.default.createElement("i", {
+        className: "fa fa-caret-left"
+      })), _react.default.createElement("button", {
+        className: "btn btn-action btn-sm",
+        onClick: this.nextPage,
+        disabled: this.state.loading || !this.state.next
+      }, _react.default.createElement("i", {
+        className: "fa fa-caret-right"
+      })))));
+    }
+  }]);
+
+  return PaginatedFileTable;
+}(_react.default.Component);
+
+exports.PaginatedFileTable = PaginatedFileTable;
 
 function FileTable(props) {
   return _react.default.createElement("table", {
@@ -28639,7 +28785,7 @@ function FileRow(props) {
     style: props.depth ? {
       paddingLeft: 30 * props.depth
     } : null
-  }, props.file.name), _react.default.createElement("td", {
+  }, props.file.name || props.file.extension), props.file.path && _react.default.createElement("td", {
     className: "options-cell"
   }, _react.default.createElement(_util.ClickToCopy, {
     text: props.file.path
@@ -28649,7 +28795,7 @@ function FileRow(props) {
     bytes: props.file.size || props.file.total_size
   })));
 }
-},{"react":"../node_modules/react/index.js","./util":"util.jsx"}],"fileTree.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./util":"util.jsx"}],"fileTree.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29079,10 +29225,7 @@ function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SummaryTab).call(this, props));
     _this.state = {
-      topTenFiles: [],
-      topTenFolders: [],
-      topTenTypes: [],
-      totals: {}
+      summary: {}
     };
     _this.onLoad = _this.onLoad.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
@@ -29092,10 +29235,7 @@ function (_React$Component) {
     key: "onLoad",
     value: function onLoad(response) {
       this.setState({
-        topTenFolders: response.data.top_ten_folders,
-        topTenFiles: response.data.top_ten_files,
-        topTenTypes: response.data.top_ten_types,
-        totals: response.data.summary
+        summary: response.data
       });
     }
   }, {
@@ -29111,7 +29251,7 @@ function (_React$Component) {
         className: "columns"
       }, _react.default.createElement("div", {
         className: "column"
-      }, this.state.totals && _react.default.createElement("div", {
+      }, _react.default.createElement("div", {
         className: "card"
       }, _react.default.createElement("div", {
         className: "card-header"
@@ -29121,65 +29261,32 @@ function (_React$Component) {
         className: "card-body"
       }, _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-file"
-      }), this.state.totals.file_count, " files"), _react.default.createElement("p", null, _react.default.createElement("i", {
+      }), this.state.summary.file_count, " files"), _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-folder-open"
-      }), this.state.totals.folder_count, " folders"), _react.default.createElement("p", null, _react.default.createElement("i", {
+      }), this.state.summary.folder_count, " folders"), _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-area-chart"
       }), _react.default.createElement(_util.Size, {
-        bytes: this.state.totals.total_size
+        bytes: this.state.summary.total_size
       }), " occupied")), _react.default.createElement("div", {
         className: "card-footer"
-      }, "Last updated ", this.state.totals.timestamp))), _react.default.createElement("div", {
+      }, "Last updated ", this.state.summary.timestamp))), _react.default.createElement("div", {
         className: "column"
-      }, this.state.topTenTypes && _react.default.createElement("div", {
-        className: "card"
-      }, _react.default.createElement("div", {
-        className: "card-header"
-      }, _react.default.createElement("div", {
-        className: "card-title h5"
-      }, "Top File Types")), _react.default.createElement("div", {
-        className: "card-body"
-      }, _react.default.createElement("table", {
-        className: "table file-table"
-      }, _react.default.createElement("tbody", null, this.state.topTenTypes.map(function (type) {
-        return _react.default.createElement("tr", {
-          key: type.id
-        }, _react.default.createElement("td", {
-          className: "name-cell"
-        }, type.extension), _react.default.createElement("td", {
-          className: "size-cell"
-        }, _react.default.createElement(_util.Size, {
-          bytes: type.total_size
-        })));
-      }))))))), _react.default.createElement("div", {
+      }, _react.default.createElement(_fileTable.PaginatedFileTable, {
+        title: "Top File Types",
+        get: "/api/files/biggestfiletypes"
+      }))), _react.default.createElement("div", {
         className: "columns"
       }, _react.default.createElement("div", {
         className: "column"
-      }, this.state.topTenFiles && _react.default.createElement("div", {
-        className: "card"
-      }, _react.default.createElement("div", {
-        className: "card-header"
-      }, _react.default.createElement("div", {
-        className: "card-title h5"
-      }, "Largest Files")), _react.default.createElement("div", {
-        className: "card-body"
-      }, _react.default.createElement(_fileTable.FileTable, {
-        title: 'Largest Files',
-        files: this.state.topTenFiles
-      })))), _react.default.createElement("div", {
+      }, _react.default.createElement(_fileTable.PaginatedFileTable, {
+        title: "Biggest Files",
+        get: "/api/files/biggestfiles"
+      })), _react.default.createElement("div", {
         className: "column"
-      }, this.state.topTenFolders && _react.default.createElement("div", {
-        className: "card"
-      }, _react.default.createElement("div", {
-        className: "card-header"
-      }, _react.default.createElement("div", {
-        className: "card-title h5"
-      }, "Largest Folders")), _react.default.createElement("div", {
-        className: "card-body"
-      }, _react.default.createElement(_fileTable.FileTable, {
-        title: 'Largest Folders',
-        files: this.state.topTenFolders
-      })))))));
+      }, _react.default.createElement(_fileTable.PaginatedFileTable, {
+        title: "Biggest Folders",
+        get: "/api/files/biggestfolders"
+      })))));
     }
   }]);
 
@@ -29482,7 +29589,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "34820" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46221" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

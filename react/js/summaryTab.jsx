@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileTable } from './fileTable';
+import { PaginatedFileTable } from './fileTable';
 import { Size } from './util';
 import { LoadingBox } from './loadingBox';
 
@@ -7,12 +7,9 @@ export class SummaryTab extends React.Component {
 
     constructor(props) {
         super(props);
-
+        
         this.state = {
-            topTenFiles: [],
-            topTenFolders: [],
-            topTenTypes: [],
-            totals: {}
+            summary: {}
         };
 
         this.onLoad = this.onLoad.bind(this);
@@ -20,10 +17,7 @@ export class SummaryTab extends React.Component {
 
     onLoad(response) {
         this.setState({
-            topTenFolders: response.data.top_ten_folders,
-            topTenFiles: response.data.top_ten_files,
-            topTenTypes: response.data.top_ten_types,
-            totals: response.data.summary
+            summary: response.data
         });
     }
 
@@ -33,87 +27,39 @@ export class SummaryTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column">
-                            {this.state.totals &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">You have...</div>
-                                    </div>
-                                    <div className="card-body">
-                                        <p>
-                                            <i className="fa fa-fw fa-file"></i>
-                                            {this.state.totals.file_count} files
-                                        </p>
-                                        <p>
-                                            <i className="fa fa-fw fa-folder-open"></i>
-                                            {this.state.totals.folder_count} folders
-                                        </p>
-                                        <p>
-                                            <i className="fa fa-fw fa-area-chart"></i>
-                                                <Size bytes={this.state.totals.total_size}/> occupied
-                                        </p>
-                                    </div>
-                                    <div className="card-footer">
-                                        Last updated {this.state.totals.timestamp}
-                                    </div>
+                            <div className="card">
+                                <div className="card-header">
+                                    <div className="card-title h5">You have...</div>
                                 </div>
-                            }
+                                <div className="card-body">
+                                    <p>
+                                        <i className="fa fa-fw fa-file"></i>
+                                        {this.state.summary.file_count} files
+                                    </p>
+                                    <p>
+                                        <i className="fa fa-fw fa-folder-open"></i>
+                                        {this.state.summary.folder_count} folders
+                                    </p>
+                                    <p>
+                                        <i className="fa fa-fw fa-area-chart"></i>
+                                        <Size bytes={this.state.summary.total_size}/> occupied
+                                    </p>
+                                </div>
+                                <div className="card-footer">
+                                    Last updated {this.state.summary.timestamp}
+                                </div>
+                            </div>
                         </div>
                         <div className="column">
-                            {this.state.topTenTypes &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">Top File Types</div>
-                                    </div>
-                                    <div className="card-body">
-                                        <table className='table file-table'>
-                                            <tbody>
-                                                {this.state.topTenTypes.map(type =>
-                                                    <tr key={type.id}>
-                                                        <td className="name-cell">
-                                                            {type.extension}
-                                                        </td>
-                                                        <td className="size-cell">
-                                                            <Size bytes={type.total_size} />
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            }
+                            <PaginatedFileTable title="Top File Types" get="/api/files/biggestfiletypes"/>
                         </div>
                     </div>
                     <div className="columns">
                         <div className="column">
-                            {this.state.topTenFiles &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">Largest Files</div>
-                                    </div>
-                                    <div className="card-body">
-                                        <FileTable
-                                            title={'Largest Files'}
-                                            files={this.state.topTenFiles}
-                                        />
-                                    </div>
-                                </div>
-                            }
+                            <PaginatedFileTable title="Biggest Files" get="/api/files/biggestfiles"/>
                         </div>
                         <div className="column">
-                            {this.state.topTenFolders &&
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="card-title h5">Largest Folders</div>
-                                    </div>
-                                    <div className="card-body">
-                                        <FileTable
-                                            title={'Largest Folders'}
-                                            files={this.state.topTenFolders}
-                                        />
-                                    </div>
-                                </div>
-                            }
+                            <PaginatedFileTable title="Biggest Folders" get="/api/files/biggestfolders"/>
                         </div>
                     </div>
                 </div>
