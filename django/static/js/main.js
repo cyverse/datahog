@@ -28682,7 +28682,6 @@ function (_React$Component) {
         prev: response.data.previous,
         next: response.data.next
       });
-      console.log(response);
     }
   }, {
     key: "onError",
@@ -28694,7 +28693,6 @@ function (_React$Component) {
         prev: null,
         next: null
       });
-      console.log(error);
     }
   }, {
     key: "nextPage",
@@ -28723,13 +28721,13 @@ function (_React$Component) {
 
       if (this.state.error) {
         cardBody = _react.default.createElement("div", null, "An error occurred.");
-      } else if (this.state.files.length) {
-        cardBody = _react.default.createElement(FileTable, {
-          files: this.state.files
-        });
-      } else {
+      } else if (this.state.loading) {
         cardBody = _react.default.createElement("div", {
           className: "loading"
+        });
+      } else {
+        cardBody = _react.default.createElement(FileTable, {
+          files: this.state.files
         });
       }
 

@@ -33,7 +33,6 @@ export class PaginatedFileTable extends React.Component {
             prev: response.data.previous,
             next: response.data.next
         });
-        console.log(response);
     }
 
     onError(error) {
@@ -44,7 +43,6 @@ export class PaginatedFileTable extends React.Component {
             prev: null,
             next: null
         });
-        console.log(error);
     }
 
     nextPage() {
@@ -71,10 +69,10 @@ export class PaginatedFileTable extends React.Component {
         let cardBody;
         if (this.state.error) {
             cardBody = <div>An error occurred.</div>
-        } else if (this.state.files.length) {
-            cardBody = <FileTable files={this.state.files}/>
-        } else {
+        } else if (this.state.loading) {
             cardBody = <div className="loading"></div>
+        } else {
+            cardBody = <FileTable files={this.state.files}/>
         }
         
         return (
