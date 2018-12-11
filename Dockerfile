@@ -12,4 +12,4 @@ RUN python3 manage.py migrate --database=file_data
 
 EXPOSE 8000
 
-CMD supervisord
+CMD ["bash", "-c", "unset REDIRECT_URL && supervisord"]
