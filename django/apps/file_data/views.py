@@ -32,6 +32,22 @@ class GetBiggestFileTypes(generics.ListAPIView):
     ordering = ('-total_size',)
 
 
+class GetBiggestDupeGroups(generics.ListAPIView):
+    queryset = DupeGroup.objects.all()
+    serializer_class = DupeGroupSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('total_size',)
+    ordering_fields = ('-total_size',)
+
+class GetMostDuped(generics.ListAPIView):
+    queryset = DupeGroup.objects.all()
+    serializer_class = DupeGroupSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    ordering_fields = ('file_count',)
+    ordering_fields = ('-file_count',)
+
+
 class GetChildrenOfFolder(views.APIView):
     def get(self, request, folder_id):
         try:
