@@ -87,8 +87,16 @@ export class PaginatedPanel extends React.Component {
                         {!this.state.loading && (this.state.page*10 + 1) + '-' + (this.state.page*10 + this.state.files.length)}
                     </div>
                     <div className="btn-group float-right">
-                        <button className="btn btn-action btn-sm" onClick={this.prevPage} disabled={this.state.loading || !this.state.prev}><i className="fa fa-caret-left"></i></button>
-                        <button className="btn btn-action btn-sm" onClick={this.nextPage} disabled={this.state.loading || !this.state.next}><i className="fa fa-caret-right"></i></button>
+                        <button className="btn btn-action btn-sm" 
+                            onClick={this.prevPage}
+                            disabled={this.state.loading || !this.state.prev}>
+                                <i className="fa fa-caret-left"></i>
+                            </button>
+                        <button className="btn btn-action btn-sm"
+                            onClick={this.nextPage}
+                            disabled={this.state.loading || !this.state.next}>
+                                <i className="fa fa-caret-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>

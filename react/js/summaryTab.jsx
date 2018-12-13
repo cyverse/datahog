@@ -70,10 +70,10 @@ export class SummaryTab extends React.Component {
                     </div>
                     <div className="columns">
                         <div className="column">
-                            <PaginatedPanel title="Top File Types" get="/api/files/biggestfiles" component={FileTable}/>
+                            <PaginatedPanel title="Biggest Files" get="/api/files/biggestfiles" component={FileTable}/>
                         </div>
                         <div className="column">
-                            <PaginatedPanel title="Top File Types" get="/api/files/biggestfolders" component={FileTable}/>
+                            <PaginatedPanel title="Biggest Folders" get="/api/files/biggestfolders" component={FileTable}/>
                         </div>
                     </div>
                 </div>
