@@ -11,16 +11,12 @@ header {
     margin-top: 18px;
 }
 
+.panel {
+    height: 535px;
+}
+
 .tooltip {
     position: relative;
-}
-
-.panel {
-    max-height: 600px;
-}
-
-.card {
-    min-height: 535px;
 }
 
 .file-table {

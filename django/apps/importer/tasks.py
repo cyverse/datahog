@@ -130,7 +130,7 @@ def import_files_from_irods(attempt_id, password):
                 dupe_group = DupeGroup(
                     checksum=checksum,
                     file_count=len(file_list),
-                    total_size=sum(file_obj.size for file_obj in file_list)
+                    file_size=file_list[0].size
                 )
                 for file_obj in file_list:
                     file_obj.dupe_group = dupe_group
