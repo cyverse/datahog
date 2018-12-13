@@ -1,7 +1,9 @@
 import React from 'react';
-import { PaginatedFileTable } from './fileTable';
+import { FileTable } from './fileTable';
+import { PaginatedPanel } from './paginatedPanel';
 import { Size } from './util';
 import { LoadingBox } from './loadingBox';
+import { Link } from 'react-router-dom';
 
 export class SummaryTab extends React.Component {
 
@@ -27,11 +29,11 @@ export class SummaryTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column">
-                            <div className="card">
-                                <div className="card-header">
-                                    <div className="card-title h5">You have...</div>
+                            <div className="panel">
+                                <div className="panel-header">
+                                    <div className="panel-title h5">You have...</div>
                                 </div>
-                                <div className="card-body">
+                                <div className="panel-body">
                                     <p>
                                         <i className="fa fa-fw fa-file"></i>
                                         {this.state.summary.file_count} files
@@ -44,22 +46,34 @@ export class SummaryTab extends React.Component {
                                         <i className="fa fa-fw fa-area-chart"></i>
                                         <Size bytes={this.state.summary.total_size}/> occupied
                                     </p>
+                                    <p>
+                                        {this.state.summary.duplicate_count > 0 ? 
+                                            <Link to="/duplicates">
+                                                <i className="fa fa-fw fa-clone"></i>
+                                                {this.state.summary.duplicate_count} duplicate files
+                                            </Link> :
+                                            <React.Fragment>
+                                                <i className="fa fa-fw fa-clone"></i>
+                                                {this.state.summary.duplicate_count} duplicate files
+                                            </React.Fragment>
+                                        }
+                                    </p>
                                 </div>
-                                <div className="card-footer">
+                                <div className="panel-footer">
                                     Last updated {this.state.summary.timestamp}
                                 </div>
                             </div>
                         </div>
                         <div className="column">
-                            <PaginatedFileTable title="Top File Types" get="/api/files/biggestfiletypes"/>
+                            <PaginatedPanel title="Top File Types" get="/api/files/biggestfiletypes" component={FileTable}/>
                         </div>
                     </div>
                     <div className="columns">
                         <div className="column">
-                            <PaginatedFileTable title="Biggest Files" get="/api/files/biggestfiles"/>
+                            <PaginatedPanel title="Top File Types" get="/api/files/biggestfiles" component={FileTable}/>
                         </div>
                         <div className="column">
-                            <PaginatedFileTable title="Biggest Folders" get="/api/files/biggestfolders"/>
+                            <PaginatedPanel title="Top File Types" get="/api/files/biggestfolders" component={FileTable}/>
                         </div>
                     </div>
                 </div>
