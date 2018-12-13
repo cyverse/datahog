@@ -28568,14 +28568,6 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var snippedText;
-
-      if (this.props.text.length > 20) {
-        snippedText = this.props.text.substring(0, 19) + '…';
-      } else {
-        snippedText = this.props.text;
-      }
-
       return _react.default.createElement("a", {
         className: "btn btn-link tooltip click-to-copy",
         "data-tooltip": this.state.toolTipText,
@@ -28615,156 +28607,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FileTable = FileTable;
 exports.FileRow = FileRow;
-exports.PaginatedFileTable = void 0;
 
 var _react = _interopRequireDefault(require("react"));
-
-var _axios = _interopRequireDefault(require("axios"));
 
 var _util = require("./util");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-var PaginatedFileTable =
-/*#__PURE__*/
-function (_React$Component) {
-  _inherits(PaginatedFileTable, _React$Component);
-
-  function PaginatedFileTable(props) {
-    var _this;
-
-    _classCallCheck(this, PaginatedFileTable);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(PaginatedFileTable).call(this, props));
-    _this.state = {
-      files: [],
-      loading: true,
-      error: false,
-      prev: null,
-      next: null,
-      page: 0
-    };
-    _this.onLoad = _this.onLoad.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.onError = _this.onError.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.prevPage = _this.prevPage.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.nextPage = _this.nextPage.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-
-    _axios.default.get(_this.props.get + '?limit=10').then(_this.onLoad).catch(_this.onError);
-
-    return _this;
-  }
-
-  _createClass(PaginatedFileTable, [{
-    key: "onLoad",
-    value: function onLoad(response) {
-      this.setState({
-        files: response.data.results,
-        loading: false,
-        error: false,
-        prev: response.data.previous,
-        next: response.data.next
-      });
-    }
-  }, {
-    key: "onError",
-    value: function onError(error) {
-      this.setState({
-        files: [],
-        loading: false,
-        error: true,
-        prev: null,
-        next: null
-      });
-    }
-  }, {
-    key: "nextPage",
-    value: function nextPage() {
-      this.setState({
-        loading: true,
-        page: this.state.page + 1
-      });
-
-      _axios.default.get(this.state.next).then(this.onLoad).catch(this.onError);
-    }
-  }, {
-    key: "prevPage",
-    value: function prevPage() {
-      this.setState({
-        loading: true,
-        page: this.state.page - 1
-      });
-
-      _axios.default.get(this.state.prev).then(this.onLoad).catch(this.onError);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var cardBody;
-
-      if (this.state.error) {
-        cardBody = _react.default.createElement("div", null, "An error occurred.");
-      } else if (this.state.loading) {
-        cardBody = _react.default.createElement("div", {
-          className: "loading"
-        });
-      } else {
-        cardBody = _react.default.createElement(FileTable, {
-          files: this.state.files
-        });
-      }
-
-      return _react.default.createElement("div", {
-        className: "card"
-      }, _react.default.createElement("div", {
-        className: "card-header"
-      }, _react.default.createElement("div", {
-        className: "card-title h5"
-      }, this.props.title)), _react.default.createElement("div", {
-        className: "card-body"
-      }, cardBody), _react.default.createElement("div", {
-        className: "card-footer"
-      }, _react.default.createElement("div", {
-        className: "float-left text-gray"
-      }, !this.state.loading && this.state.page * 10 + 1 + '-' + (this.state.page * 10 + this.state.files.length)), _react.default.createElement("div", {
-        className: "btn-group float-right"
-      }, _react.default.createElement("button", {
-        className: "btn btn-action btn-sm",
-        onClick: this.prevPage,
-        disabled: this.state.loading || !this.state.prev
-      }, _react.default.createElement("i", {
-        className: "fa fa-caret-left"
-      })), _react.default.createElement("button", {
-        className: "btn btn-action btn-sm",
-        onClick: this.nextPage,
-        disabled: this.state.loading || !this.state.next
-      }, _react.default.createElement("i", {
-        className: "fa fa-caret-right"
-      })))));
-    }
-  }]);
-
-  return PaginatedFileTable;
-}(_react.default.Component);
-
-exports.PaginatedFileTable = PaginatedFileTable;
 
 function FileTable(props) {
   return _react.default.createElement("table", {
@@ -28790,10 +28638,10 @@ function FileRow(props) {
   }, "Copy path")), _react.default.createElement("td", {
     className: "size-cell"
   }, _react.default.createElement(_util.Size, {
-    bytes: props.file.size || props.file.total_size
+    bytes: props.file.size !== undefined ? props.file.size : props.file.total_size
   })));
 }
-},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./util":"util.jsx"}],"fileTree.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./util":"util.jsx"}],"fileTree.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29005,11 +28853,7 @@ function (_React$Component) {
     value: function render() {
       if (this.state.error) return _react.default.createElement("div", {
         className: "empty"
-      }, _react.default.createElement("div", {
-        className: "empty-icon"
-      }, _react.default.createElement("i", {
-        className: "icon icon-cross"
-      })), _react.default.createElement("p", {
+      }, _react.default.createElement("p", {
         className: "empty-title h5"
       }, "Unable to retrieve files"), _react.default.createElement("p", {
         className: "empty-subtitle"
@@ -29175,7 +29019,161 @@ function (_React$Component) {
 }(_react.default.Component);
 
 exports.BrowseTab = BrowseTab;
-},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./fileTree":"fileTree.jsx","./loadingBox":"loadingBox.jsx"}],"summaryTab.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","./fileTree":"fileTree.jsx","./loadingBox":"loadingBox.jsx"}],"paginatedPanel.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PaginatedPanel = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _axios = _interopRequireDefault(require("axios"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+var PaginatedPanel =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(PaginatedPanel, _React$Component);
+
+  function PaginatedPanel(props) {
+    var _this;
+
+    _classCallCheck(this, PaginatedPanel);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(PaginatedPanel).call(this, props));
+    _this.state = {
+      files: [],
+      loading: true,
+      error: false,
+      prev: null,
+      next: null,
+      page: 0
+    };
+    _this.onLoad = _this.onLoad.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onError = _this.onError.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.prevPage = _this.prevPage.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.nextPage = _this.nextPage.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+
+    _axios.default.get(_this.props.get + '?limit=10').then(_this.onLoad).catch(_this.onError);
+
+    return _this;
+  }
+
+  _createClass(PaginatedPanel, [{
+    key: "onLoad",
+    value: function onLoad(response) {
+      this.setState({
+        files: response.data.results,
+        loading: false,
+        error: false,
+        prev: response.data.previous,
+        next: response.data.next
+      });
+    }
+  }, {
+    key: "onError",
+    value: function onError(error) {
+      this.setState({
+        files: [],
+        loading: false,
+        error: true,
+        prev: null,
+        next: null
+      });
+    }
+  }, {
+    key: "nextPage",
+    value: function nextPage() {
+      this.setState({
+        loading: true,
+        page: this.state.page + 1
+      });
+
+      _axios.default.get(this.state.next).then(this.onLoad).catch(this.onError);
+    }
+  }, {
+    key: "prevPage",
+    value: function prevPage() {
+      this.setState({
+        loading: true,
+        page: this.state.page - 1
+      });
+
+      _axios.default.get(this.state.prev).then(this.onLoad).catch(this.onError);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var panelBody;
+
+      if (this.state.error) {
+        panelBody = _react.default.createElement("div", null, "An error occurred.");
+      } else if (this.state.loading) {
+        panelBody = _react.default.createElement("div", {
+          className: "loading"
+        });
+      } else {
+        panelBody = _react.default.createElement(this.props.component, {
+          files: this.state.files
+        });
+      }
+
+      return _react.default.createElement("div", {
+        className: "panel"
+      }, _react.default.createElement("div", {
+        className: "panel-header"
+      }, _react.default.createElement("div", {
+        className: "panel-title h5"
+      }, this.props.title)), _react.default.createElement("div", {
+        className: "panel-body"
+      }, panelBody), _react.default.createElement("div", {
+        className: "panel-footer"
+      }, _react.default.createElement("div", {
+        className: "float-left text-gray"
+      }, !this.state.loading && this.state.page * 10 + 1 + '-' + (this.state.page * 10 + this.state.files.length)), _react.default.createElement("div", {
+        className: "btn-group float-right"
+      }, _react.default.createElement("button", {
+        className: "btn btn-action btn-sm",
+        onClick: this.prevPage,
+        disabled: this.state.loading || !this.state.prev
+      }, _react.default.createElement("i", {
+        className: "fa fa-caret-left"
+      })), _react.default.createElement("button", {
+        className: "btn btn-action btn-sm",
+        onClick: this.nextPage,
+        disabled: this.state.loading || !this.state.next
+      }, _react.default.createElement("i", {
+        className: "fa fa-caret-right"
+      })))));
+    }
+  }]);
+
+  return PaginatedPanel;
+}(_react.default.Component);
+
+exports.PaginatedPanel = PaginatedPanel;
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js"}],"summaryTab.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29187,9 +29185,13 @@ var _react = _interopRequireDefault(require("react"));
 
 var _fileTable = require("./fileTable");
 
+var _paginatedPanel = require("./paginatedPanel");
+
 var _util = require("./util");
 
 var _loadingBox = require("./loadingBox");
+
+var _reactRouterDom = require("react-router-dom");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29250,13 +29252,13 @@ function (_React$Component) {
       }, _react.default.createElement("div", {
         className: "column"
       }, _react.default.createElement("div", {
-        className: "card"
+        className: "panel"
       }, _react.default.createElement("div", {
-        className: "card-header"
+        className: "panel-header"
       }, _react.default.createElement("div", {
-        className: "card-title h5"
+        className: "panel-title h5"
       }, "You have...")), _react.default.createElement("div", {
-        className: "card-body"
+        className: "panel-body"
       }, _react.default.createElement("p", null, _react.default.createElement("i", {
         className: "fa fa-fw fa-file"
       }), this.state.summary.file_count, " files"), _react.default.createElement("p", null, _react.default.createElement("i", {
@@ -29265,25 +29267,34 @@ function (_React$Component) {
         className: "fa fa-fw fa-area-chart"
       }), _react.default.createElement(_util.Size, {
         bytes: this.state.summary.total_size
-      }), " occupied")), _react.default.createElement("div", {
-        className: "card-footer"
+      }), " occupied"), _react.default.createElement("p", null, this.state.summary.duplicate_count > 0 ? _react.default.createElement(_reactRouterDom.Link, {
+        to: "/duplicates"
+      }, _react.default.createElement("i", {
+        className: "fa fa-fw fa-clone"
+      }), this.state.summary.duplicate_count, " duplicate files") : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("i", {
+        className: "fa fa-fw fa-clone"
+      }), this.state.summary.duplicate_count, " duplicate files"))), _react.default.createElement("div", {
+        className: "panel-footer"
       }, "Last updated ", this.state.summary.timestamp))), _react.default.createElement("div", {
         className: "column"
-      }, _react.default.createElement(_fileTable.PaginatedFileTable, {
+      }, _react.default.createElement(_paginatedPanel.PaginatedPanel, {
         title: "Top File Types",
-        get: "/api/files/biggestfiletypes"
+        get: "/api/files/biggestfiletypes",
+        component: _fileTable.FileTable
       }))), _react.default.createElement("div", {
         className: "columns"
       }, _react.default.createElement("div", {
         className: "column"
-      }, _react.default.createElement(_fileTable.PaginatedFileTable, {
+      }, _react.default.createElement(_paginatedPanel.PaginatedPanel, {
         title: "Biggest Files",
-        get: "/api/files/biggestfiles"
+        get: "/api/files/biggestfiles",
+        component: _fileTable.FileTable
       })), _react.default.createElement("div", {
         className: "column"
-      }, _react.default.createElement(_fileTable.PaginatedFileTable, {
+      }, _react.default.createElement(_paginatedPanel.PaginatedPanel, {
         title: "Biggest Folders",
-        get: "/api/files/biggestfolders"
+        get: "/api/files/biggestfolders",
+        component: _fileTable.FileTable
       })))));
     }
   }]);
@@ -29292,7 +29303,210 @@ function (_React$Component) {
 }(_react.default.Component);
 
 exports.SummaryTab = SummaryTab;
-},{"react":"../node_modules/react/index.js","./fileTable":"fileTable.jsx","./util":"util.jsx","./loadingBox":"loadingBox.jsx"}],"updateTab.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./fileTable":"fileTable.jsx","./paginatedPanel":"paginatedPanel.jsx","./util":"util.jsx","./loadingBox":"loadingBox.jsx","react-router-dom":"../node_modules/react-router-dom/es/index.js"}],"duplicateTable.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DuplicateTable = DuplicateTable;
+exports.DuplicateRow = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _fileTable = require("./fileTable");
+
+var _util = require("./util");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function DuplicateTable(props) {
+  return _react.default.createElement("table", {
+    className: "table file-table table-hover"
+  }, _react.default.createElement("tbody", null, props.files.map(function (group, index) {
+    return _react.default.createElement(DuplicateRow, {
+      key: group.checksum,
+      group: group
+    });
+  })));
+}
+
+var DuplicateRow =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(DuplicateRow, _React$Component);
+
+  function DuplicateRow(props) {
+    var _this;
+
+    _classCallCheck(this, DuplicateRow);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DuplicateRow).call(this, props));
+    _this.state = {
+      collapsed: true
+    };
+    _this.handleClick = _this.handleClick.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    return _this;
+  }
+
+  _createClass(DuplicateRow, [{
+    key: "handleClick",
+    value: function handleClick() {
+      this.setState(function (state) {
+        return {
+          collapsed: !state.collapsed
+        };
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var icon;
+      if (this.state.collapsed) icon = 'fa-caret-right';else icon = 'fa-caret-down';
+      return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("tr", {
+        className: "c-hand",
+        onClick: this.handleClick
+      }, _react.default.createElement("td", {
+        className: "name-cell"
+      }, _react.default.createElement("i", {
+        className: "fa fa-fw " + icon
+      }), this.props.group.file_count, " duplicates of \"", this.props.group.files[0].name, "\""), _react.default.createElement("td", {
+        className: "options-cell"
+      }, "Total size:"), _react.default.createElement("td", {
+        className: "size-cell"
+      }, _react.default.createElement(_util.Size, {
+        bytes: this.props.group.file_size * this.props.group.file_count
+      }))), !this.state.collapsed && this.props.group.files.map(function (file) {
+        return _react.default.createElement(_fileTable.FileRow, {
+          file: file,
+          key: file.id,
+          depth: 1
+        });
+      }));
+    }
+  }]);
+
+  return DuplicateRow;
+}(_react.default.Component);
+
+exports.DuplicateRow = DuplicateRow;
+},{"react":"../node_modules/react/index.js","./fileTable":"fileTable.jsx","./util":"util.jsx"}],"duplicatesTab.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DuplicatesTab = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _loadingBox = require("./loadingBox");
+
+var _paginatedPanel = require("./paginatedPanel");
+
+var _duplicateTable = require("./duplicateTable");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+var DuplicatesTab =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(DuplicatesTab, _React$Component);
+
+  function DuplicatesTab(props) {
+    var _this;
+
+    _classCallCheck(this, DuplicatesTab);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DuplicatesTab).call(this, props));
+    _this.state = {
+      summary: {}
+    };
+    _this.onLoad = _this.onLoad.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    return _this;
+  }
+
+  _createClass(DuplicatesTab, [{
+    key: "onLoad",
+    value: function onLoad(response) {
+      this.setState({
+        summary: response.data
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react.default.createElement(_loadingBox.LoadingBox, {
+        get: "/api/files/summary",
+        callback: this.onLoad,
+        checkForUpdate: true
+      }, this.state.summary.duplicate_count > 0 ? _react.default.createElement("div", {
+        className: "container"
+      }, _react.default.createElement("div", {
+        className: "columns"
+      }, _react.default.createElement("div", {
+        className: "column col-9 col-mx-auto"
+      }, _react.default.createElement(_paginatedPanel.PaginatedPanel, {
+        title: "Most Duplicated Files",
+        get: "/api/files/mostduped",
+        component: _duplicateTable.DuplicateTable
+      }))), _react.default.createElement("div", {
+        className: "columns"
+      }, _react.default.createElement("div", {
+        className: "column col-9 col-mx-auto"
+      }, _react.default.createElement(_paginatedPanel.PaginatedPanel, {
+        title: "Largest Duplicate Files",
+        get: "/api/files/biggestdupes",
+        component: _duplicateTable.DuplicateTable
+      })))) : _react.default.createElement("div", {
+        className: "empty"
+      }, _react.default.createElement("p", {
+        className: "empty-subtitle"
+      }, "You have no duplicate files!")));
+    }
+  }]);
+
+  return DuplicatesTab;
+}(_react.default.Component);
+
+exports.DuplicatesTab = DuplicatesTab;
+},{"react":"../node_modules/react/index.js","./loadingBox":"loadingBox.jsx","./paginatedPanel":"paginatedPanel.jsx","./duplicateTable":"duplicateTable.jsx"}],"updateTab.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29436,14 +29650,14 @@ function (_React$Component) {
       }, _react.default.createElement("div", {
         className: "column col-9 col-mx-auto"
       }, _react.default.createElement("form", {
-        className: "panel",
+        className: "card",
         onSubmit: this.submitForm
       }, _react.default.createElement("div", {
-        className: "panel-header"
+        className: "card-header"
       }, _react.default.createElement("div", {
-        className: "panel-title h5"
+        className: "card-title h5"
       }, "Import from iRODS")), _react.default.createElement("div", {
-        className: "panel-body form-horizontal"
+        className: "card-body form-horizontal"
       }, _react.default.createElement("div", {
         className: "form-group"
       }, _react.default.createElement("div", {
@@ -29500,7 +29714,7 @@ function (_React$Component) {
         value: this.state.folder,
         onChange: this.handleChange
       })))), _react.default.createElement("div", {
-        className: "panel-footer"
+        className: "card-footer"
       }, _react.default.createElement("input", {
         type: "submit",
         className: "btn btn-primary",
@@ -29537,6 +29751,8 @@ var _browseTab = require("./browseTab");
 
 var _summaryTab = require("./summaryTab");
 
+var _duplicatesTab = require("./duplicatesTab");
+
 var _updateTab = require("./updateTab");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -29545,6 +29761,10 @@ var tabs = [{
   name: 'Summary',
   path: '/summary',
   component: _summaryTab.SummaryTab
+}, {
+  name: 'Duplicate Files',
+  path: '/duplicates',
+  component: _duplicatesTab.DuplicatesTab
 }, {
   name: 'Browse Files',
   path: '/browse',
@@ -29560,7 +29780,7 @@ _axios.default.defaults.xsrfCookieName = "csrftoken";
 _reactDom.default.render(_react.default.createElement(_tabNav.TabNav, {
   tabs: tabs
 }), document.getElementById('main'));
-},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","react-dom":"../node_modules/react-dom/index.js","./tabNav":"tabNav.jsx","./browseTab":"browseTab.jsx","./summaryTab":"summaryTab.jsx","./updateTab":"updateTab.jsx"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","axios":"../node_modules/axios/index.js","react-dom":"../node_modules/react-dom/index.js","./tabNav":"tabNav.jsx","./browseTab":"browseTab.jsx","./summaryTab":"summaryTab.jsx","./duplicatesTab":"duplicatesTab.jsx","./updateTab":"updateTab.jsx"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -29587,7 +29807,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46221" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35200" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
