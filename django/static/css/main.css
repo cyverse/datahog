@@ -2,6 +2,11 @@ header {
     text-align: center;
 }
 
+a:focus {
+    outline:none;
+    box-shadow:none;
+}
+
 #main {
     max-width: 1000px;
     margin: auto;
