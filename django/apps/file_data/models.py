@@ -7,7 +7,7 @@ class Folder(models.Model):
     name = models.CharField(max_length=128)
     path = models.CharField(max_length=512)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
-    total_size = models.BigIntegerField()
+    total_size = models.BigIntegerField(default=0)
 
     is_folder = True
 
@@ -20,7 +20,7 @@ class File(models.Model):
     name = models.CharField(max_length=128)
     path = models.CharField(max_length=512)
     parent = models.ForeignKey('Folder', on_delete=models.SET_NULL, blank=True, null=True)
-    size = models.BigIntegerField()
+    size = models.BigIntegerField(default=0)
     file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
     dupe_group = models.ForeignKey('DupeGroup', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
     date_created = models.DateTimeField()
@@ -42,8 +42,8 @@ class FileType(models.Model):
 
 class DupeGroup(models.Model):
     checksum = models.CharField(max_length=32, primary_key=True)
-    total_size = models.BigIntegerField()
-    file_count = models.IntegerField()
+    file_size = models.BigIntegerField(default=0)
+    file_count = models.IntegerField(default=0)
 
 # most duplicated: dupegroup by number of files
 # biggest duplicated: files, filtered by dupegroup, ordered by size
