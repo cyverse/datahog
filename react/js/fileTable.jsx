@@ -27,7 +27,7 @@ export function FileRow(props) {
                 </td>
             }
             <td className="size-cell">
-                <Size bytes={props.file.size || props.file.total_size}/>
+                <Size bytes={props.file.size !== undefined ? props.file.size : props.file.total_size}/>
             </td>
         </tr>
     );
