@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
 
 from .models import *
-from .serializers import FolderSerializer, FileSerializer, FileTypeSerializer, FileSummarySerializer
+from .serializers import *
 
 
 class GetBiggestFiles(generics.ListAPIView):
@@ -30,6 +30,24 @@ class GetBiggestFileTypes(generics.ListAPIView):
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('total_size',)
     ordering = ('-total_size',)
+
+
+class GetBiggestDupeGroups(generics.ListAPIView):
+    queryset = DupeGroup.objects.all()
+    serializer_class = DupeGroupSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('file_size',)
+    ordering = ('-file_size',)
+
+
+class GetMostDuped(generics.ListAPIView):
+    queryset = DupeGroup.objects.all()
+    serializer_class = DupeGroupSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('file_count',)
+    ordering = ('-file_count',)
 
 
 class GetChildrenOfFolder(views.APIView):

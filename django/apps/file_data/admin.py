@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import File, Folder, FileType, FileSummary
+from .models import *
 
 
 class FileAdmin(admin.ModelAdmin):
@@ -38,7 +38,16 @@ class FileSummaryAdmin(admin.ModelAdmin):
         'timestamp',
     )
 
+class DupeGroupAdmin(admin.ModelAdmin):
+    list_display = (
+        'checksum',
+    )
+    search_fields = (
+        'checksum',
+    )
+
 admin.site.register(File, FileAdmin)
 admin.site.register(Folder, FolderAdmin)
 admin.site.register(FileType, FileTypeAdmin)
 admin.site.register(FileSummary, FileSummaryAdmin)
+admin.site.register(DupeGroup, DupeGroupAdmin)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Switch, NavLink, Redirect } from 'react-router-dom';
+import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
 import { UpdateBox } from './updateBox';
 
 export function TabNav(props) {

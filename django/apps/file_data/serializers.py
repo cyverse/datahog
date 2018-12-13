@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import File, Folder, FileType, FileSummary
+from .models import *
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -14,12 +14,20 @@ class FolderSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'total_size', 'path', 'is_folder')
 
 
+class DupeGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        depth = 1
+        model = DupeGroup
+        fields = ('checksum', 'files', 'file_size', 'file_count')
+
+
 class FileTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileType
         fields = ('id', 'extension', 'total_size')
 
+
 class FileSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = FileSummary
-        fields = ('id', 'timestamp', 'folder_count', 'file_count', 'total_size')
+        fields = ('id', 'timestamp', 'folder_count', 'file_count', 'duplicate_count', 'total_size')

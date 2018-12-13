@@ -6,7 +6,7 @@ from celery import shared_task
 from django.db import transaction
 
 from .models import ImportAttempt
-from apps.file_data.models import File, Folder, FileType, FileSummary
+from apps.file_data.models import *
 
 @shared_task
 def import_files_from_irods(attempt_id, password):
@@ -19,6 +19,9 @@ def import_files_from_irods(attempt_id, password):
     file_objects = []
     folder_objects_by_path = {}
     file_types_by_extension = {}
+
+    file_checksums = {}
+    dupe_groups = []
 
     try:
         attempt.current_step = 1
@@ -54,20 +57,25 @@ def import_files_from_irods(attempt_id, password):
                 for row in result_set:
                     file_path = '{}/{}'.format(row[Collection.name], row[DataObject.name])
 
-                    file_objects.append(File(
+                    file_obj = File(
                         name=row[DataObject.name],
                         path=file_path,
                         size=row[DataObject.size],
-                        date_created=row[DataObject.create_time],
-                        checksum=row[DataObject.checksum]
-                    ))
+                        date_created=row[DataObject.create_time]
+                    )
+                    file_objects.append(file_obj)
+
+                    checksum = row[DataObject.checksum]
+                    if checksum in file_checksums:
+                        file_checksums[checksum].append(file_obj)
+                    else:
+                        file_checksums[checksum] = [file_obj]
 
         attempt.current_step = 3
         attempt.save()
         print('Creating objects...')
         for file_obj in file_objects:
 
-            file_count += 1
             total_size += file_obj.size
 
             # find parent folder's path
@@ -89,7 +97,6 @@ def import_files_from_irods(attempt_id, password):
                         total_size=file_obj.size
                     )
                     folder_objects_by_path[parent_path] = parent_obj
-                    folder_count += 1
 
                 # iterate up the hierarchy
                 child_obj.parent = parent_obj
@@ -118,6 +125,17 @@ def import_files_from_irods(attempt_id, password):
         if attempt.top_folder in folder_objects_by_path:
             folder_objects_by_path[attempt.top_folder].name = attempt.top_folder
 
+        for checksum, file_list in file_checksums.items():
+            if len(file_list) >= 2:
+                dupe_group = DupeGroup(
+                    checksum=checksum,
+                    file_count=len(file_list),
+                    file_size=file_list[0].size
+                )
+                for file_obj in file_list:
+                    file_obj.dupe_group = dupe_group
+                dupe_groups.append(dupe_group)
+
         attempt.current_step = 4
         attempt.save()
         print('Filling database...')
@@ -125,13 +143,16 @@ def import_files_from_irods(attempt_id, password):
             FileType.objects.all().delete()
             File.objects.all().delete()
             Folder.objects.all().delete()
+            DupeGroup.objects.all().delete()
 
             File.objects.bulk_create(file_objects)
             Folder.objects.bulk_create(folder_objects_by_path.values())
             FileType.objects.bulk_create(file_types_by_extension.values())
+            DupeGroup.objects.bulk_create(dupe_groups)
             FileSummary.objects.create(
-                folder_count=folder_count,
-                file_count=file_count,
+                folder_count=len(folder_objects_by_path.values()),
+                file_count=len(file_objects),
+                duplicate_count=len(dupe_groups),
                 total_size=total_size
             )
 

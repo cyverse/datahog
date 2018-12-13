@@ -32,9 +32,6 @@ export class LoadingBox extends React.Component {
     render() {
         if (this.state.error) return (
             <div className="empty">
-                <div className="empty-icon">
-                    <i className="icon icon-cross"></i>
-                </div>
                 <p className="empty-title h5">Unable to retrieve files</p>
                 <p className="empty-subtitle">An error occurred, please try again later</p>
             </div>

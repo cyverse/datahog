@@ -104,11 +104,11 @@ export class UpdateTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
-                            <form className="panel" onSubmit={this.submitForm}>
-                                <div className="panel-header">
-                                    <div className="panel-title h5">Import from iRODS</div>
+                            <form className="card" onSubmit={this.submitForm}>
+                                <div className="card-header">
+                                    <div className="card-title h5">Import from iRODS</div>
                                 </div>
-                                <div className="panel-body form-horizontal">
+                                <div className="card-body form-horizontal">
                                     <div className="form-group">
                                         <div className="col-2">
                                             <br/>
@@ -165,7 +165,7 @@ export class UpdateTab extends React.Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="panel-footer">
+                                <div className="card-footer">
                                     <input type="submit" 
                                         className="btn btn-primary"
                                         value="Import from iRODS"

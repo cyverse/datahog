@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { TabNav } from './tabNav';
 import { BrowseTab } from './browseTab';
 import { SummaryTab } from './summaryTab';
+import { DuplicatesTab } from './duplicatesTab';
 import { UpdateTabWithContext } from './updateTab';
 
 let tabs = [
@@ -11,6 +12,11 @@ let tabs = [
         name: 'Summary',
         path: '/summary',
         component: SummaryTab
+    },
+    {
+        name: 'Duplicate Files',
+        path: '/duplicates',
+        component: DuplicatesTab
     },
     {
         name: 'Browse Files',
