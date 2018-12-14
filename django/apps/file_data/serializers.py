@@ -28,6 +28,7 @@ class FileTypeSerializer(serializers.ModelSerializer):
 
 
 class FileSummarySerializer(serializers.ModelSerializer):
+    timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     class Meta:
         model = FileSummary
         fields = ('id', 'timestamp', 'folder_count', 'file_count', 'duplicate_count', 'total_size')
