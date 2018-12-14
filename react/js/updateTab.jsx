@@ -76,7 +76,6 @@ export class UpdateTab extends React.Component {
             }
         }.bind(this))
         .catch(function(error) {
-            console.log(error.response.data);
             this.setState({
                 waiting: false,
                 error: error.response.data
