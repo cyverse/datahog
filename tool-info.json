@@ -23,7 +23,7 @@
         "working_directory" : "/dashboard",
         "image" : {
             "name" : "csklimowski/irods-file-dashboard",
-            "tag" : "demo"
+            "tag" : "demo3"
         },
         "uid" : 0
     },
