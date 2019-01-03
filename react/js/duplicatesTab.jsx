@@ -28,12 +28,12 @@ export class DuplicatesTab extends React.Component {
                     <div className="container">
                         <div className="columns">
                             <div className="column col-9 col-mx-auto">
-                                <PaginatedPanel title="Most Duplicated Files" get="/api/files/mostduped" component={DuplicateTable}/>
+                                <PaginatedPanel scroll={true} title="Most Duplicated Files" get="/api/files/mostduped" component={DuplicateTable}/>
                             </div>
                         </div>
                         <div className="columns">
                             <div className="column col-9 col-mx-auto">
-                                <PaginatedPanel title="Largest Duplicate Files" get="/api/files/biggestdupes" component={DuplicateTable}/>
+                                <PaginatedPanel scroll={true} title="Largest Duplicate Files" get="/api/files/biggestdupes" component={DuplicateTable}/>
                             </div>
                         </div>
                     </div> : 

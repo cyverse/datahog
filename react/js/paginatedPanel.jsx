@@ -48,7 +48,7 @@ export class PaginatedPanel extends React.Component {
         axios.get(this.props.get + '?limit=10&offset=' + (this.state.page+1)*10)
         .then(this.onLoad)
         .catch(this.onError);
-        
+
         this.setState({
             loading: true,
             page: this.state.page + 1
@@ -77,14 +77,14 @@ export class PaginatedPanel extends React.Component {
         }
         
         return (
-            <div className="panel">
-                <div className="panel-header">
-                    <div className="panel-title h5">{this.props.title}</div>
+            <div className={this.props.scroll ? "panel fixed-height" : "card fixed-height"}>
+                <div className={this.props.scroll ? "panel-header" : "card-header"}>
+                    <div className={this.props.scroll ? "panel-title h5" : "card-title h5"}>{this.props.title}</div>
                 </div>
-                <div className="panel-body">
+                <div className={this.props.scroll ? "panel-body" : "card-body"}>
                     {panelBody}
                 </div>
-                <div className="panel-footer">
+                <div className={this.props.scroll ? "panel-footer" : "card-footer"}>
                     <div className="float-left text-gray">
                         {!this.state.loading && (this.state.page*10 + 1) + '-' + (this.state.page*10 + this.state.files.length)}
                     </div>

@@ -29,7 +29,7 @@ export class SummaryTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column">
-                            <div className="panel">
+                            <div className="panel fixed-height">
                                 <div className="panel-header">
                                     <div className="panel-title h5">You have...</div>
                                 </div>
@@ -65,15 +65,15 @@ export class SummaryTab extends React.Component {
                             </div>
                         </div>
                         <div className="column">
-                            <PaginatedPanel title="Top File Types" get="/api/files/biggestfiletypes" component={FileTable}/>
+                            <PaginatedPanel scroll={false} title="Top File Types" get="/api/files/biggestfiletypes" component={FileTable}/>
                         </div>
                     </div>
                     <div className="columns">
                         <div className="column">
-                            <PaginatedPanel title="Biggest Files" get="/api/files/biggestfiles" component={FileTable}/>
+                            <PaginatedPanel scroll={false} title="Biggest Files" get="/api/files/biggestfiles" component={FileTable}/>
                         </div>
                         <div className="column">
-                            <PaginatedPanel title="Biggest Folders" get="/api/files/biggestfolders" component={FileTable}/>
+                            <PaginatedPanel scroll={false} title="Biggest Folders" get="/api/files/biggestfolders" component={FileTable}/>
                         </div>
                     </div>
                 </div>

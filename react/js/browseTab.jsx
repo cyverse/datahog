@@ -70,7 +70,7 @@ export class BrowseTab extends React.Component {
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
-                            <div className="panel">
+                            <div className="panel fixed-height">
                                 <div className="panel-header">
                                     <div className="input-group">
                                         <input type="text" className="form-input" placeholder="Search..." ref={this.searchBar}/>

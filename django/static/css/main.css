@@ -16,7 +16,7 @@ a:focus {
     margin-top: 18px;
 }
 
-.panel {
+.panel.fixed-height, .card.fixed-height {
     height: 535px;
 }
 
