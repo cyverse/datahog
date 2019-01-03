@@ -45,23 +45,25 @@ export class PaginatedPanel extends React.Component {
     }
 
     nextPage() {
+        axios.get(this.props.get + '?limit=10&offset=' + (this.state.page+1)*10)
+        .then(this.onLoad)
+        .catch(this.onError);
+        
         this.setState({
             loading: true,
             page: this.state.page + 1
         });
-        axios.get(this.state.next)
-        .then(this.onLoad)
-        .catch(this.onError);
     }
 
     prevPage() {
+        axios.get(this.props.get + '?limit=10&offset=' + (this.state.page-1)*10)
+        .then(this.onLoad)
+        .catch(this.onError);
+        
         this.setState({
             loading: true,
             page: this.state.page - 1
         });
-        axios.get(this.state.prev)
-        .then(this.onLoad)
-        .catch(this.onError);
     }
 
     render() {
