@@ -38,4 +38,23 @@ def create_size_timeline_data():
 
 
 def create_type_chart_data():
-    return ''
+    all_types = FileType.objects.order_by('-total_size')
+    top_five_types = all_types[:5]
+    size_per_type = []
+    for file_type in top_five_types:
+        size_per_type.append({
+            'type': file_type.extension,
+            'total_size': file_type.total_size
+        })
+
+    other_size = (
+        all_types.aggregate(Sum('total_size'))['total_size__sum'] - 
+        top_five_types.aggregate(Sum('total_size'))['total_size__sum']
+    )
+    size_per_type.append({
+        'type': 'other',
+        'total_size': other_size
+    })
+
+    return json.dumps(size_per_type)
+    
