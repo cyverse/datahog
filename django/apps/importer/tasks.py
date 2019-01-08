@@ -107,20 +107,22 @@ def import_files_from_irods(attempt_id, password):
 
             # find file type
             last_dot = file_obj.name.rfind('.')
-            if last_dot != -1:
+            if last_dot != -1 and last_dot < len(file_obj.name)-1:
                 extension = file_obj.name[last_dot+1:]
-                if extension in file_types_by_extension:
-                    file_type = file_types_by_extension[extension]
-                    file_type.total_size += file_obj.size
-                else:
-                    # if this file type doesn't exist yet, create it
-                    file_type = FileType(
-                        extension=extension,
-                        total_size=file_obj.size
-                    )
-                    file_types_by_extension[extension] = file_type
+            else:
+                extension = ''
+            if extension in file_types_by_extension:
+                file_type = file_types_by_extension[extension]
+                file_type.total_size += file_obj.size
+            else:
+                # if this file type doesn't exist yet, create it
+                file_type = FileType(
+                    extension=extension,
+                    total_size=file_obj.size
+                )
+                file_types_by_extension[extension] = file_type
 
-                file_obj.file_type = file_type
+            file_obj.file_type = file_type
 
         if attempt.top_folder in folder_objects_by_path:
             folder_objects_by_path[attempt.top_folder].name = attempt.top_folder
