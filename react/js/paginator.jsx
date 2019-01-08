@@ -46,7 +46,7 @@ export class Paginator extends React.Component {
     nextPage() {
         this.props.onClick();
 
-        axios.get(this.props.get + '?limit=10&offset=' + (this.state.page+1)*10)
+        axios.get(this.props.get + '?limit=' + this.props.limit + '&offset=' + (this.state.page+1)*10)
         .then(this.onLoad)
         .catch(this.onError);
 
@@ -59,7 +59,7 @@ export class Paginator extends React.Component {
     prevPage() {
         this.props.onClick();
 
-        axios.get(this.props.get + '?limit=10&offset=' + (this.state.page-1)*10)
+        axios.get(this.props.get + '?limit=' + this.props.limit + '&offset=' + (this.state.page-1)*10)
         .then(this.onLoad)
         .catch(this.onError);
         
