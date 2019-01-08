@@ -3,6 +3,7 @@ from rest_framework import views, pagination, generics, filters
 
 from .models import *
 from .serializers import *
+from .helpers import create_size_timeline_data, create_type_chart_data
 
 
 class GetBiggestFiles(generics.ListAPIView):
@@ -101,6 +102,12 @@ class GetFileSummary(views.APIView):
             summary = FileSummary.objects.latest('timestamp')
         except FileSummary.DoesNotExist:
             summary = FileSummary.objects.create()
+        
+        if not summary.size_timeline_data:
+            summary.size_timeline_data = create_size_timeline_data()
+        if not summary.type_chart_data:
+            summary.type_chart_data = create_type_chart_data()
+        summary.save()
         
         summary_serialized = FileSummarySerializer(summary)
         return Response(summary_serialized.data)

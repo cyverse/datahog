@@ -45,8 +45,6 @@ class DupeGroup(models.Model):
     file_size = models.BigIntegerField(default=0)
     file_count = models.IntegerField(default=0)
 
-# most duplicated: dupegroup by number of files
-# biggest duplicated: files, filtered by dupegroup, ordered by size
 
 class FileSummary(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -54,3 +52,5 @@ class FileSummary(models.Model):
     file_count = models.IntegerField(default=0)
     duplicate_count = models.IntegerField(default=0)
     total_size = models.BigIntegerField(default=0)
+    size_timeline_data = models.TextField(blank=True, null=True)
+    type_chart_data = models.TextField(blank=True, null=True)
