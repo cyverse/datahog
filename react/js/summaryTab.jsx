@@ -4,6 +4,7 @@ import { PaginatedPanel } from './paginatedPanel';
 import { LoadingBox } from './loadingBox';
 import { Link } from 'react-router-dom';
 import { SizeTimeline } from './sizeTimeline';
+import { TypePanel } from './typePanel';
 
 export class SummaryTab extends React.Component {
 
@@ -25,7 +26,7 @@ export class SummaryTab extends React.Component {
 
     render() {
         return (
-            <LoadingBox get="/api/files/summary" callback={this.onLoad} checkForUpdate={true}>
+            <LoadingBox get="/api/files/summary" callback={this.onLoad}>
                 <div className="container">
                     <div className="columns">
                         <div className="column">
@@ -55,7 +56,6 @@ export class SummaryTab extends React.Component {
                                         }
                                     </p>
                                 </div>
-
                                 <div className="visualization">
                                     <SizeTimeline data={this.state.summary.size_timeline_data} id="sizeTimeline"/>
                                 </div>
@@ -65,11 +65,7 @@ export class SummaryTab extends React.Component {
                             </div>
                         </div>
                         <div className="column">
-                            <PaginatedPanel 
-                                scroll={false}
-                                title="Top File Types"
-                                get="/api/files/biggestfiletypes"
-                                component={FileTable}/>
+                            <TypePanel data={this.state.summary.type_chart_data}/>
                         </div>
                     </div>
                     <div className="columns">
