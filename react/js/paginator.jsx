@@ -24,7 +24,7 @@ export class Paginator extends React.Component {
     }
 
     onLoad(response) {
-        this.props.onLoad(response.data.results);
+        this.props.onLoad(response.data.results, this.state.page);
         this.setState({
             enabled: true,
             prev: response.data.previous,
@@ -46,7 +46,8 @@ export class Paginator extends React.Component {
     nextPage() {
         this.props.onClick();
 
-        axios.get(this.props.get + '?limit=' + this.props.limit + '&offset=' + (this.state.page+1)*10)
+        axios.get(this.props.get + '?limit=' + this.props.limit + 
+            '&offset=' + (this.state.page+1)*this.props.limit)
         .then(this.onLoad)
         .catch(this.onError);
 
@@ -59,7 +60,8 @@ export class Paginator extends React.Component {
     prevPage() {
         this.props.onClick();
 
-        axios.get(this.props.get + '?limit=' + this.props.limit + '&offset=' + (this.state.page-1)*10)
+        axios.get(this.props.get + '?limit=' + this.props.limit + 
+            '&offset=' + (this.state.page-1)*this.props.limit)
         .then(this.onLoad)
         .catch(this.onError);
         
@@ -73,8 +75,9 @@ export class Paginator extends React.Component {
         return (
             <div className="paginator">
                 <div className="float-left text-gray">
-                    {(this.state.page*10 + 1) + 
-                        '-' + (this.state.page*10 + this.state.pageSize)
+                    {
+                        (this.state.page*this.props.limit + 1) + 
+                        '-' + (this.state.page*this.props.limit + this.state.pageSize)
                     }
                 </div>
                 <div className="btn-group float-right">
