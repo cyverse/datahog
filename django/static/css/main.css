@@ -73,10 +73,6 @@ a:focus {
     margin-left: 75px;
 }
 
-.visualization {
-    min-height: 300px;
-}
-
 nav#tabs {
     display: flex;
     justify-content: center;
