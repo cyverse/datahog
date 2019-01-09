@@ -16,8 +16,12 @@ a:focus {
     margin-top: 18px;
 }
 
-.panel.fixed-height, .card.fixed-height {
+.panel.fixed-height {
     height: 535px;
+}
+
+.card.fixed-height {
+    min-height: 535px;
 }
 
 .tooltip {

@@ -3,6 +3,7 @@ from rest_framework import views, pagination, generics, filters
 
 from .models import *
 from .serializers import *
+from .helpers import create_size_timeline_data, create_type_chart_data
 
 
 class GetBiggestFiles(generics.ListAPIView):
@@ -102,30 +103,11 @@ class GetFileSummary(views.APIView):
         except FileSummary.DoesNotExist:
             summary = FileSummary.objects.create()
         
+        if not summary.size_timeline_data:
+            summary.size_timeline_data = create_size_timeline_data()
+        if not summary.type_chart_data:
+            summary.type_chart_data = create_type_chart_data()
+        summary.save()
+        
         summary_serialized = FileSummarySerializer(summary)
         return Response(summary_serialized.data)
-
-
-# class GetSummary(views.APIView):
-#     def get(self, request):
-#         top_ten_files = File.objects.order_by('-size')[:10]
-#         top_ten_folders = Folder.objects.order_by('-total_size')[:10]
-#         top_ten_types = FileType.objects.order_by('-total_size')[:10]
-#         try:
-#             summary = FileSummary.objects.latest('timestamp')
-#         except FileSummary.DoesNotExist:
-#             summary = FileSummary.objects.create()
-
-#         files_serialized = FileSerializer(top_ten_files.all(), many=True)
-#         folders_serialized = FolderSerializer(top_ten_folders.all(), many=True)
-#         types_serialized = FileTypeSerializer(top_ten_types.all(), many=True)
-#         summary_serialized = FileSummarySerializer(summary)
-
-#         response_object = {
-#             'summary': summary_serialized.data,
-#             'top_ten_files': files_serialized.data,
-#             'top_ten_folders': folders_serialized.data,
-#             'top_ten_types': types_serialized.data
-#         }
-
-#         return Response(response_object)
