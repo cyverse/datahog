@@ -16,8 +16,8 @@ export class SizeTimeline extends React.Component {
             return;
         }
         // set up padding
-        let svgWidth = 450, svgHeight = 300;
-        let svgPadding = {top: 50, bottom: 20, left: 50, right: 20};
+        let svgWidth = 450, svgHeight = 270;
+        let svgPadding = {top: 50, bottom: 20, left: 50, right: 30};
         
         let svg = d3.select('#' + this.props.id + '>svg')
             .attr("width", svgWidth)
@@ -70,6 +70,27 @@ export class SizeTimeline extends React.Component {
         let line = d3.line()
             .x(function(d) { return xScale(d.date) })
             .y(function(d) { return yScale(d.total_size) });
+
+        let bookendedData = [{
+            date: d3.min(data, d => d.date),
+            total_size: 0
+        }].concat(data).concat([{
+            date: d3.max(data, d => d.date),
+            total_size: 0
+        }]);
+            
+        
+        graph.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#a1d99b")
+        .attr("stroke-width", 4)
+        .attr("d", line);
+        
+        graph.append('path')
+        .datum(bookendedData)
+        .attr("fill", "#e5f5e0")
+        .attr("d", line);
         
         // add axes and line to graph
         graph.append("g")
@@ -78,13 +99,6 @@ export class SizeTimeline extends React.Component {
         
         graph.append("g")
             .call(sizeAxis);
-
-        graph.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "green")
-            .attr("stroke-width", 3)
-            .attr("d", line);
 
         graph.append("text")
             .attr("y", -25)
