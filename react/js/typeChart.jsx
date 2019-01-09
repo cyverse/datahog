@@ -11,7 +11,6 @@ export class TypeChart extends React.Component {
         let data;
         if (this.props.data) {
             data = JSON.parse(this.props.data);
-            console.log(data);
         } else {
             return;
         }
@@ -20,16 +19,15 @@ export class TypeChart extends React.Component {
 
         let svg = d3.select('#' + this.props.id + '>svg')
             .attr('width', svgWidth)
-            .attr('height', svgHeight)
+            .attr('height', svgHeight);
 
+        svg.selectAll('g').remove();
         let pieChart = svg.append('g')
             .attr('transform', 'translate(' + svgWidth / 2 + ',' + (svgHeight / 2) + ')');
 
-        let pieColors = d3.scaleOrdinal(d3.schemeGreens[data.length + 1]);
+        let pieSlices = d3.pie().value(d => d.total_size);
 
-        let pieSlices = d3.pie()
-            .value(function(d) { return d.total_size; })
-            .sort(null);
+        let pieColors = d3.scaleOrdinal(this.props.colors);
 
         let arcShape = d3.arc()
             .innerRadius(0)
@@ -38,7 +36,7 @@ export class TypeChart extends React.Component {
         pieChart.datum(data).selectAll('path')
             .data(pieSlices)
             .enter().append('path')
-            .attr('fill', function(d, i) { return pieColors(i); })
+            .attr('fill', (d, i) => pieColors(i))
             .attr('d', arcShape);
     }
 
