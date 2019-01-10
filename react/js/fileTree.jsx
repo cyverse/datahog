@@ -4,17 +4,65 @@ import axios from 'axios';
 import { Size } from './util';
 import { FileRow } from './fileTable';
 
-export function FileTree(props) {
+export class FileTree extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            sort: null
+        }
+
+        this.resort = this.resort.bind(this);
+    }
+
+    resort(event) {
+        let sortBy = event.target.dataset.sort;
+        this.setState({
+            sort: sortBy
+        });
+    }
+
+    render() {
+        return (
+            <table className='table file-table table-hover'>
+                <thead>
+                    <tr>
+                        <SortHeader title='Name' sortBy='name' currentSort={this.state.sort} onClick={this.resort}/>
+                        <th></th>
+                        <SortHeader title='Size' sortBy='size' currentSort={this.state.sort} onClick={this.resort}/>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.props.files.map((file, index) => {
+                        return (
+                            <FileTreeNode key={file.id} file={file} depth={0} />
+                        )
+                    })}
+                </tbody>
+            </table>
+        );
+    }
+}
+
+export function SortHeader(props) {
+    let sortDirection;
+    if (props.currentSort === props.sortBy) {
+        sortDirection = 1;
+    } else if (props.currentSort === '-' + props.sortBy) {
+        sortDirection = -1;
+    } else {
+        sortDirection = 0;
+    }
     return (
-        <table className='table file-table table-hover'>
-            <tbody>
-                {props.files.map((file, index) => {
-                    return (
-                        <FileTreeNode key={file.id} file={file} depth={0} />
-                    )
-                })}
-            </tbody>
-        </table>
+        <th>
+            <a className='btn btn-link'
+                onClick={props.onClick}
+                data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
+                {props.title} &nbsp;
+                {sortDirection > 0 && <i className='fa fa-caret-down'></i>}
+                {sortDirection < 0 && <i className='fa fa-caret-up'></i>}
+            </a>
+        </th>
     );
 }
 
