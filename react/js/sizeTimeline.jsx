@@ -12,6 +12,7 @@ export class SizeTimeline extends React.Component {
         let data;
         if (this.props.data) {
             data = JSON.parse(this.props.data);
+            if (!data.length) return;
         } else {
             return;
         }

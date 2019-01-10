@@ -6,9 +6,13 @@ from django.db.models import Sum
 from apps.file_data.models import File, Folder, FileType
 
 def create_size_timeline_data():
-    earliest_file = File.objects.earliest('date_created')
+    try:
+        earliest_file = File.objects.earliest('date_created')
+    except File.DoesNotExist:
+        return '[]'
+    
     now = datetime.datetime.now()
-    time_period = (now - earliest_file.date_created) / 100
+    time_period = (now - earliest_file.date_created) / 50
 
     current_date = earliest_file.date_created
     current_size = File.objects.filter(
@@ -39,22 +43,31 @@ def create_size_timeline_data():
 
 def create_type_chart_data():
     all_types = FileType.objects.order_by('-total_size')
-    top_five_types = all_types[:5]
     size_per_type = []
-    for file_type in top_five_types:
+    
+    if all_types.count() > 5:
+        top_five_types = all_types[:5]
+        for file_type in top_five_types:
+            size_per_type.append({
+                'type': file_type.extension,
+                'total_size': file_type.total_size
+            })
+
+        other_size = (
+            all_types.aggregate(Sum('total_size'))['total_size__sum'] - 
+            top_five_types.aggregate(Sum('total_size'))['total_size__sum']
+        )
         size_per_type.append({
-            'type': file_type.extension,
-            'total_size': file_type.total_size
+            'type': 'other',
+            'total_size': other_size
         })
 
-    other_size = (
-        all_types.aggregate(Sum('total_size'))['total_size__sum'] - 
-        top_five_types.aggregate(Sum('total_size'))['total_size__sum']
-    )
-    size_per_type.append({
-        'type': 'other',
-        'total_size': other_size
-    })
+    else:
+        for file_type in all_types:
+            size_per_type.append({
+                'type': file_type.extension,
+                'total_size': file_type.total_size
+            })
 
     return json.dumps(size_per_type)
     
