@@ -17,6 +17,7 @@ export class FileTree extends React.Component {
 
     resort(event) {
         let sortBy = event.target.dataset.sort;
+        recursiveSort(this.props.files, sortBy);
         this.setState({
             sort: sortBy
         });
@@ -41,6 +42,45 @@ export class FileTree extends React.Component {
                 </tbody>
             </table>
         );
+    }
+}
+
+function recursiveSort(files, sortBy) {
+    if (sortBy === 'name') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.name < b.name) return -1;
+            if (b.name < a.name) return 1;
+            return 0;
+        });
+    } else if (sortBy === '-name') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.name < b.name) return 1;
+            if (b.name < a.name) return -1;
+            return 0;
+        });
+    } else if (sortBy === 'size') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return b.total_size - a.total_size;
+            else             return b.size - a.size;
+        });
+    } else if (sortBy === '-size') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return a.total_size - b.total_size;
+            else             return a.size - b.size;
+        });
+    }
+    for (let file of files) {
+        if (file.children) {
+            recursiveSort(file.children, sortBy);
+        }
     }
 }
 
