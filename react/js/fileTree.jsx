@@ -9,7 +9,7 @@ export class FileTree extends React.Component {
         super(props);
 
         this.state = {
-            sort: null
+            sort: ''
         }
 
         this.resort = this.resort.bind(this);
@@ -36,7 +36,7 @@ export class FileTree extends React.Component {
                 <tbody>
                     {this.props.files.map((file, index) => {
                         return (
-                            <FileTreeNode key={file.id} file={file} depth={0} />
+                            <FileTreeNode key={file.id} file={file} depth={0} sort={this.state.sort}/>
                         )
                     })}
                 </tbody>
@@ -125,7 +125,7 @@ export class FileTreeNode extends React.Component {
                     collapsed: false
                 });
             } else {
-                axios.get('/api/files/' + this.props.file.id + '/children')
+                axios.get('/api/files/' + this.props.file.id + '/children?sort=' + this.props.sort)
                 .then(this.receiveChildren)
                 .catch(function(error) {
                     console.log(error);
@@ -170,7 +170,8 @@ export class FileTreeNode extends React.Component {
                         return <FileTreeNode 
                                 file={child} 
                                 key={child.id}
-                                depth={this.props.depth + 1}/>
+                                depth={this.props.depth + 1}
+                                sort={this.props.sort}/>
                         })
                     }
                 </React.Fragment>

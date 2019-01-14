@@ -61,6 +61,17 @@ class GetChildrenOfFolder(views.APIView):
         child_folders = Folder.objects.filter(parent=parent_folder)
         child_files   = File.objects.filter(parent=parent_folder)
 
+        sort = request.GET.get('sort', '')
+        if sort == 'size':
+            child_folders = child_folders.order_by('size')
+            child_files   = child_files.order_by('total_size')
+        elif sort == '-size':
+            child_folders = child_folders.order_by('-size')
+            child_files   = child_files.order_by('-total_size')
+        elif sort:
+            child_folders = child_folders.order_by(sort)
+            child_files   = child_files.order_by(sort)
+
         folder_serializer = FolderSerializer(child_folders.all(), many=True)
         file_serializer   = FileSerializer(child_files.all(), many=True)
 
