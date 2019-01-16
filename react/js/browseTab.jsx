@@ -3,127 +3,7 @@ import axios from 'axios';
 
 import { FileTree } from './fileTree'
 import { LoadingBox } from './loadingBox';
-import { LabeledInput } from './util';
-
-export class SearchForm extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            filters: [
-                {
-                    field: 'name',
-                    value: ''
-                }
-            ],
-            showFilters: false
-        }
-
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.showFilters = this.showFilters.bind(this);
-        this.hideFilters = this.hideFilters.bind(this);
-        this.addFilter = this.addFilter.bind(this);
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-        this.props.submit(this.state.props);
-    }
-
-    showFilters(event) {
-        this.setState({
-            showFilters: true
-        });
-    }
-
-    hideFilters(event) {
-        this.setState({
-            showFilters: false
-        });
-    }
-
-    addFilter(event) {
-        this.state.filters.push({
-            field: 'name',
-            value: ''
-        });
-        this.state.showFilters = false;
-        this.setState(this.state);
-    }
-
-    render() {
-        return (
-            <form className="form-horizontal" onSubmit={this.submitForm}>
-                {this.state.filters.map(filter =>
-                    <FilterForm key={filter.field} filter={filter}/>
-                )}
-                <div className="form-group" onMouseLeave={this.hideFilters}>
-                    {this.state.showFilters ?
-                        <React.Fragment>
-                            <button className="btn btn-link" onClick={this.addFilter}>Path</button>
-                            <button className="btn btn-link" onClick={this.addFilter}>File name</button>
-                            <button className="btn btn-link" onClick={this.addFilter}>Regex pattern</button>
-                            <button className="btn btn-link" onClick={this.addFilter}>Created before</button>
-                            <button className="btn btn-link" onClick={this.addFilter}>Created after</button>
-                            <button className="btn btn-link" onClick={this.addFilter}>Larger than</button>
-                            <button className="btn btn-link" onClick={this.addFilter}>Smaller than</button>
-                        </React.Fragment> :
-                        <React.Fragment>
-                            <button className="btn btn-link" onClick={this.showFilters}><i className="fa fa-plus"></i> Add Filter</button>
-                            <button className="btn btn-link" onClick={this.showFilters}><i className="fa fa-minus"></i> Remove Filter</button>
-                        </React.Fragment>
-                    }
-                    <input type="submit" className="btn btn-primary col-ml-auto" value="Go"/>
-                </div>
-            </form>
-        );
-    }
-}
-
-export class FilterForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.changedField = this.changedField.bind(this);
-        this.changedValue = this.changedValue.bind(this);
-        this.state = {};
-    }
-
-    changedField(event) {
-        this.props.filter.field = event.target.value;
-        this.setState({});
-    }
-
-    changedValue(event) {
-        this.props.filter.value = event.target.value;
-        this.setState({});
-    }
-
-    render() {
-        return (
-            <div className="form-group">
-                <select value={this.props.filter.field} className="form-select col-3" onChange={this.changedField}>
-                    <option value='path'>Path</option>
-                    <option value='name'>File name</option>
-                    <option value='pattern'>Regex pattern</option>
-                    <option value='created_before'>Created before</option>
-                    <option value='created_after'>Created after</option>
-                    <option value='larger_than'>Larger than</option>
-                    <option value='smaller_than'>Smaller than</option>
-                </select>
-                <span className="col-1"></span>
-                {(this.props.filter.field === 'path' || this.props.filter.field === 'name' || this.props.filter.field === 'pattern') && (
-                    <input value={this.props.filter.value} type="text" className="form-input col-8" onChange={this.changedValue}/>
-                )}
-                {(this.props.filter.field === 'created_before' || this.props.filter.field === 'created_after') && (
-                    <input value={this.props.filter.value} type="date" className="form-input col-8" onChange={this.changedValue}/>
-                )}
-                {(this.props.filter.field === 'larger_than' || this.props.filter.field === 'smaller_than') && (
-                    <input value={this.props.filter.value} type="number" className="form-input col-8" onChange={this.changedValue}/>
-                )}
-            </div>
-        )
-    }
-}
+import { SelectButton } from './util';
 
 export class BrowseTab extends React.Component {
 
@@ -133,7 +13,6 @@ export class BrowseTab extends React.Component {
         this.state = {
             files: [],
             searching: false,
-            searchTerms: '',
             searchResults: [],
             searchLoading: false
         };
@@ -153,7 +32,6 @@ export class BrowseTab extends React.Component {
 
     clearSearch() {
         this.setState({
-            searchTerms: '',
             searching: false,
             searchLoading: false,
             searchResults: []
@@ -161,27 +39,24 @@ export class BrowseTab extends React.Component {
         this.searchBar.current.value = '';
     }
 
-    searchFiles(filters) {
-        // this.setState({
-        //     searchTerms: this.searchBar.current.value,
-        //     searching: true,
-        //     searchLoading: true,
-        // });
-        // axios.post('/api/files/search', {
-        //     name: this.searchBar.current.value
-        // })
-        // .then(function(response) {
-        //     this.setState({
-        //         searchLoading: false,
-        //         searchResults: response.data
-        //     });
-        // }.bind(this))
-        // .catch(function(error) {
-        //     this.setState({
-        //         searchLoading: false,
-        //         searchResults: []
-        //     });
-        // }.bind(this));
+    searchFiles(params) {
+        this.setState({
+            searching: true,
+            searchLoading: true,
+        });
+        axios.post('/api/files/search', params)
+        .then(function(response) {
+            this.setState({
+                searchLoading: false,
+                searchResults: response.data
+            });
+        }.bind(this))
+        .catch(function(error) {
+            this.setState({
+                searchLoading: false,
+                searchResults: []
+            });
+        }.bind(this));
     }
 
     render() {
@@ -202,7 +77,9 @@ export class BrowseTab extends React.Component {
                                                 <React.Fragment>
                                                     <div className="toast toast-primary">
                                                         Found {this.state.files.length} results.
-                                                        <a className="float-right c-hand" onClick={this.clearSearch}>Clear search</a>
+                                                        <a className="float-right c-hand" onClick={this.clearSearch}>
+                                                            Clear search
+                                                        </a>
                                                     </div>
                                                     <FileTree files={this.state.searchResults} />
                                                 </React.Fragment>
@@ -217,5 +94,174 @@ export class BrowseTab extends React.Component {
                 </div>
             </LoadingBox>
         );
+    }
+}
+
+export class SearchForm extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            searchText: '',
+            searchType: 'text',
+            filters: []
+        }
+
+        this.searchBar = React.createRef();
+
+        this.submitSearch = this.submitSearch.bind(this);
+        this.changeSearchType = this.changeSearchType.bind(this);
+        this.addFilter = this.addFilter.bind(this);
+        this.removeFilter = this.removeFilter.bind(this);
+    }
+
+    submitSearch(event) {
+        let params = {
+            name: this.searchBar.current.value,
+            type: this.state.searchType
+        };
+        for (let filter of this.state.filters) {
+            params[filter.field] = filter.value;
+        }
+        this.props.submit(params);
+    }
+
+    changeSearchType(type) {
+        this.setState({
+            searchType: type
+        });
+    }
+
+    addFilter(event) {
+        this.state.filters.push({
+            field: 'created_after',
+            value: '',
+            unit: 'KB'
+        });
+        this.setState(this.state);
+    }
+
+    removeFilter() {
+        this.state.filters.pop();
+        this.setState(this.state);
+    }
+
+    render() {
+        return (
+            <form className="form-horizontal" onSubmit={this.submitForm}  onMouseLeave={this.hideFilters}>
+                <div className="form-group">
+                    <div className="has-btn-right col-11">
+                        <input type="text" className="form-input" ref={this.searchBar} placeholder="Search files..." />
+                        <span className="form-btn">
+                            <SelectButton
+                                target={this.state.searchType} 
+                                value='text'
+                                onClick={this.changeSearchType}>
+                                    Text
+                            </SelectButton>
+                            <SelectButton
+                                target={this.state.searchType}
+                                value='regex'
+                                onClick={this.changeSearchType}>
+                                    Regex
+                            </SelectButton>
+                        </span>
+                    </div>
+                    <button className="btn btn-primary input-group-btn col-1" onClick={this.submitSearch}>
+                        Go
+                    </button>
+                </div>
+                {this.state.filters.map(filter =>
+                    <FilterForm key={filter.field} filter={filter}/>
+                )}
+                <div className="form-group">
+                    <button className="btn btn-sm btn-link" onClick={this.addFilter}>
+                        <i className="fa fa-plus"></i> Add Filter
+                    </button>
+                    {this.state.filters.length > 0 && 
+                        <button className="btn btn-sm btn-link" onClick={this.removeFilter}>
+                            <i className="fa fa-minus"></i> Remove Filter
+                        </button>
+                    }
+                </div>
+            </form>
+        );
+    }
+}
+
+export class FilterForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.changeField = this.changeField.bind(this);
+        this.changeValue = this.changeValue.bind(this);
+        this.changeUnit = this.changeUnit.bind(this);
+        this.state = {};
+    }
+
+    changeField(event) {
+        this.props.filter.field = event.target.value;
+        this.setState({});
+    }
+
+    changeValue(event) {
+        this.props.filter.value = event.target.value;
+        this.setState({});
+    }
+
+    changeUnit(unit) {
+        this.props.filter.unit = unit;
+        this.setState({});
+    }
+
+    render() {
+        return (
+            <div className="form-group">
+                <select value={this.props.filter.field} className="form-select col-3" onChange={this.changeField}>
+                    <option value="created_after">Created after</option>
+                    <option value="created_before">Created before</option>
+                    <option value="larger_than">Larger than</option>
+                    <option value="smaller_than">Smaller than</option>
+                </select>
+                <span className="col-1"></span>
+                {(this.props.filter.field === 'created_before' || this.props.filter.field === 'created_after') && (
+                    <input type="date" 
+                        value={this.props.filter.value}
+                        className="form-input col-3"
+                        onChange={this.changeValue}
+                    />
+                )}
+                {(this.props.filter.field === 'larger_than' || this.props.filter.field === 'smaller_than') && (
+                    <div className="has-btn-right col-4">
+                        <input type="text" className="form-input" placeholder="Size" onChange={this.changeValue}/>
+                        <span className="form-btn">
+                            <SelectButton
+                                target={this.props.filter.unit}
+                                value='KB'
+                                onClick={this.changeUnit}>
+                                    KB
+                            </SelectButton>
+                            <SelectButton
+                                target={this.props.filter.unit}
+                                value='MB'
+                                onClick={this.changeUnit}>
+                                    MB
+                            </SelectButton>
+                            <SelectButton
+                                target={this.props.filter.unit}
+                                value='GB'
+                                onClick={this.changeUnit}>
+                                    GB
+                            </SelectButton>
+                            <SelectButton
+                                target={this.props.filter.unit}
+                                value='TB'
+                                onClick={this.changeUnit}>
+                                    TB
+                            </SelectButton>
+                        </span>
+                    </div>
+                )}
+            </div>
+        )
     }
 }

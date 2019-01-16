@@ -83,3 +83,22 @@ export function LabeledInput(props) {
         </React.Fragment>
     );
 }
+
+export class SelectButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick() {
+        this.props.onClick(this.props.value);
+    }
+
+    render() {
+        return <button 
+            class={this.props.target === this.props.value ? "btn btn-sm" : 'btn btn-sm btn-link'}
+            onClick={this.handleClick}>
+                {this.props.children}
+        </button>
+    }
+}

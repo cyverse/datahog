@@ -40,7 +40,7 @@ a:focus {
 }
 
 .file-table .size-cell {
-    width: 100px;
+    max-width: 100px;
     text-align: right;
 }
 
@@ -58,14 +58,15 @@ a:focus {
     display: inline;
 }
 
-.file-table td, .file-tree td {
-    border: none !important;
-    padding: 0;
+.table td, .table th {
+    border: none;
+    padding: 0px;
     height: 40px;
 }
 
-.light-head th {
-    color: #999;
+.panel-header.search-header {
+    border-bottom: .05rem solid #e7e9ed;
+    padding-bottom: 5px;
 }
 
 .vis-title {
@@ -83,4 +84,22 @@ nav#tabs {
     position: relative;
     top: 0;
     transition: top 200ms;
+}
+
+.form-horizontal {
+    margin: 0;
+    padding: 0;
+}
+
+.has-btn-right {
+    position: relative;
+}
+
+.has-btn-right .form-btn {
+    margin: 0 .25rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    right: .05rem;
 }
