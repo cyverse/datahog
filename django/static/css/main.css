@@ -14,10 +14,15 @@ a:focus {
 
 .panel, .card {
     margin-top: 18px;
+    border-width: 0.1rem;
 }
 
-.panel.fixed-height {
-    height: 535px;
+.tab-block {
+    border-bottom-width: 0.1rem;
+}
+
+.panel.fixed-height .panel-body {
+    height: 435px;
 }
 
 .card.fixed-height {
@@ -65,7 +70,7 @@ a:focus {
 }
 
 .panel-header.search-header {
-    border-bottom: .05rem solid #e7e9ed;
+    border-bottom: .1rem solid #e7e9ed;
     padding-bottom: 5px;
 }
 
@@ -102,4 +107,8 @@ nav#tabs {
     transform: translateY(-50%);
     z-index: 2;
     right: .05rem;
+}
+
+.toast {
+    margin-top: 15px;
 }
