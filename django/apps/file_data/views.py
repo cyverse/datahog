@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
 
@@ -92,19 +94,45 @@ class GetTopLevelFiles(views.APIView):
 
 class SearchFiles(views.APIView):
     def post(self, request):
-
-        search_terms = ''
-        matching_folders = Folder.objects
         matching_files = File.objects
 
         if 'name' in request.data:
-            matching_folders = Folder.objects.filter(name__icontains=request.data['name'])
-            matching_files = File.objects.filter(name__icontains=request.data['name'])
+            if 'type' in request.data and request.data['type'] == 'regex':
+                matching_files = matching_files.filter(name__regex=request.data['name'])
+            else:
+                matching_files = matching_files.filter(name__icontains=request.data['name'])
 
-        folder_serializer = FolderSerializer(matching_folders.all(), many=True)
-        file_serializer   = FileSerializer(matching_files.all(), many=True)
-
-        return Response(folder_serializer.data + file_serializer.data)
+        if 'created_after' in request.data:
+            try:
+                parsed_date = datetime.datetime.strptime(request.data['created_after'], r'%Y-%m-%d')
+                matching_files = matching_files.filter(date_created__gte=parsed_date)
+            except ValueError:
+                pass
+        
+        if 'created_before' in request.data and request.data['created_before']:
+            try:
+                parsed_date = datetime.datetime.strptime(request.data['created_before'], r'%Y-%m-%d')
+                matching_files = matching_files.filter(date_created__lt=parsed_date)
+            except ValueError:
+                pass
+        
+        if 'larger_than' in request.data:
+            try:
+                parsed_size = int(request.data['larger_than'])
+                matching_files = matching_files.filter(size__gte=parsed_size)
+            except ValueError:
+                pass
+        
+        if 'smaller_than' in request.data:
+            try:
+                parsed_size = int(request.data['smaller_than'])
+                matching_files = matching_files.filter(size__lt=parsed_size)
+            except ValueError:
+                pass
+            pass
+        
+        files_serialized = FileSerializer(matching_files.all(), many=True)
+        return Response(files_serialized.data)
 
 
 class GetFileSummary(views.APIView):

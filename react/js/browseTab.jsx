@@ -75,8 +75,8 @@ export class BrowseTab extends React.Component {
                                             <div className="loading loading-lg"></div> :
                                             (
                                                 <React.Fragment>
-                                                    <div className="toast toast-primary">
-                                                        Found {this.state.files.length} results.
+                                                    <div className="toast">
+                                                        Found {this.state.searchResults.length} results.
                                                         <a className="float-right c-hand" onClick={this.clearSearch}>
                                                             Clear search
                                                         </a>
@@ -121,7 +121,14 @@ export class SearchForm extends React.Component {
             type: this.state.searchType
         };
         for (let filter of this.state.filters) {
-            params[filter.field] = filter.value;
+            let value = filter.value;
+            if (filter.field === 'larger_than' || filter.field === 'smaller_than') {
+                if      (filter.unit === 'kB') value *= 1000;
+                else if (filter.unit === 'MB') value *= 1000000;
+                else if (filter.unit === 'GB') value *= 1000000000;
+                else if (filter.unit === 'TB') value *= 1000000000000;
+            }
+            params[filter.field] = value;
         }
         this.props.submit(params);
     }
@@ -136,7 +143,7 @@ export class SearchForm extends React.Component {
         this.state.filters.push({
             field: 'created_after',
             value: '',
-            unit: 'KB'
+            unit: 'kB'
         });
         this.setState(this.state);
     }
@@ -236,9 +243,9 @@ export class FilterForm extends React.Component {
                         <span className="form-btn">
                             <SelectButton
                                 target={this.props.filter.unit}
-                                value='KB'
+                                value='kB'
                                 onClick={this.changeUnit}>
-                                    KB
+                                    kB
                             </SelectButton>
                             <SelectButton
                                 target={this.props.filter.unit}

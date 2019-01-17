@@ -95,10 +95,11 @@ export class SelectButton extends React.Component {
     }
 
     render() {
-        return <button 
-            class={this.props.target === this.props.value ? "btn btn-sm" : 'btn btn-sm btn-link'}
-            onClick={this.handleClick}>
+        return (
+            <button onClick={this.handleClick}
+                className={this.props.target === this.props.value ? 'btn btn-sm' : 'btn btn-sm btn-link'}>
                 {this.props.children}
-        </button>
+            </button>
+        )
     }
 }
