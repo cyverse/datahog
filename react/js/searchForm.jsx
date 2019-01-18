@@ -47,7 +47,8 @@ export class SearchForm extends React.Component {
         this.state.filters.push({
             field: 'created_after',
             value: '',
-            unit: 'kB'
+            unit: 'kB',
+            id: Date.now()
         });
         this.setState(this.state);
     }
@@ -83,7 +84,7 @@ export class SearchForm extends React.Component {
                     </button>
                 </div>
                 {this.state.filters.map(filter =>
-                    <FilterForm key={filter.field} filter={filter}/>
+                    <FilterForm key={filter.id} filter={filter}/>
                 )}
                 <div className="form-group">
                     <button className="btn btn-sm btn-link" onClick={this.addFilter}>
