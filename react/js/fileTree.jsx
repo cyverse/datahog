@@ -1,8 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { Size } from './util';
-import { FileRow } from './fileTable';
+import { Size, ClickToCopy } from './util';
 
 export class FileTree extends React.Component {
     constructor(props) {
@@ -29,8 +28,9 @@ export class FileTree extends React.Component {
                 <thead>
                     <tr>
                         <SortHeader title='Name' sortBy='name' currentSort={this.state.sort} onClick={this.resort}/>
-                        <th></th>
-                        <SortHeader title='Size' sortBy='size' currentSort={this.state.sort} onClick={this.resort}/>
+                        <th className='options-cell'></th>
+                        <SortHeader className='date-cell' title='Date Created' sortBy='date' currentSort={this.state.sort} onClick={this.resort}/>
+                        <SortHeader className='size-cell' title='Size' sortBy='size' currentSort={this.state.sort} onClick={this.resort}/>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,6 +76,24 @@ function recursiveSort(files, sortBy) {
             if (a.is_folder) return a.total_size - b.total_size;
             else             return a.size - b.size;
         });
+    } else if (sortBy === 'date') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return 0;
+            if (a.date_created < b.date_created) return -1;
+            if (a.date_created > b.date_created) return 1;
+            return 0;
+        });
+    } else if (sortBy === '-date') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return 0;
+            if (a.date_created < b.date_created) return 1;
+            if (a.date_created > b.date_created) return -1;
+            return 0;
+        });
     }
     for (let file of files) {
         if (file.children) {
@@ -94,7 +112,7 @@ export function SortHeader(props) {
         sortDirection = 0;
     }
     return (
-        <th>
+        <th className={props.className}>
             <a className='btn btn-link'
                 onClick={props.onClick}
                 data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
@@ -125,7 +143,7 @@ export class FileTreeNode extends React.Component {
                     collapsed: false
                 });
             } else {
-                axios.get('/api/files/' + this.props.file.id + '/children?sort=' + this.props.sort)
+                axios.get('/api/files/' + this.props.file.id + '/children')
                 .then(this.receiveChildren)
                 .catch(function(error) {
                     console.log(error);
@@ -161,6 +179,7 @@ export class FileTreeNode extends React.Component {
                             {this.props.file.name}
                         </td>
                         <td className="options-cell"></td>
+                        <td className="date-cell"></td>
                         <td className="size-cell">
                             <Size bytes={this.props.file.total_size}/>
                         </td>
@@ -178,7 +197,20 @@ export class FileTreeNode extends React.Component {
             );
         } else {
             return (
-                <FileRow file={this.props.file} depth={this.props.depth}/>
+                <tr>
+                    <td className="name-cell" style={{paddingLeft: 30*this.props.depth}}>
+                        {this.props.file.name}
+                    </td>
+                    <td className="options-cell">
+                        <ClickToCopy text={this.props.file.path}>Copy path</ClickToCopy>
+                    </td>
+                    <td className="date-cell">
+                        {this.props.file.date_created}
+                    </td>
+                    <td className="size-cell">
+                        <Size bytes={this.props.file.size}/>
+                    </td>
+                </tr>
             );
         }
     }
