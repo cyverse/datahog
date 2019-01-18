@@ -29,7 +29,7 @@ export class FileTree extends React.Component {
                     <tr>
                         <SortHeader title='Name' sortBy='name' currentSort={this.state.sort} onClick={this.resort}/>
                         <th className='options-cell'></th>
-                        <SortHeader className='date-cell' title='Date Created' sortBy='date' currentSort={this.state.sort} onClick={this.resort}/>
+                        <SortHeader className='date-cell' title='Created' sortBy='date' currentSort={this.state.sort} onClick={this.resort}/>
                         <SortHeader className='size-cell' title='Size' sortBy='size' currentSort={this.state.sort} onClick={this.resort}/>
                     </tr>
                 </thead>
@@ -81,8 +81,8 @@ function recursiveSort(files, sortBy) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
             if (a.is_folder) return 0;
-            if (a.date_created < b.date_created) return -1;
-            if (a.date_created > b.date_created) return 1;
+            if (a.date_created < b.date_created) return 1;
+            if (a.date_created > b.date_created) return -1;
             return 0;
         });
     } else if (sortBy === '-date') {
@@ -90,8 +90,8 @@ function recursiveSort(files, sortBy) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
             if (a.is_folder) return 0;
-            if (a.date_created < b.date_created) return 1;
-            if (a.date_created > b.date_created) return -1;
+            if (a.date_created < b.date_created) return -1;
+            if (a.date_created > b.date_created) return 1;
             return 0;
         });
     }
@@ -158,6 +158,7 @@ export class FileTreeNode extends React.Component {
 
     receiveChildren(response) {
         this.props.file.children = response.data;
+        recursiveSort(this.props.file.children, this.props.sort);
         this.setState({
             collapsed: false,
             childrenLoaded: true
