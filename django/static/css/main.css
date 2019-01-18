@@ -7,6 +7,10 @@ a:focus {
     box-shadow:none;
 }
 
+.btn.btn-sm:focus {
+    box-shadow: none;
+}
+
 #main {
     max-width: 1000px;
     margin: auto;
@@ -45,12 +49,17 @@ a:focus {
 }
 
 .file-table .size-cell {
-    max-width: 100px;
+    width: 90px;
+    text-align: right;
+}
+
+.file-table .date-cell {
+    width: 90px;
     text-align: right;
 }
 
 .file-table .options-cell {
-    width: 100px;
+    width: 90px;
     text-align: right;
 }
 
