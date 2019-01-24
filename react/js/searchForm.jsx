@@ -43,7 +43,7 @@ export class SearchForm extends React.Component {
         });
     }
 
-    addFilter(event) {
+    addFilter() {
         this.state.filters.push({
             field: 'created_after',
             value: '',
@@ -60,7 +60,7 @@ export class SearchForm extends React.Component {
 
     render() {
         return (
-            <form className="form-horizontal" onSubmit={this.submitForm}  onMouseLeave={this.hideFilters}>
+            <div className="form-horizontal">
                 <div className="form-group">
                     <div className="has-btn-right col-11">
                         <input type="text" className="form-input" ref={this.searchBar} placeholder="Search files..." />
@@ -96,7 +96,7 @@ export class SearchForm extends React.Component {
                         </button>
                     }
                 </div>
-            </form>
+            </div>
         );
     }
 }
