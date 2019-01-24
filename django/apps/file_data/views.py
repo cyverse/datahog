@@ -120,7 +120,13 @@ class SearchFiles(views.APIView):
                 pass
             pass
         
-        files_serialized = FileSerializer(matching_files.all(), many=True)
+        if 'offset' in request.data:
+            offset = int(request.data['offset'])
+            matching_files = matching_files.all()[offset:offset+100]
+        else:
+            matching_files = matching_files.all()[:100]
+        
+        files_serialized = FileSerializer(matching_files, many=True)
         return Response(files_serialized.data)
 
 
