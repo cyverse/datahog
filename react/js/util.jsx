@@ -34,7 +34,8 @@ export class ClickToCopy extends React.Component {
         this.resetText = this.resetText.bind(this);
     }
 
-    copyText() {
+    copyText(event) {
+        event.stopPropagation();
         navigator.clipboard.writeText(this.props.text).then(function() {
             this.setState({
                 toolTipText: 'Copied to clipboard!'
@@ -90,7 +91,7 @@ export class SelectButton extends React.Component {
         this.handleClick = this.handleClick.bind(this);
     }
 
-    handleClick() {
+    handleClick(event) {
         this.props.onClick(this.props.value);
     }
 

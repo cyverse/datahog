@@ -179,7 +179,9 @@ export class FileTreeNode extends React.Component {
                             <i className={"fa fa-fw " + icon}/>
                             {this.props.file.name}
                         </td>
-                        <td className="options-cell"></td>
+                        <td className="options-cell">
+                            <ClickToCopy text={this.props.file.path}>Copy path</ClickToCopy>
+                        </td>
                         <td className="date-cell"></td>
                         <td className="size-cell">
                             <Size bytes={this.props.file.total_size}/>
