@@ -98,7 +98,9 @@ export class BrowseTab extends React.Component {
                 searching: true,
                 searchLoading: true
             });
-            axios.post('/api/files/search', params)
+            axios.get('/api/files/search', {
+                params: params
+            })
             .then(this.onSearchLoad)
             .catch(this.onSearchError);
         }
