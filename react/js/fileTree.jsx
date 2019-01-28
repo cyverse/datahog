@@ -16,7 +16,12 @@ export class FileTree extends React.Component {
 
     resort(event) {
         let sortBy = event.target.dataset.sort;
-        recursiveSort(this.props.files, sortBy);
+        if (this.props.searchOnSort) {
+            this.props.searchParams.sort = sortBy;
+            this.props.searchCallback(this.props.searchParams);
+        } else {
+            recursiveSort(this.props.files, sortBy);
+        }
         this.setState({
             sort: sortBy
         });
@@ -29,7 +34,7 @@ export class FileTree extends React.Component {
                     <tr>
                         <SortHeader title='Name' sortBy='name' currentSort={this.state.sort} onClick={this.resort}/>
                         <th className='options-cell'></th>
-                        <SortHeader className='date-cell' title='Created' sortBy='date' currentSort={this.state.sort} onClick={this.resort}/>
+                        <SortHeader className='date-cell' title='Created' sortBy='date_created' currentSort={this.state.sort} onClick={this.resort}/>
                         <SortHeader className='size-cell' title='Size' sortBy='size' currentSort={this.state.sort} onClick={this.resort}/>
                     </tr>
                 </thead>
@@ -76,7 +81,7 @@ function recursiveSort(files, sortBy) {
             if (a.is_folder) return a.total_size - b.total_size;
             else             return a.size - b.size;
         });
-    } else if (sortBy === 'date') {
+    } else if (sortBy === 'date_created') {
         files.sort(function(a, b) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
@@ -85,7 +90,7 @@ function recursiveSort(files, sortBy) {
             if (a.date_created > b.date_created) return -1;
             return 0;
         });
-    } else if (sortBy === '-date') {
+    } else if (sortBy === '-date_created') {
         files.sort(function(a, b) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
