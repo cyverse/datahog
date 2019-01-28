@@ -6,7 +6,6 @@ export class SearchForm extends React.Component {
         super(props);
 
         this.state = {
-            searchText: '',
             searchType: 'text',
             filters: []
         }
@@ -17,6 +16,7 @@ export class SearchForm extends React.Component {
         this.changeSearchType = this.changeSearchType.bind(this);
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
+        this.clearSearch = this.clearSearch.bind(this);
     }
 
     submitSearch(event) {
@@ -56,6 +56,14 @@ export class SearchForm extends React.Component {
     removeFilter() {
         this.state.filters.pop();
         this.setState(this.state);
+    }
+
+    clearSearch() {
+        this.searchBar.current.value = '';
+        this.setState({
+            searchType: 'text',
+            filters: []
+        });
     }
 
     render() {
