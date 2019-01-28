@@ -67,21 +67,21 @@ function recursiveSort(files, sortBy) {
             if (b.name.toLowerCase() < a.name.toLowerCase()) return -1;
             return 0;
         });
-    } else if (sortBy === 'size') {
+    } else if (sortBy === '-size') {
         files.sort(function(a, b) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
             if (a.is_folder) return b.total_size - a.total_size;
             else             return b.size - a.size;
         });
-    } else if (sortBy === '-size') {
+    } else if (sortBy === 'size') {
         files.sort(function(a, b) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
             if (a.is_folder) return a.total_size - b.total_size;
             else             return a.size - b.size;
         });
-    } else if (sortBy === 'date_created') {
+    } else if (sortBy === '-date_created') {
         files.sort(function(a, b) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
@@ -90,7 +90,7 @@ function recursiveSort(files, sortBy) {
             if (a.date_created > b.date_created) return -1;
             return 0;
         });
-    } else if (sortBy === '-date_created') {
+    } else if (sortBy === 'date_created') {
         files.sort(function(a, b) {
             if (a.is_folder && !b.is_folder) return -1;
             if (b.is_folder && !a.is_folder) return 1;
@@ -122,8 +122,8 @@ export function SortHeader(props) {
                 onClick={props.onClick}
                 data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
                 {props.title} &nbsp;
-                {sortDirection > 0 && <i className='fa fa-caret-down'></i>}
-                {sortDirection < 0 && <i className='fa fa-caret-up'></i>}
+                {sortDirection > 0 && <i className='fa fa-caret-up'></i>}
+                {sortDirection < 0 && <i className='fa fa-caret-down'></i>}
             </a>
         </th>
     );
