@@ -5,6 +5,55 @@ from django.db.models import Sum
 
 from apps.file_data.models import File, Folder, FileType
 
+class EchoBuffer:
+    def write(self, value):
+        return value
+
+
+def filter_files(file_query, filters):
+    filtered_query = file_query
+
+    if 'name' in filters:
+        if 'type' in filters and filters['type'] == 'regex':
+            filtered_query = filtered_query.filter(name__regex=filters['name'])
+        else:
+            filtered_query = filtered_query.filter(name__icontains=filters['name'])
+
+    if 'created_after' in filters:
+        try:
+            parsed_date = datetime.datetime.strptime(filters['created_after'], r'%Y-%m-%d')
+            filtered_query = filtered_query.filter(date_created__gte=parsed_date)
+        except ValueError:
+            pass
+    
+    if 'created_before' in filters and filters['created_before']:
+        try:
+            parsed_date = datetime.datetime.strptime(filters['created_before'], r'%Y-%m-%d')
+            filtered_query = filtered_query.filter(date_created__lt=parsed_date)
+        except ValueError:
+            pass
+    
+    if 'larger_than' in filters:
+        try:
+            parsed_size = int(filters['larger_than'])
+            filtered_query = filtered_query.filter(size__gte=parsed_size)
+        except ValueError:
+            pass
+    
+    if 'smaller_than' in filters:
+        try:
+            parsed_size = int(filters['smaller_than'])
+            filtered_query = filtered_query.filter(size__lt=parsed_size)
+        except ValueError:
+            pass
+        pass
+    
+    if 'sort' in filters:
+        filtered_query = filtered_query.order_by(filters['sort'])
+    
+    return filtered_query
+
+
 def create_size_timeline_data():
     try:
         earliest_file = File.objects.earliest('date_created')

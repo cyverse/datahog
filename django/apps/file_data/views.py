@@ -1,11 +1,13 @@
 import datetime
+import csv
 
+from django.http import StreamingHttpResponse
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
 
 from .models import *
 from .serializers import *
-from .helpers import create_size_timeline_data, create_type_chart_data
+from .helpers import create_size_timeline_data, create_type_chart_data, filter_files, EchoBuffer
 
 
 class GetBiggestFiles(generics.ListAPIView):
@@ -82,52 +84,35 @@ class GetTopLevelFiles(views.APIView):
 
 
 class SearchFiles(views.APIView):
-    def post(self, request):
-        matching_files = File.objects
+    def get(self, request):
+        matching_files = filter_files(File.objects, request.GET)
 
-        if 'name' in request.data:
-            if 'type' in request.data and request.data['type'] == 'regex':
-                matching_files = matching_files.filter(name__regex=request.data['name'])
-            else:
-                matching_files = matching_files.filter(name__icontains=request.data['name'])
-
-        if 'created_after' in request.data:
-            try:
-                parsed_date = datetime.datetime.strptime(request.data['created_after'], r'%Y-%m-%d')
-                matching_files = matching_files.filter(date_created__gte=parsed_date)
-            except ValueError:
-                pass
-        
-        if 'created_before' in request.data and request.data['created_before']:
-            try:
-                parsed_date = datetime.datetime.strptime(request.data['created_before'], r'%Y-%m-%d')
-                matching_files = matching_files.filter(date_created__lt=parsed_date)
-            except ValueError:
-                pass
-        
-        if 'larger_than' in request.data:
-            try:
-                parsed_size = int(request.data['larger_than'])
-                matching_files = matching_files.filter(size__gte=parsed_size)
-            except ValueError:
-                pass
-        
-        if 'smaller_than' in request.data:
-            try:
-                parsed_size = int(request.data['smaller_than'])
-                matching_files = matching_files.filter(size__lt=parsed_size)
-            except ValueError:
-                pass
-            pass
-        
-        if 'offset' in request.data:
-            offset = int(request.data['offset'])
+        if 'offset' in request.GET:
+            offset = int(request.GET['offset'])
             matching_files = matching_files.all()[offset:offset+100]
         else:
             matching_files = matching_files.all()[:100]
         
         files_serialized = FileSerializer(matching_files, many=True)
         return Response(files_serialized.data)
+
+
+class GetSearchCSV(views.APIView):
+    def get(self, request):
+        matching_files = filter_files(File.objects, request.GET)
+        writer = csv.writer(EchoBuffer())
+
+        def get_csv_rows():
+            for file in matching_files.all():
+                yield writer.writerow([
+                    file.path,
+                    str(file.date_created),
+                    str(file.size)
+                ])
+
+        response = StreamingHttpResponse(get_csv_rows(), content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+        return response
 
 
 class GetFileSummary(views.APIView):
