@@ -103,6 +103,7 @@ class GetSearchCSV(views.APIView):
         writer = csv.writer(EchoBuffer())
 
         def get_csv_rows():
+            yield writer.writerow(['Path', 'Date Created', 'Size (Bytes)'])
             for file in matching_files.all():
                 yield writer.writerow([
                     file.path,
