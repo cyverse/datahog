@@ -34,7 +34,8 @@ export class ClickToCopy extends React.Component {
         this.resetText = this.resetText.bind(this);
     }
 
-    copyText() {
+    copyText(event) {
+        event.stopPropagation();
         navigator.clipboard.writeText(this.props.text).then(function() {
             this.setState({
                 toolTipText: 'Copied to clipboard!'
@@ -82,4 +83,24 @@ export function LabeledInput(props) {
             />
         </React.Fragment>
     );
+}
+
+export class SelectButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick(event) {
+        this.props.onClick(this.props.value);
+    }
+
+    render() {
+        return (
+            <button onClick={this.handleClick}
+                className={this.props.target === this.props.value ? 'btn btn-sm' : 'btn btn-sm btn-link'}>
+                {this.props.children}
+            </button>
+        )
+    }
 }

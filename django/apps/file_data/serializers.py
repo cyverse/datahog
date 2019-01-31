@@ -3,6 +3,7 @@ from .models import *
 
 
 class FileSerializer(serializers.ModelSerializer):
+    date_created = serializers.DateTimeField(format=r'%Y-%m-%d')
     class Meta:
         model = File
         fields = ('id', 'name', 'size', 'path', 'date_created', 'is_folder')
@@ -28,7 +29,7 @@ class FileTypeSerializer(serializers.ModelSerializer):
 
 
 class FileSummarySerializer(serializers.ModelSerializer):
-    timestamp = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    timestamp = serializers.DateTimeField(format=r'%Y-%m-%d %H:%M')
     class Meta:
         model = FileSummary
         fields = ('id', 'timestamp', 'folder_count', 'file_count', 

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import { FileTree } from './fileTree'
 import { LoadingBox } from './loadingBox';
+import { SearchForm } from './searchForm';
 
 export class BrowseTab extends React.Component {
 
@@ -12,16 +13,21 @@ export class BrowseTab extends React.Component {
         this.state = {
             files: [],
             searching: false,
-            searchTerms: '',
             searchResults: [],
-            searchLoading: false
+            moreResults: false,
+            searchLoading: false,
+            searchParams: {}
         };
 
-        this.searchBar = React.createRef();
+        this.searchForm = React.createRef();
         
         this.searchFiles = this.searchFiles.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
         this.onLoad = this.onLoad.bind(this);
+        this.onSearchLoad = this.onSearchLoad.bind(this);
+        this.onSearchError = this.onSearchError.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
+        this.getCsvUrl = this.getCsvUrl.bind(this);
     }
 
     onLoad(response) {
@@ -30,39 +36,75 @@ export class BrowseTab extends React.Component {
         });
     }
 
-    clearSearch() {
+    onSearchLoad(response) {
         this.setState({
-            searchTerms: '',
+            files: this.state.files,
+            searching: true,
+            searchLoading: false,
+            searchResults: this.state.searchResults.concat(response.data),
+            searchParams: this.state.searchParams,
+            moreResults: response.data.length >= 100
+        });
+    }
+
+    onSearchError(error) {
+        this.setState({
+            files: this.state.files,
+            searching: true,
+            searchLoading: false,
+            searchResults: [],
+            searchParams: this.state.searchParams,
+            moreResults: false
+        });
+    }
+
+    clearSearch() {
+        this.searchForm.current.clearSearch();
+        this.setState({
             searching: false,
             searchLoading: false,
-            searchResults: []
+            searchResults: [],
+            searchParams: {}
         });
-        this.searchBar.current.value = '';
     }
 
-    searchFiles() {
+    searchFiles(params) {
         this.setState({
-            searchTerms: this.searchBar.current.value,
             searching: true,
             searchLoading: true,
+            searchResults: [],
+            searchParams: params
         });
-        axios.post('/api/files/search', {
-            name: this.searchBar.current.value
-        })
-        .then(function(response) {
-            this.setState({
-                searchLoading: false,
-                searchResults: response.data
-            });
-        }.bind(this))
-        .catch(function(error) {
-            this.setState({
-                searchLoading: false,
-                searchResults: []
-            });
-        }.bind(this));
+        axios.get('/api/files/search', {
+            params: params
+        }).then(this.onSearchLoad)
+        .catch(this.onSearcherror);
     }
 
+    getCsvUrl() {
+        return axios.getUri({
+            url: '/api/files/searchcsv',
+            method: 'get',
+            params: this.state.searchParams
+        });
+    }
+
+    handleScroll(event) {
+        let hitBottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+        if (hitBottom && this.state.searching && !this.state.searchLoading && this.state.moreResults) {
+            let params = this.state.searchParams;
+            params.offset = this.state.searchResults.length;
+            this.setState({
+                searching: true,
+                searchLoading: true
+            });
+            axios.get('/api/files/search', {
+                params: params
+            })
+            .then(this.onSearchLoad)
+            .catch(this.onSearchError);
+        }
+    }
 
     render() {
         return (
@@ -71,25 +113,32 @@ export class BrowseTab extends React.Component {
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
                             <div className="panel fixed-height">
-                                <div className="panel-header">
-                                    <div className="input-group">
-                                        <input type="text" className="form-input" placeholder="Search..." ref={this.searchBar}/>
-                                        <button className="btn btn-primary input-group-btn" onClick={this.searchFiles}>Go</button>
-                                    </div>
+                                <div className="panel-header search-header form-horizontal">
+                                    <SearchForm state={null} submit={this.searchFiles} ref={this.searchForm} />
+                                    { this.state.searching && !this.state.searchLoading &&
+                                        <div className="toast">
+                                            Found {this.state.searchResults.length}{this.state.moreResults && '+'} results.
+                                            <a className="float-right c-hand" onClick={this.clearSearch}>
+                                                Clear search
+                                            </a>
+                                            <a className="float-right c-hand" href={this.getCsvUrl()} style={{'marginRight': '10px'}}>
+                                                Export all results
+                                            </a>
+                                        </div>
+                                    }   
                                 </div>
-                                <div className="panel-body">
-                                    { this.state.searching ? 
-                                        (this.state.searchLoading ? 
-                                            <div className="loading loading-lg"></div> :
-                                            (
-                                                <React.Fragment>
-                                                    <div className="toast toast-primary">
-                                                        Showing results for "{this.state.searchTerms}".
-                                                        <a className="float-right c-hand" onClick={this.clearSearch}>Stop searching</a>
-                                                    </div>
-                                                    <FileTree files={this.state.searchResults} />
-                                                </React.Fragment>
-                                            )
+                                <div className="panel-body" onScroll={this.handleScroll}>
+                                    { this.state.searching ?
+                                        (
+                                            <React.Fragment>
+                                                <FileTree files={this.state.searchResults}
+                                                    searchOnSort={this.state.moreResults}
+                                                    searchCallback={this.searchFiles}
+                                                    searchParams={this.state.searchParams}/>
+                                                {this.state.searchLoading && 
+                                                    <div className="loading loading-lg"></div>
+                                                }
+                                            </React.Fragment>
                                         ) :
                                         <FileTree files={this.state.files} />
                                     }

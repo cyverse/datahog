@@ -7,6 +7,10 @@ a:focus {
     box-shadow:none;
 }
 
+.btn.btn-sm:focus {
+    box-shadow: none;
+}
+
 #main {
     max-width: 1000px;
     margin: auto;
@@ -14,10 +18,15 @@ a:focus {
 
 .panel, .card {
     margin-top: 18px;
+    border-width: 0.1rem;
 }
 
-.panel.fixed-height {
-    height: 535px;
+.tab-block {
+    border-bottom-width: 0.1rem;
+}
+
+.panel.fixed-height .panel-body {
+    height: 435px;
 }
 
 .card.fixed-height {
@@ -40,12 +49,17 @@ a:focus {
 }
 
 .file-table .size-cell {
-    width: 100px;
+    width: 90px;
+    text-align: right;
+}
+
+.file-table .date-cell {
+    width: 90px;
     text-align: right;
 }
 
 .file-table .options-cell {
-    width: 100px;
+    width: 90px;
     text-align: right;
 }
 
@@ -58,14 +72,15 @@ a:focus {
     display: inline;
 }
 
-.file-table td, .file-tree td {
-    border: none !important;
-    padding: 0;
+.table td, .table th {
+    border: none;
+    padding: 0px;
     height: 40px;
 }
 
-.light-head th {
-    color: #999;
+.panel-header.search-header {
+    border-bottom: .1rem solid #e7e9ed;
+    padding-bottom: 5px;
 }
 
 .vis-title {
@@ -83,4 +98,26 @@ nav#tabs {
     position: relative;
     top: 0;
     transition: top 200ms;
+}
+
+.form-horizontal {
+    margin: 0;
+    padding: 0;
+}
+
+.has-btn-right {
+    position: relative;
+}
+
+.has-btn-right .form-btn {
+    margin: 0 .25rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    right: .05rem;
+}
+
+.toast {
+    margin-top: 15px;
 }

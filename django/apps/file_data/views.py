@@ -1,9 +1,13 @@
+import datetime
+import csv
+
+from django.http import StreamingHttpResponse
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
 
 from .models import *
 from .serializers import *
-from .helpers import create_size_timeline_data, create_type_chart_data
+from .helpers import create_size_timeline_data, create_type_chart_data, filter_files, EchoBuffer
 
 
 class GetBiggestFiles(generics.ListAPIView):
@@ -80,20 +84,36 @@ class GetTopLevelFiles(views.APIView):
 
 
 class SearchFiles(views.APIView):
-    def post(self, request):
+    def get(self, request):
+        matching_files = filter_files(File.objects, request.GET)
 
-        search_terms = ''
-        matching_folders = Folder.objects
-        matching_files = File.objects
+        if 'offset' in request.GET:
+            offset = int(request.GET['offset'])
+            matching_files = matching_files.all()[offset:offset+100]
+        else:
+            matching_files = matching_files.all()[:100]
+        
+        files_serialized = FileSerializer(matching_files, many=True)
+        return Response(files_serialized.data)
 
-        if 'name' in request.data:
-            matching_folders = Folder.objects.filter(name__icontains=request.data['name'])
-            matching_files = File.objects.filter(name__icontains=request.data['name'])
 
-        folder_serializer = FolderSerializer(matching_folders.all(), many=True)
-        file_serializer   = FileSerializer(matching_files.all(), many=True)
+class GetSearchCSV(views.APIView):
+    def get(self, request):
+        matching_files = filter_files(File.objects, request.GET)
+        writer = csv.writer(EchoBuffer())
 
-        return Response(folder_serializer.data + file_serializer.data)
+        def get_csv_rows():
+            yield writer.writerow(['Path', 'Date Created', 'Size (Bytes)'])
+            for file in matching_files.all():
+                yield writer.writerow([
+                    file.path,
+                    str(file.date_created),
+                    str(file.size)
+                ])
+
+        response = StreamingHttpResponse(get_csv_rows(), content_type="text/csv")
+        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+        return response
 
 
 class GetFileSummary(views.APIView):

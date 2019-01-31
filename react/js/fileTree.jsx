@@ -1,20 +1,131 @@
 import React from 'react';
 import axios from 'axios';
 
-import { Size } from './util';
-import { FileRow } from './fileTable';
+import { Size, ClickToCopy } from './util';
 
-export function FileTree(props) {
+export class FileTree extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            sort: ''
+        }
+
+        this.resort = this.resort.bind(this);
+    }
+
+    resort(event) {
+        let sortBy = event.target.dataset.sort;
+        if (this.props.searchOnSort) {
+            this.props.searchParams.sort = sortBy;
+            this.props.searchCallback(this.props.searchParams);
+        } else {
+            recursiveSort(this.props.files, sortBy);
+        }
+        this.setState({
+            sort: sortBy
+        });
+    }
+
+    render() {
+        return (
+            <table className='table file-table table-hover'>
+                <thead>
+                    <tr>
+                        <SortHeader title='Name' sortBy='name' currentSort={this.state.sort} onClick={this.resort}/>
+                        <th className='options-cell'></th>
+                        <SortHeader className='date-cell' title='Created' sortBy='date_created' currentSort={this.state.sort} onClick={this.resort}/>
+                        <SortHeader className='size-cell' title='Size' sortBy='size' currentSort={this.state.sort} onClick={this.resort}/>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.props.files.map((file, index) => {
+                        return (
+                            <FileTreeNode key={file.id} file={file} depth={0} sort={this.state.sort}/>
+                        )
+                    })}
+                </tbody>
+            </table>
+        );
+    }
+}
+
+function recursiveSort(files, sortBy) {
+    if (sortBy === 'name') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.name.toLowerCase() < b.name.toLowerCase()) return -1;
+            if (b.name.toLowerCase() < a.name.toLowerCase()) return 1;
+            return 0;
+        });
+    } else if (sortBy === '-name') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.name.toLowerCase() < b.name.toLowerCase()) return 1;
+            if (b.name.toLowerCase() < a.name.toLowerCase()) return -1;
+            return 0;
+        });
+    } else if (sortBy === '-size') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return b.total_size - a.total_size;
+            else             return b.size - a.size;
+        });
+    } else if (sortBy === 'size') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return a.total_size - b.total_size;
+            else             return a.size - b.size;
+        });
+    } else if (sortBy === '-date_created') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return 0;
+            if (a.date_created < b.date_created) return 1;
+            if (a.date_created > b.date_created) return -1;
+            return 0;
+        });
+    } else if (sortBy === 'date_created') {
+        files.sort(function(a, b) {
+            if (a.is_folder && !b.is_folder) return -1;
+            if (b.is_folder && !a.is_folder) return 1;
+            if (a.is_folder) return 0;
+            if (a.date_created < b.date_created) return -1;
+            if (a.date_created > b.date_created) return 1;
+            return 0;
+        });
+    }
+    for (let file of files) {
+        if (file.children) {
+            recursiveSort(file.children, sortBy);
+        }
+    }
+}
+
+export function SortHeader(props) {
+    let sortDirection;
+    if (props.currentSort === props.sortBy) {
+        sortDirection = 1;
+    } else if (props.currentSort === '-' + props.sortBy) {
+        sortDirection = -1;
+    } else {
+        sortDirection = 0;
+    }
     return (
-        <table className='table file-table table-hover'>
-            <tbody>
-                {props.files.map((file, index) => {
-                    return (
-                        <FileTreeNode key={file.id} file={file} depth={0} />
-                    )
-                })}
-            </tbody>
-        </table>
+        <th className={props.className}>
+            <a className='btn btn-link'
+                onClick={props.onClick}
+                data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
+                {props.title} &nbsp;
+                {sortDirection > 0 && <i className='fa fa-caret-up'></i>}
+                {sortDirection < 0 && <i className='fa fa-caret-down'></i>}
+            </a>
+        </th>
     );
 }
 
@@ -52,6 +163,7 @@ export class FileTreeNode extends React.Component {
 
     receiveChildren(response) {
         this.props.file.children = response.data;
+        recursiveSort(this.props.file.children, this.props.sort);
         this.setState({
             collapsed: false,
             childrenLoaded: true
@@ -72,7 +184,10 @@ export class FileTreeNode extends React.Component {
                             <i className={"fa fa-fw " + icon}/>
                             {this.props.file.name}
                         </td>
-                        <td className="options-cell"></td>
+                        <td className="options-cell">
+                            <ClickToCopy text={this.props.file.path}>Copy path</ClickToCopy>
+                        </td>
+                        <td className="date-cell"></td>
                         <td className="size-cell">
                             <Size bytes={this.props.file.total_size}/>
                         </td>
@@ -82,14 +197,28 @@ export class FileTreeNode extends React.Component {
                         return <FileTreeNode 
                                 file={child} 
                                 key={child.id}
-                                depth={this.props.depth + 1}/>
+                                depth={this.props.depth + 1}
+                                sort={this.props.sort}/>
                         })
                     }
                 </React.Fragment>
             );
         } else {
             return (
-                <FileRow file={this.props.file} depth={this.props.depth}/>
+                <tr>
+                    <td className="name-cell" style={{paddingLeft: 30*this.props.depth}}>
+                        {this.props.file.name}
+                    </td>
+                    <td className="options-cell">
+                        <ClickToCopy text={this.props.file.path}>Copy path</ClickToCopy>
+                    </td>
+                    <td className="date-cell">
+                        {this.props.file.date_created}
+                    </td>
+                    <td className="size-cell">
+                        <Size bytes={this.props.file.size}/>
+                    </td>
+                </tr>
             );
         }
     }
