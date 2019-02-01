@@ -112,7 +112,7 @@ class GetSearchCSV(views.APIView):
                 ])
 
         response = StreamingHttpResponse(get_csv_rows(), content_type="text/csv")
-        response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+        response['Content-Disposition'] = 'attachment; filename="search_results.csv"'
         return response
 
 
