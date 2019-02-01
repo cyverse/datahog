@@ -1,9 +1,17 @@
 def build_file_database(attempt, file_objects):
     attempt.current_step = 3
     attempt.save()
-    print('Creating objects...')
-    for file_obj in file_objects:
 
+    file_count = 0
+    folder_count = 0
+    total_size = 0
+    folder_objects_by_path = {}
+    file_types_by_extension = {}
+
+    file_checksums = {}
+    dupe_groups = []
+
+    for file_obj in file_objects:
         total_size += file_obj.size
 
         # find parent folder's path
@@ -25,7 +33,6 @@ def build_file_database(attempt, file_objects):
                     total_size=file_obj.size
                 )
                 folder_objects_by_path[parent_path] = parent_obj
-
             # iterate up the hierarchy
             child_obj.parent = parent_obj
             if parent_path == attempt.top_folder:
@@ -49,12 +56,20 @@ def build_file_database(attempt, file_objects):
                 total_size=file_obj.size
             )
             file_types_by_extension[extension] = file_type
-
         file_obj.file_type = file_type
 
+        # handle file checksum
+        if file_obj.checksum:
+            if file_obj.checksum in file_checksums:
+                file_checksums[file_obj.checksum].append(file_obj)
+            else:
+                file_checksums[file_obj.checksum] = [file_obj]
+
+    # rename top folder to include parents
     if attempt.top_folder in folder_objects_by_path:
         folder_objects_by_path[attempt.top_folder].name = attempt.top_folder
 
+    # find dupe groups with identical checksums
     for checksum, file_list in file_checksums.items():
         if len(file_list) >= 2:
             dupe_group = DupeGroup(

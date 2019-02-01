@@ -1,4 +1,6 @@
 import irods
+import requests
+import json
 from rest_framework.response import Response
 from rest_framework import views
 
@@ -56,13 +58,45 @@ class ImportFromIrods(views.APIView):
         
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
-            irods_user=user,
+            username=user,
             irods_host=host,
             irods_port=port,
             irods_zone=zone,
             top_folder=folder,
         )
         import_files_from_irods.delay(new_attempt.id, password=password)
+
+        serializer = ImportAttemptSerializer(new_attempt)
+        return Response(serializer.data, status=200)
+
+
+class ImportFromCyverse(views.APIView):
+    def post(self, request):
+        required_fields = ('user', 'password', 'folder')
+        for field in required_fields:
+            if field not in request.data:
+                return Response('Missing required field: {}'.format(field), status=400)
+
+        username = request.data['user']
+        password = request.data['password']
+        folder = request.data['folder']
+        
+        try:
+            response = requests.get(
+                'https://de.cyverse.org/terrain/token',
+                auth=(user, password)
+            )
+            auth_info = json.loads(response.text)
+            auth_token = bearer_token = 'Bearer {}'.format(response['access_token'])
+        except Exception as e:
+            return Response('Error: {}'.format(e))
+        
+        new_attempt = ImportAttempt.objects.create(
+            in_progress=True,
+            username=user,
+            top_folder=folder,
+        )
+        import_files_from_cyverse.delay(new_attempt.id, auth_token=auth_token)
 
         serializer = ImportAttemptSerializer(new_attempt)
         return Response(serializer.data, status=200)
