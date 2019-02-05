@@ -6,7 +6,7 @@ from rest_framework import views
 
 from .models import ImportAttempt
 from .serializers import ImportAttemptSerializer
-from .tasks import import_files_from_irods
+from .tasks import *
 
 
 class GetLastAttempt(views.APIView):
@@ -84,16 +84,20 @@ class ImportFromCyverse(views.APIView):
         try:
             response = requests.get(
                 'https://de.cyverse.org/terrain/token',
-                auth=(user, password)
+                auth=(username, password)
             )
-            auth_info = json.loads(response.text)
-            auth_token = bearer_token = 'Bearer {}'.format(response['access_token'])
         except Exception as e:
-            return Response('Error: {}'.format(e))
+            return Response('Unable to connect to the CyVerse.', status=500)
+
+        auth_info = json.loads(response.text)
+        if 'access_token' not in auth_info:
+            return Response('Invalid authentication credentials.', status=400)
+
+        auth_token = 'Bearer {}'.format(auth_info['access_token'])
         
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
-            username=user,
+            username=username,
             top_folder=folder,
         )
         import_files_from_cyverse.delay(new_attempt.id, auth_token=auth_token)

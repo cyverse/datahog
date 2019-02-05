@@ -250,7 +250,7 @@ export class CyverseForm extends React.Component {
                     <div className="card-footer">
                         <input type="submit" 
                             className="btn btn-primary"
-                            value="Import from iRODS"
+                            value="Import from CyVerse"
                             disabled={submitDisabled} />
                         <div className="float-right text-right">
                             { this.state.waiting ?

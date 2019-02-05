@@ -12,7 +12,7 @@ from .models import ImportAttempt
 from .helpers import build_file_database
 from apps.file_data.models import *
 
-@shared_text
+@shared_task
 def import_files_from_cyverse(attempt_id, auth_token):
     attempt = ImportAttempt.objects.get(id=attempt_id)
     file_objects = []
@@ -38,7 +38,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
                 "scroll": "1m"
             })
         )
-        page = json.loads(r.text)
+        page = json.loads(response.text)
         
         scroll_token = page['scroll_id']
         while 'hits' in page and len(page['hits']):
@@ -46,8 +46,8 @@ def import_files_from_cyverse(attempt_id, auth_token):
                 file_obj = File(
                     name=hit['_source']['id'],
                     path=hit['_source']['path'],
-                    size=hit['_source']['size'],
-                    date_created=hit['_source']['created']
+                    size=hit['_source']['fileSize'],
+                    date_created=hit['_source']['dateCreated']
                 )
                 file_objects.append(file_obj)
 
@@ -68,7 +68,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
         attempt.save()
 
 
-@shared_text
+@shared_task
 def import_files_from_irods(attempt_id, password):
     attempt = ImportAttempt.objects.get(id=attempt_id)
     file_objects = []

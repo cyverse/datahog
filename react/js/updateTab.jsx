@@ -27,23 +27,21 @@ export class UpdateTab extends React.Component {
     onLoad(response) {
         this.setState({
             lastAttempt: response.data
-        })
+        });
     }
     
     render() {
         return (
             <LoadingBox get="/api/import/latest" callback={this.onLoad} checkForUpdate={false}>
-                { this.state.failed && 
-                    <div className="toast toast-error">
-                        Your last import could not be completed. The folder you requested is likely too large.
+                {this.state.lastAttempt &&
+                    <div className="container">
+                        <div className="columns">
+                            <CyverseForm lastAttempt={this.state.lastAttempt} updateTriggered={this.props.context.updateTriggered} />
+                            <IrodsForm lastAttempt={this.state.lastAttempt} updateTriggered={this.props.context.updateTriggered} />
+                        </div>
                     </div>
                 }
-                <div className="container">
-                    <div className="columns">
-                        <CyverseForm lastAttempt={this.state.lastAttempt} updateTriggered={this.props.context.updateTriggered} />
-                        <IrodsForm lastAttempt={this.state.lastAttempt} updateTriggered={this.props.context.updateTriggered} />
-                    </div>
-                </div>
+                
             </LoadingBox>
         );
     }

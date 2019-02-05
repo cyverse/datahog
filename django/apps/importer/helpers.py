@@ -1,3 +1,5 @@
+from apps.file_data.models import *
+
 def build_file_database(attempt, file_objects):
     attempt.current_step = 3
     attempt.save()
