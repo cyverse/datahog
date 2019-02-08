@@ -46,7 +46,9 @@ export class IrodsForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            this.props.updateTriggered();
+            if (this.props.context) {
+                this.props.context.updateTriggered();
+            }
         }.bind(this))
         .catch(function(error) {
             this.setState({
@@ -191,7 +193,9 @@ export class CyverseForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            this.props.updateTriggered();
+            if (this.props.context) {
+                this.props.context.updateTriggered();
+            }
         }.bind(this))
         .catch(function(error) {
             this.setState({

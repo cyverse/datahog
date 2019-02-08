@@ -36,12 +36,11 @@ export class UpdateTab extends React.Component {
                 {this.state.lastAttempt &&
                     <div className="container">
                         <div className="columns">
-                            <CyverseForm lastAttempt={this.state.lastAttempt} updateTriggered={this.props.context.updateTriggered} />
-                            <IrodsForm lastAttempt={this.state.lastAttempt} updateTriggered={this.props.context.updateTriggered} />
+                            <IrodsForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
+                            <CyverseForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
                         </div>
                     </div>
                 }
-                
             </LoadingBox>
         );
     }
