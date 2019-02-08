@@ -1,6 +1,7 @@
 from apps.file_data.models import *
+from django.db import transaction
 
-def build_file_database(attempt, file_objects):
+def build_file_database(attempt, file_objects, file_checksums={}):
     attempt.current_step = 3
     attempt.save()
 
@@ -10,7 +11,6 @@ def build_file_database(attempt, file_objects):
     folder_objects_by_path = {}
     file_types_by_extension = {}
 
-    file_checksums = {}
     dupe_groups = []
 
     for file_obj in file_objects:
@@ -59,13 +59,6 @@ def build_file_database(attempt, file_objects):
             )
             file_types_by_extension[extension] = file_type
         file_obj.file_type = file_type
-
-        # handle file checksum
-        if file_obj.checksum:
-            if file_obj.checksum in file_checksums:
-                file_checksums[file_obj.checksum].append(file_obj)
-            else:
-                file_checksums[file_obj.checksum] = [file_obj]
 
     # rename top folder to include parents
     if attempt.top_folder in folder_objects_by_path:
