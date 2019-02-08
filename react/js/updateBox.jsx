@@ -12,6 +12,7 @@ export class UpdateBox extends React.Component {
             updateInProgress: false,
             loading: true,
             error: false,
+            extraLarge: false,
             currentStep: 0
         };
 
@@ -32,7 +33,8 @@ export class UpdateBox extends React.Component {
             updateInProgress: true,
             currentStep: 0,
             error: false,
-            loading: false
+            loading: false,
+            extraLarge: false
         });
     }
 
@@ -41,9 +43,11 @@ export class UpdateBox extends React.Component {
             axios.get('/api/import/latest')
             .then(function(response) {
                 if (response.data.in_progress) {
+                    let extraLarge = this.state.extraLarge || response.data.current_step === 2;
                     this.setState({
                         updateInProgress: true,
                         currentStep: response.data.current_step,
+                        extraLarge: extraLarge,
                         error: false,
                         loading: false
                     });
@@ -79,13 +83,18 @@ export class UpdateBox extends React.Component {
                 <p className="empty-title h5">
                     {[
                         <span>Starting file import process...</span>,
-                        <span>Waiting for iRODS server...</span>,
-                        <span>Downloading file information...</span>,
+                        <span>Fetching files from iRODS...</span>,
+                        <span>Fetching files from iRODS...</span>,
                         <span>Analyzing files...</span>,
                         <span>Building file database...</span>
                     ][this.state.currentStep]}
                 </p>
-                <p className="empty-subtitle">This may take several minutes.</p>
+                <p className="empty-subtitle">
+                    { this.state.extraLarge ?
+                        <span>This folder is very large. The import process may take longer than usual.</span> :
+                        <span>This may take a few minutes.</span>
+                    }
+                </p>
             </div>
         );
 
