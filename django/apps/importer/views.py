@@ -1,6 +1,7 @@
 import irods
 import requests
 import json
+import os
 from rest_framework.response import Response
 from rest_framework import views
 
@@ -14,12 +15,20 @@ class GetLastAttempt(views.APIView):
         try:
             latest_attempt = ImportAttempt.objects.latest('timestamp')
         except ImportAttempt.DoesNotExist:
-            latest_attempt = ImportAttempt.objects.create(
+            latest_attempt = ImportAttempt(
                 in_progress=False,
                 irods_host='data.cyverse.org',
                 irods_port='1247',
                 irods_zone='iplant'
             )
+
+            iplant_user = os.environ.get('IPLANT_USER')
+            if iplant_user:
+                latest_attempt.username = iplant_user
+                latest_attempt.top_folder = '/iplant/home/{}'.format(iplant_user)
+            
+            latest_attempt.save()
+        
         serializer = ImportAttemptSerializer(latest_attempt)
         return Response(serializer.data)
 
