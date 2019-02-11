@@ -45,7 +45,7 @@ export class PaginatedPanel extends React.Component {
         } else if (this.state.loading) {
             panelBody = <div className="loading"></div>
         } else {
-            panelBody = <this.props.component files={this.state.files}/>
+            panelBody = <this.props.component files={this.state.files} showDate={this.props.showDate}/>
         }
 
         return (

@@ -8,7 +8,8 @@ export function FileTable(props) {
                 {props.files.map(file => {
                     return <FileRow 
                             file={file} 
-                            key={file.id} />
+                            key={file.id} 
+                            showDate={props.showDate}/>
                 })}
             </tbody>
         </table>
@@ -26,9 +27,14 @@ export function FileRow(props) {
                     <ClickToCopy text={props.file.path}>Copy path</ClickToCopy>
                 </td>
             }
-            <td className="size-cell">
-                <Size bytes={props.file.size !== undefined ? props.file.size : props.file.total_size}/>
-            </td>
+            { props.showDate ?
+                <td className="date-cell">
+                    {props.file.date_created}
+                </td> :
+                <td className="size-cell">
+                    <Size bytes={props.file.size !== undefined ? props.file.size : props.file.total_size}/>
+                </td>
+            }
         </tr>
     );
 }

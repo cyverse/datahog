@@ -84,6 +84,24 @@ export class SummaryTab extends React.Component {
                                 component={FileTable}/>
                         </div>
                     </div>
+                    <div className="columns">
+                        <div className="column">
+                            <PaginatedPanel
+                                scroll={false}
+                                title="Newest Files"
+                                get="/api/files/newestfiles"
+                                component={FileTable}
+                                showDate={true}/>
+                        </div>
+                        <div className="column">
+                            <PaginatedPanel
+                                scroll={false}
+                                title="Oldest Files"
+                                get="/api/files/oldestfiles"
+                                component={FileTable}
+                                showDate={true}/>
+                        </div>
+                    </div>
                 </div>
             </LoadingBox>
         );

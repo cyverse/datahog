@@ -55,6 +55,24 @@ class GetMostDuped(generics.ListAPIView):
     ordering = ('-file_count',)
 
 
+class GetNewestFiles(generics.ListAPIView):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('date_created',)
+    ordering = ('-date_created',)
+
+
+class GetOldestFiles(generics.ListAPIView):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('date_created',)
+    ordering = ('date_created',)
+
+
 class GetChildrenOfFolder(views.APIView):
     def get(self, request, folder_id):
         try:
