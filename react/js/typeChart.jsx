@@ -26,7 +26,7 @@ export class TypeChart extends React.Component {
         let pieChart = svg.append('g')
             .attr('transform', 'translate(' + svgWidth / 2 + ',' + (svgHeight / 2) + ')');
 
-        let pieSlices = d3.pie().value(d => d.total_size);
+        let pieSlices = d3.pie().value(d => d.total_size).sort(null);
 
         let pieColors = d3.scaleOrdinal(this.props.colors);
 
