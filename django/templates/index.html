@@ -1,16 +1,19 @@
 {% load staticfiles %}
 <html>
 <head>
+    <title>DataHog</title>
     <link rel="stylesheet" href="{% static 'css/normalize.min.css' %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/spectre.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
 </head>
 <body>
     <header>
-        <h1>
-            iRODS File Dashboard
+        <img src="{% static 'img/DataHog.png' %}" alt="Data Hog">
+        <h1>    
+            DataHog
         </h1>
     </header>
     <section id="main"></section>
