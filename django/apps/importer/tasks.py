@@ -1,5 +1,6 @@
 import requests
 import json
+import datetime
 from collections import deque
 
 from irods.session import iRODSSession
@@ -44,12 +45,12 @@ def import_files_from_cyverse(attempt_id, auth_token):
         scroll_token = page['scroll_id']
         while 'hits' in page and len(page['hits']):
             for hit in page['hits']:
-                if 'fileSize' in hit['_source']:
+                if hit['_type'] == 'file':
                     file_obj = File(
-                        name=hit['_source']['id'],
+                        name=hit['_source']['label'],
                         path=hit['_source']['path'],
                         size=hit['_source']['fileSize'],
-                        date_created=hit['_source']['dateCreated']
+                        date_created=datetime.datetime.fromtimestamp(hit['_source']['dateCreated']/1000)
                     )
                     file_objects.append(file_obj)
 
