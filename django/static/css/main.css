@@ -1,5 +1,20 @@
+h1, h2 {
+    color: #142147;
+}
+
 header {
     text-align: center;
+    margin: 0.5rem;
+}
+
+header h1 {
+    display: inline;
+    vertical-align: middle;
+}
+
+header img {
+    height: 4rem;
+    vertical-align: middle;
 }
 
 a:focus {
@@ -120,4 +135,9 @@ nav#tabs {
 
 .toast {
     margin-top: 15px;
+}
+
+.tab .tab-item a.active, .tab .tab-item.active a {
+    border-bottom-color: #5755d9;
+    color: #5755d9;
 }

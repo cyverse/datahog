@@ -7,4 +7,4 @@ class ImportAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportAttempt
         fields = ('id', 'timestamp', 'in_progress', 'current_step', 'failed', 
-            'irods_user', 'irods_host', 'irods_port', 'irods_zone', 'top_folder')
+            'username', 'irods_host', 'irods_port', 'irods_zone', 'top_folder')

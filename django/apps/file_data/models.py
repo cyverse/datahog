@@ -33,7 +33,7 @@ class File(models.Model):
 
 class FileType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    extension = models.CharField(max_length=50)
+    extension = models.CharField(max_length=50, blank=True)
     total_size = models.BigIntegerField()
 
     def __str__(self):

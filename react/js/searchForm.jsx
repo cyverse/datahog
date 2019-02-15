@@ -1,5 +1,6 @@
 import React from 'react';
 import { SelectButton } from './util';
+import { SearchContext } from './tabNav';
 
 export class SearchForm extends React.Component {
     constructor(props) {
@@ -7,21 +8,31 @@ export class SearchForm extends React.Component {
 
         this.state = {
             searchType: 'text',
+            searchText: '',
             filters: []
-        }
-
-        this.searchBar = React.createRef();
+        };
 
         this.submitSearch = this.submitSearch.bind(this);
         this.changeSearchType = this.changeSearchType.bind(this);
+        this.changeSearchText = this.changeSearchText.bind(this);
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
     }
 
+    componentDidMount() {
+        if (this.context.state) {
+            this.setState(this.context.state);
+        }
+    }
+
+    componentWillUnmount() {
+        this.context.state = this.state;
+    }
+
     submitSearch(event) {
         let params = {
-            name: this.searchBar.current.value,
+            name: this.state.searchText,
             type: this.state.searchType
         };
         for (let filter of this.state.filters) {
@@ -35,6 +46,12 @@ export class SearchForm extends React.Component {
             params[filter.field] = value;
         }
         this.props.submit(params);
+    }
+
+    changeSearchText(event) {
+        this.setState({
+            searchText: event.target.value
+        });
     }
 
     changeSearchType(type) {
@@ -59,9 +76,9 @@ export class SearchForm extends React.Component {
     }
 
     clearSearch() {
-        this.searchBar.current.value = '';
         this.setState({
             searchType: 'text',
+            searchText: '',
             filters: []
         });
     }
@@ -71,7 +88,11 @@ export class SearchForm extends React.Component {
             <div className="form-horizontal">
                 <div className="form-group">
                     <div className="has-btn-right col-11">
-                        <input type="text" className="form-input" ref={this.searchBar} placeholder="Search files..." />
+                        <input type="text" 
+                            className="form-input"
+                            placeholder="Search files..."
+                            value={this.state.searchText}
+                            onChange={this.changeSearchText}/>
                         <span className="form-btn">
                             <SelectButton
                                 target={this.state.searchType} 
@@ -108,6 +129,9 @@ export class SearchForm extends React.Component {
         );
     }
 }
+
+SearchForm.contextType = SearchContext;
+
 
 export class FilterForm extends React.Component {
     constructor(props) {
