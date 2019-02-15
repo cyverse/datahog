@@ -7,6 +7,7 @@ kombu==4.2.1
 prettytable==0.7.2
 python-irodsclient==0.8.1
 pytz==2018.5
+requests==2.6.0
 six==1.11.0
 vine==1.1.4
 xmlrunner==1.7.7
