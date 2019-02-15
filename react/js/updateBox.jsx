@@ -83,8 +83,8 @@ export class UpdateBox extends React.Component {
                 <p className="empty-title h5">
                     {[
                         <span>Starting file import process...</span>,
-                        <span>Fetching files from iRODS...</span>,
-                        <span>Fetching files from iRODS...</span>,
+                        <span>Downloading file data...</span>,
+                        <span>Downloading file data...</span>,
                         <span>Analyzing files...</span>,
                         <span>Building file database...</span>
                     ][this.state.currentStep]}

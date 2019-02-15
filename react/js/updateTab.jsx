@@ -33,7 +33,12 @@ export class UpdateTab extends React.Component {
     render() {
         return (
             <LoadingBox get="/api/import/latest" callback={this.onLoad} checkForUpdate={false}>
-                {this.state.lastAttempt &&
+                { this.state.lastAttempt && this.state.lastAttempt.failed && 
+                    <div className="toast toast-error">
+                        Your last import could not be completed. The folder you requested may be too large.
+                    </div>
+                }
+                { this.state.lastAttempt &&
                     <div className="container">
                         <div className="columns">
                             <IrodsForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
