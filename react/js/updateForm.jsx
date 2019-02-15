@@ -216,7 +216,7 @@ export class CyverseForm extends React.Component {
             <div className="column col-9 col-mx-auto">
                 <form className="card" onSubmit={this.submitForm}>
                     <div className="card-header">
-                        <div className="card-title h5">Import from CyVerse</div>
+                        <div className="card-title h5">Import from CyVerse (under development)</div>
                     </div>
                     <div className="card-body form-horizontal">
                         <div className="form-group">

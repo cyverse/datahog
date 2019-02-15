@@ -44,13 +44,14 @@ def import_files_from_cyverse(attempt_id, auth_token):
         scroll_token = page['scroll_id']
         while 'hits' in page and len(page['hits']):
             for hit in page['hits']:
-                file_obj = File(
-                    name=hit['_source']['id'],
-                    path=hit['_source']['path'],
-                    size=hit['_source']['fileSize'],
-                    date_created=hit['_source']['dateCreated']
-                )
-                file_objects.append(file_obj)
+                if 'fileSize' in hit['_source']:
+                    file_obj = File(
+                        name=hit['_source']['id'],
+                        path=hit['_source']['path'],
+                        size=hit['_source']['fileSize'],
+                        date_created=hit['_source']['dateCreated']
+                    )
+                    file_objects.append(file_obj)
 
             response = requests.post('https://de.cyverse.org/terrain/secured/filesystem/search',
                 headers={'authorization': auth_token},
