@@ -3,6 +3,7 @@
   "author": "Chris Klimowski",
   "scripts": {
     "js": "parcel watch js/main.jsx -d ../django/static/js",
+    "build": "parcel build js/main.jsx -d ../django/static/js",
     "css": "parcel watch css/main.css -d ../django/static/css --no-hmr"
   },
   "dependencies": {
