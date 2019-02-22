@@ -22,7 +22,7 @@
         "skip_tmp_mount" : true,
         "working_directory" : "/dashboard",
         "image" : {
-            "name" : "csklimowski/data-hog",
+            "name" : "csklimowski/datahog",
             "tag" : "1.0.0"
         },
         "uid" : 0
