@@ -12,8 +12,6 @@ root = os.path.abspath(sys.argv[1])
 files = []
 
 for dirpath, dirnames, filenames in os.walk(root):
-    sys.stdout.write('\rScanned {} files'.format(len(files)))
-    sys.stdout.flush()
     for fname in filenames:
         path = '{}/{}'.format(dirpath, fname)
         with open(path, 'rb') as f:
@@ -27,11 +25,14 @@ for dirpath, dirnames, filenames in os.walk(root):
             'modified': modified,
             'size': size
         })
+    sys.stdout.write('\rScanned {} files'.format(len(files)))
+    sys.stdout.flush()
 
 if not len(files):
     sys.stdout.write('\rFailed: No files found in {}\n'.format(root))
 else:
-    with open('output.dh', 'wb') as outfile:
+    outname = os.path.basename(root)
+    with open('{}.dh'.format(outname), 'wb') as outfile:
         pickle.dump(files, outfile)
 
-    print('\nSaved output to output.dh')
+    print('\nSaved output to {}.dh'.format(outname))
