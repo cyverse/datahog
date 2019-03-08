@@ -1,9 +1,11 @@
 from apps.file_data.models import *
 from django.db import transaction
 
-def build_file_database(attempt, file_objects, file_checksums={}):
+def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None):
     attempt.current_step = 3
     attempt.save()
+
+    if not timestamp: timestamp = attempt.timestamp
 
     file_count = 0
     folder_count = 0
@@ -90,6 +92,8 @@ def build_file_database(attempt, file_objects, file_checksums={}):
         FileType.objects.bulk_create(file_types_by_extension.values())
         DupeGroup.objects.bulk_create(dupe_groups)
         FileSummary.objects.create(
+            timestamp=timestamp,
+            top_folder=attempt.top_folder,
             folder_count=len(folder_objects_by_path.values()),
             file_count=len(file_objects),
             duplicate_count=len(dupe_groups),

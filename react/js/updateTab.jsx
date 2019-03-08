@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoadingBox } from './loadingBox';
 import { UpdateContext } from './updateBox';
-import { IrodsForm, CyverseForm } from './updateForm';
+import { IrodsForm, CyverseForm, FileForm } from './updateForm';
 
 export function UpdateTabWithContext() {
     return  (
@@ -42,6 +42,7 @@ export class UpdateTab extends React.Component {
                     <div className="container">
                         <div className="columns">
                             <IrodsForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
+                            <FileForm context={this.props.context} />
                             <CyverseForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
                         </div>
                     </div>

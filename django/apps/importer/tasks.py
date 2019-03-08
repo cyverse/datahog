@@ -1,6 +1,7 @@
 import requests
 import json
 import datetime
+import os
 from collections import deque
 
 from irods.session import iRODSSession
@@ -69,7 +70,6 @@ def import_files_from_cyverse(attempt_id, auth_token):
         attempt.in_progress = False
         attempt.failed = True
         attempt.save()
-
 
 @shared_task
 def import_files_from_irods(attempt_id, password):
@@ -148,6 +148,42 @@ def import_files_from_irods(attempt_id, password):
                         folder_queue.append(subcol.path)
         
         build_file_database(attempt, file_objects, file_checksums)
+    except Exception as e:
+        print('Database update failed due to error: {}'.format(e))
+        attempt.in_progress = False
+        attempt.failed = True
+        attempt.save()
+
+
+@shared_task
+def import_files_from_file(attempt_id, file_data):
+    attempt = ImportAttempt.objects.get(id=attempt_id)
+    file_objects = []
+    file_checksums = {}
+
+    try:
+        attempt.current_step = 2
+        attempt.save()
+
+        for file in file_data['files']:
+            file_obj = File(
+                name=os.path.basename(file['path']),
+                size=file['size'],
+                path=file['path'],
+                date_created=datetime.datetime.fromtimestamp(file['modified'])
+            )
+            file_objects.append(file_obj)
+            if file['checksum']:
+                if file['checksum'] in file_checksums:
+                    file_checksums[file['checksum']].append(file_obj)
+                else:
+                    file_checksums[file['checksum']] = []
+
+        build_file_database(
+            attempt, file_objects,
+            file_checksums=file_checksums,
+            timestamp=datetime.datetime.fromtimestamp(file_data['timestamp'])
+        )
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False
