@@ -48,6 +48,7 @@ class DupeGroup(models.Model):
 
 class FileSummary(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
+    top_folder = models.CharField(max_length=512, blank=True)
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
     duplicate_count = models.IntegerField(default=0)

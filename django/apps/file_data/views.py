@@ -1,7 +1,10 @@
 import datetime
 import csv
+import pickle
+import json
 
 from django.http import StreamingHttpResponse
+from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
 
@@ -129,7 +132,7 @@ class GetSearchCSV(views.APIView):
                     str(file.size)
                 ])
 
-        response = StreamingHttpResponse(get_csv_rows(), content_type="text/csv")
+        response = StreamingHttpResponse(get_csv_rows(), content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="search_results.csv"'
         return response
 
@@ -149,3 +152,41 @@ class GetFileSummary(views.APIView):
         
         summary_serialized = FileSummarySerializer(summary)
         return Response(summary_serialized.data)
+
+
+class GetBackupFile(views.APIView):
+    def get(self, request):
+        summary = FileSummary.objects.latest('timestamp')
+        files = []
+
+        for file in File.objects.all():
+            if file.dupe_group:
+                checksum = file.dupe_group.checksum
+            else:
+                checksum = None
+
+            files.append({
+                'path': file.path,
+                'checksum': checksum,
+                'size': file.size,
+                'modified': file.date_created.timestamp()
+            })
+
+        file_data = {
+            'format': 'datahog:0.1',
+            'root': summary.top_folder,
+            'files': files,
+            'timestamp': summary.timestamp.timestamp()
+        }
+
+        backup_file = ContentFile(pickle.dumps(file_data))
+
+        def get_file_chunks():
+            while True:
+                data = backup_file.read(1024)
+                if not data: break
+                yield data
+
+        response = StreamingHttpResponse(get_file_chunks(), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="backup.datahog"'
+        return response

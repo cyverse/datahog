@@ -14,5 +14,6 @@ urlpatterns = [
     path('api/files/oldestfiles', GetOldestFiles.as_view()),
     path('api/files/biggestfiletypes', GetBiggestFileTypes.as_view()),
     path('api/files/biggestdupes', GetBiggestDupeGroups.as_view()),
-    path('api/files/mostduped', GetMostDuped.as_view())
+    path('api/files/mostduped', GetMostDuped.as_view()),
+    path('api/files/savefile', GetBackupFile.as_view())
 ]
