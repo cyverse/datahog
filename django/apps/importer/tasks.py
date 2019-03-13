@@ -170,14 +170,14 @@ def import_files_from_file(attempt_id, file_data):
                 name=os.path.basename(file['path']),
                 size=file['size'],
                 path=file['path'],
-                date_created=datetime.datetime.fromtimestamp(file['modified'])
+                date_created=datetime.datetime.fromtimestamp(file['created'])
             )
             file_objects.append(file_obj)
             if file['checksum']:
                 if file['checksum'] in file_checksums:
                     file_checksums[file['checksum']].append(file_obj)
                 else:
-                    file_checksums[file['checksum']] = []
+                    file_checksums[file['checksum']] = [file_obj]
 
         build_file_database(
             attempt, file_objects,

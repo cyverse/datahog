@@ -2,6 +2,7 @@ import datetime
 import csv
 import pickle
 import json
+import os
 
 from django.http import StreamingHttpResponse
 from django.core.files.base import ContentFile
@@ -180,6 +181,7 @@ class GetBackupFile(views.APIView):
         }
 
         backup_file = ContentFile(pickle.dumps(file_data))
+        file_name = '{}.datahog'.format(os.path.basename(summary.top_folder))
 
         def get_file_chunks():
             while True:
@@ -188,5 +190,5 @@ class GetBackupFile(views.APIView):
                 yield data
 
         response = StreamingHttpResponse(get_file_chunks(), content_type='application/octet-stream')
-        response['Content-Disposition'] = 'attachment; filename="backup.datahog"'
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
         return response
