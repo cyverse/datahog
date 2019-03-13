@@ -27,15 +27,18 @@ files = []
 for dirpath, dirnames, filenames in os.walk(root):
     for fname in filenames:
         path = '{}/{}'.format(dirpath, fname)
-        with open(path, 'rb') as f:
-            data = f.read()
-        checksum = hashlib.md5(data).hexdigest()
-        modified = os.path.getmtime(path)
+        try:
+            with open(path, 'rb') as f:
+                data = f.read()
+            checksum = hashlib.md5(data).hexdigest()
+        except:
+            checksum = None
+        created = os.path.getctime(path)
         size = os.path.getsize(path)
         files.append({
             'path': path,
             'checksum': checksum,
-            'modified': modified,
+            'created': created,
             'size': size
         })
     sys.stdout.write('\rScanned {} files'.format(len(files)))
