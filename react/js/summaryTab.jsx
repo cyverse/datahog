@@ -61,6 +61,7 @@ export class SummaryTab extends React.Component {
                                 </div>
                                 <div className="card-footer">
                                     Last updated {this.state.summary.timestamp}
+                                    <a href="/api/files/savefile">Back up file data</a>
                                 </div>
                             </div>
                         </div>

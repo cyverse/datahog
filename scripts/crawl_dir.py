@@ -3,6 +3,19 @@ import sys
 import hashlib
 import getopt
 import pickle
+import datetime
+
+'''
+usage:
+
+python crawl_dir.py <path> [<options>]
+
+options:
+
+-n --no-checksums   Do not calculate checksums for files (much faster)
+-o --output         Specify an output file
+'''
+
 
 if len(sys.argv) < 2:
     print('Please specify a root directory.')
@@ -14,15 +27,18 @@ files = []
 for dirpath, dirnames, filenames in os.walk(root):
     for fname in filenames:
         path = '{}/{}'.format(dirpath, fname)
-        with open(path, 'rb') as f:
-            data = f.read()
-        checksum = hashlib.md5(data).hexdigest()
-        modified = os.path.getmtime(path)
+        try:
+            with open(path, 'rb') as f:
+                data = f.read()
+            checksum = hashlib.md5(data).hexdigest()
+        except:
+            checksum = None
+        created = os.path.getctime(path)
         size = os.path.getsize(path)
         files.append({
             'path': path,
             'checksum': checksum,
-            'modified': modified,
+            'created': created,
             'size': size
         })
     sys.stdout.write('\rScanned {} files'.format(len(files)))
@@ -31,8 +47,15 @@ for dirpath, dirnames, filenames in os.walk(root):
 if not len(files):
     sys.stdout.write('\rFailed: No files found in {}\n'.format(root))
 else:
-    outname = os.path.basename(root)
-    with open('{}.dh'.format(outname), 'wb') as outfile:
-        pickle.dump(files, outfile)
+    obj = {
+        'format': 'datahog:0.1',
+        'root': root,
+        'timestamp': datetime.datetime.now().timestamp(),
+        'files': files
+    }
 
-    print('\nSaved output to {}.dh'.format(outname))
+    outname = os.path.basename(root)
+    with open('{}.datahog'.format(outname), 'wb') as outfile:
+        pickle.dump(obj, outfile)
+    
+    print('\nSaved output to {}.datahog'.format(outname))

@@ -2,6 +2,7 @@ import irods
 import requests
 import json
 import os
+import pickle
 from rest_framework.response import Response
 from rest_framework import views
 
@@ -113,3 +114,27 @@ class ImportFromCyverse(views.APIView):
 
         serializer = ImportAttemptSerializer(new_attempt)
         return Response(serializer.data, status=200)
+
+
+class ImportFromFile(views.APIView):
+    def post(self, request):
+        if 'file' not in request.FILES:
+            return Response('File not found.', status=400)
+
+        file = request.FILES['file']
+        try:
+            file_data = pickle.load(file)
+            assert file_data['format'] in ('datahog:0.1',)
+        except Exception as e:
+            print(e)
+            return Response('Not a valid .datahog file.', status=400)
+
+        new_attempt = ImportAttempt.objects.create(
+            in_progress=True,
+            top_folder=file_data['root']
+        )
+        import_files_from_file.delay(new_attempt.id, file_data)
+
+        serializer = ImportAttemptSerializer(new_attempt)
+        return Response(serializer.data, status=200)
+
