@@ -33,4 +33,4 @@ let tabs = [
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-ReactDOM.render(<TabNav tabs={tabs} />, document.getElementById('main'));
+ReactDOM.render(<TabNav tabs={tabs} />, document.getElementById('app'));

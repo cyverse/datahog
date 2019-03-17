@@ -1,6 +1,7 @@
 import React from 'react';
 import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
 import { UpdateBox } from './updateBox';
+import { SwitchMenu } from './switchMenu';
 
 export const SearchContext = React.createContext({});
 
@@ -15,6 +16,13 @@ export class TabNav extends React.Component {
                 <HashRouter>
                     <UpdateBox>
                         <React.Fragment>
+                            <header>
+                                <img src="/static/img/DataHog.png" alt="Data Hog" />
+                                <h1>    
+                                    DataHog
+                                </h1>
+                                <SwitchMenu />
+                            </header>
                             <ul className='tab tab-block'>
                                 {this.props.tabs.map((tab, index) => {
                                     return (
