@@ -50,7 +50,7 @@ else:
     obj = {
         'format': 'datahog:0.1',
         'root': root,
-        'timestamp': datetime.datetime.now().timestamp(),
+        'date_scanned': datetime.datetime.now().timestamp(),
         'files': files
     }
 

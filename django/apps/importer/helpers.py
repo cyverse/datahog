@@ -1,11 +1,11 @@
 from apps.file_data.models import *
 from django.db import transaction
 
-def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None):
+def build_file_database(attempt, file_objects, file_checksums={}, date_scanned=None):
     attempt.current_step = 3
     attempt.save()
 
-    if not timestamp: timestamp = attempt.timestamp
+    if not date_scanned: date_scanned = attempt.date_imported
 
     file_count = 0
     folder_count = 0
@@ -39,7 +39,7 @@ def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None
                 folder_objects_by_path[parent_path] = parent_obj
             # iterate up the hierarchy
             child_obj.parent = parent_obj
-            if parent_path == attempt.top_folder:
+            if parent_path == attempt.root_path:
                 break
             child_obj = parent_obj
             parent_path = parent_path[:last_slash]
@@ -63,8 +63,8 @@ def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None
         file_obj.file_type = file_type
 
     # rename top folder to include parents
-    if attempt.top_folder in folder_objects_by_path:
-        folder_objects_by_path[attempt.top_folder].name = attempt.top_folder
+    if attempt.root_path in folder_objects_by_path:
+        folder_objects_by_path[attempt.root_path].name = attempt.root_path
 
     # find dupe groups with identical checksums
     for checksum, file_list in file_checksums.items():
@@ -92,8 +92,8 @@ def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None
         FileType.objects.bulk_create(file_types_by_extension.values())
         DupeGroup.objects.bulk_create(dupe_groups)
         FileSummary.objects.create(
-            timestamp=timestamp,
-            top_folder=attempt.top_folder,
+            date_scanned=date_scanned,
+            root_path=attempt.root_path,
             folder_count=len(folder_objects_by_path.values()),
             file_count=len(file_objects),
             duplicate_count=len(dupe_groups),

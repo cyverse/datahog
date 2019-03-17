@@ -12,7 +12,7 @@ export class IrodsForm extends React.Component {
             host: this.props.lastAttempt.irods_host,
             port: this.props.lastAttempt.irods_port,
             zone: this.props.lastAttempt.irods_zone,
-            folder: this.props.lastAttempt.top_folder,
+            folder: this.props.lastAttempt.root_path,
             waiting: false,
             error: ''
         };
@@ -161,7 +161,7 @@ export class CyverseForm extends React.Component {
         this.state = {
             user: this.props.lastAttempt.username,
             password: '',
-            folder: this.props.lastAttempt.top_folder,
+            folder: this.props.lastAttempt.root_path,
             waiting: false,
             error: ''
         };

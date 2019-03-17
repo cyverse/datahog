@@ -141,7 +141,7 @@ class GetSearchCSV(views.APIView):
 class GetFileSummary(views.APIView):
     def get(self, request):
         try:
-            summary = FileSummary.objects.latest('timestamp')
+            summary = FileSummary.objects.latest('date_scanned')
         except FileSummary.DoesNotExist:
             summary = FileSummary.objects.create()
         
@@ -157,7 +157,7 @@ class GetFileSummary(views.APIView):
 
 class GetBackupFile(views.APIView):
     def get(self, request):
-        summary = FileSummary.objects.latest('timestamp')
+        summary = FileSummary.objects.latest('date_scanned')
         files = []
 
         for file in File.objects.all():
@@ -175,13 +175,13 @@ class GetBackupFile(views.APIView):
 
         file_data = {
             'format': 'datahog:0.1',
-            'root': summary.top_folder,
+            'root': summary.root_path,
             'files': files,
-            'timestamp': summary.timestamp.timestamp()
+            'date_scanned': summary.date_scanned.timestamp()
         }
 
         backup_file = ContentFile(pickle.dumps(file_data))
-        file_name = '{}.datahog'.format(os.path.basename(summary.top_folder))
+        file_name = '{}.datahog'.format(os.path.basename(summary.root_path))
 
         def get_file_chunks():
             while True:

@@ -39,7 +39,6 @@ class FileType(models.Model):
     def __str__(self):
         return self.extension
 
-
 class DupeGroup(models.Model):
     checksum = models.CharField(max_length=32, primary_key=True)
     file_size = models.BigIntegerField(default=0)
@@ -47,8 +46,8 @@ class DupeGroup(models.Model):
 
 
 class FileSummary(models.Model):
-    timestamp = models.DateTimeField(auto_now_add=True)
-    top_folder = models.CharField(max_length=512, blank=True)
+    date_scanned = models.DateTimeField(auto_now_add=True)
+    root_path = models.CharField(max_length=512, blank=True)
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
     duplicate_count = models.IntegerField(default=0)

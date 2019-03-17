@@ -3,6 +3,7 @@ import requests
 import json
 import os
 import pickle
+from subprocess import call
 from rest_framework.response import Response
 from rest_framework import views
 
@@ -11,10 +12,15 @@ from .serializers import ImportAttemptSerializer
 from .tasks import *
 
 
+# class BackupDirectory(views.APIView):
+#     def get(self, request):
+#         cmd = ''
+#         pdf_status = call(cmd, shell=True)
+
 class GetLastAttempt(views.APIView):
     def get(self, request):
         try:
-            latest_attempt = ImportAttempt.objects.latest('timestamp')
+            latest_attempt = ImportAttempt.objects.latest('date_imported')
         except ImportAttempt.DoesNotExist:
             latest_attempt = ImportAttempt(
                 in_progress=False,
@@ -26,7 +32,7 @@ class GetLastAttempt(views.APIView):
             iplant_user = os.environ.get('IPLANT_USER')
             if iplant_user:
                 latest_attempt.username = iplant_user
-                latest_attempt.top_folder = '/iplant/home/{}'.format(iplant_user)
+                latest_attempt.root_path = '/iplant/home/{}'.format(iplant_user)
             
             latest_attempt.save()
         
@@ -72,7 +78,7 @@ class ImportFromIrods(views.APIView):
             irods_host=host,
             irods_port=port,
             irods_zone=zone,
-            top_folder=folder,
+            root_path=folder,
         )
         import_files_from_irods.delay(new_attempt.id, password=password)
 
@@ -108,7 +114,7 @@ class ImportFromCyverse(views.APIView):
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
             username=username,
-            top_folder=folder,
+            root_path=folder,
         )
         import_files_from_cyverse.delay(new_attempt.id, auth_token=auth_token)
 
@@ -131,7 +137,7 @@ class ImportFromFile(views.APIView):
 
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
-            top_folder=file_data['root']
+            root_path=file_data['root']
         )
         import_files_from_file.delay(new_attempt.id, file_data)
 

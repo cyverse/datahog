@@ -57,11 +57,11 @@ def filter_files(file_query, filters):
 def create_size_timeline_data():
     try:
         earliest_file = File.objects.earliest('date_created')
-        last_summary = FileSummary.objects.latest('timestamp')
+        last_summary = FileSummary.objects.latest('date_scanned')
     except File.DoesNotExist:
         return '[]'
     
-    time_period = (last_summary.timestamp - earliest_file.date_created) / 50
+    time_period = (last_summary.date_scanned - earliest_file.date_created) / 50
 
     current_date = earliest_file.date_created
     current_size = File.objects.filter(
@@ -76,7 +76,7 @@ def create_size_timeline_data():
         }
     ]
 
-    while current_date + time_period < last_summary.timestamp:
+    while current_date + time_period < last_summary.date_scanned:
         current_date += time_period
         current_size += File.objects.filter(
             date_created__gt=current_date,

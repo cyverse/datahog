@@ -47,11 +47,11 @@ export class SummaryTab extends React.Component {
                                         {this.state.summary.duplicate_count > 0 ? 
                                             <Link to="/duplicates">
                                                 <i className="fa fa-fw fa-clone"></i>
-                                                {this.state.summary.duplicate_count} duplicate files
+                                                {this.state.summary.duplicate_count} duplicated files
                                             </Link> :
                                             <React.Fragment>
                                                 <i className="fa fa-fw fa-clone"></i>
-                                                0 duplicate files
+                                                0 duplicated files
                                             </React.Fragment>
                                         }
                                     </p>
@@ -60,7 +60,7 @@ export class SummaryTab extends React.Component {
                                     <SizeTimeline data={this.state.summary.size_timeline_data} id="sizeTimeline"/>
                                 </div>
                                 <div className="card-footer">
-                                    Last updated {this.state.summary.timestamp}
+                                    Snapshot from {this.state.summary.date_scanned}
                                     <a href="/api/files/savefile">Back up file data</a>
                                 </div>
                             </div>

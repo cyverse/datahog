@@ -32,7 +32,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
                         {
                             "type": "path", 
                             "args": {
-                                "prefix": attempt.top_folder
+                                "prefix": attempt.root_path
                             }
                         }
                     ]
@@ -114,7 +114,7 @@ def import_files_from_irods(attempt_id, password):
                 DataObject.replica_number == 0
             ).limit(1000)
 
-            folder_queue = deque([attempt.top_folder])
+            folder_queue = deque([attempt.root_path])
 
             while len(folder_queue):
                 next_folder = folder_queue.popleft()
@@ -182,7 +182,7 @@ def import_files_from_file(attempt_id, file_data):
         build_file_database(
             attempt, file_objects,
             file_checksums=file_checksums,
-            timestamp=datetime.datetime.fromtimestamp(file_data['timestamp'])
+            date_scanned=datetime.datetime.fromtimestamp(file_data['timestamp'])
         )
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
