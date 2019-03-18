@@ -1,9 +1,11 @@
 import axios from 'axios';
 import React from 'react';
 
-export const UpdateContext = React.createContext(null);
+import { DataWrapper } from './dataWrapper';
 
-export class UpdateBox extends React.Component {
+export const ImportContext = React.createContext(null);
+
+export class ImportWrapper extends React.Component {
 
     constructor(props) {
         super(props);
@@ -12,8 +14,8 @@ export class UpdateBox extends React.Component {
             updateInProgress: false,
             loading: true,
             error: false,
-            extraLarge: false,
-            currentStep: 0
+            currentStep: 0,
+            lastAttempt: null
         };
 
         this.checkForUpdate = this.checkForUpdate.bind(this);
@@ -34,22 +36,21 @@ export class UpdateBox extends React.Component {
             currentStep: 0,
             error: false,
             loading: false,
-            extraLarge: false
+            lastAttempt: null
         });
     }
 
     checkForUpdate() {
-        if (this.state.updateInProgress || this.state.error || this.state.loading) {
+        if (this.state.error || this.state.loading || this.state.updateInProgress) {
             axios.get('/api/import/latest')
             .then(function(response) {
                 if (response.data.in_progress) {
-                    let extraLarge = this.state.extraLarge || response.data.current_step === 2;
                     this.setState({
                         updateInProgress: true,
                         currentStep: response.data.current_step,
-                        extraLarge: extraLarge,
                         error: false,
-                        loading: false
+                        loading: false,
+                        lastAttempt: response.data
                     });
                 } else {
                     if (response.data.failed || response.data.current_step === 0) {
@@ -60,7 +61,8 @@ export class UpdateBox extends React.Component {
                     this.setState({
                         updateInProgress: false,
                         error: false,
-                        loading: false
+                        loading: false,
+                        lastAttempt: response.data
                     });
                 }
             }.bind(this))
@@ -68,7 +70,8 @@ export class UpdateBox extends React.Component {
                 this.setState({
                     updateInProgress: false,
                     error: true,
-                    loading: false
+                    loading: false,
+                    lastAttempt: null
                 });
             }.bind(this));
         }
@@ -89,12 +92,12 @@ export class UpdateBox extends React.Component {
                         <span>Building file database...</span>
                     ][this.state.currentStep]}
                 </p>
-                <p className="empty-subtitle">
+                {/* <p className="empty-subtitle">
                     { this.state.extraLarge ?
                         <span>This folder is very large. The import process may take longer than usual.</span> :
                         <span>This may take a few minutes.</span>
                     }
-                </p>
+                </p> */}
             </div>
         );
 
@@ -113,9 +116,9 @@ export class UpdateBox extends React.Component {
         );
 
         return (
-            <UpdateContext.Provider value={this}>
-                {this.props.children}
-            </UpdateContext.Provider>
+            <ImportContext.Provider value={this}>
+                <DataWrapper context={this} lastAttempt={this.state.lastAttempt} />
+            </ImportContext.Provider>
         );
     }
 }

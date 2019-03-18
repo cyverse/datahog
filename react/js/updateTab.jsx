@@ -1,15 +1,15 @@
 import React from 'react';
 import { LoadingBox } from './loadingBox';
-import { UpdateContext } from './updateBox';
+import { ImportContext } from './importWrapper';
 import { IrodsForm, CyverseForm, FileForm } from './updateForm';
 
 export function UpdateTabWithContext() {
     return  (
-        <UpdateContext.Consumer>
+        <ImportContext.Consumer>
             {context =>
                 <UpdateTab context={context}/>
             }
-        </UpdateContext.Consumer>
+        </ImportContext.Consumer>
     )
 }
 

@@ -1,7 +1,9 @@
 import React from 'react';
 import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
-import { UpdateBox } from './updateBox';
-import { SwitchMenu } from './switchMenu';
+import { SummaryTab } from './summaryTab';
+import { DuplicatesTab } from './duplicatesTab';
+import { BrowseTab } from './browseTab';
+import { UpdateTabWithContext } from './updateTab';
 
 export const SearchContext = React.createContext({});
 
@@ -12,37 +14,24 @@ export class TabNav extends React.Component {
 
     render() {
         return (
-            <SearchContext.Provider value={{}}>
-                <HashRouter>
-                    <UpdateBox>
-                        <React.Fragment>
-                            <header>
-                                <img src="/static/img/DataHog.png" alt="Data Hog" />
-                                <h1>    
-                                    DataHog
-                                </h1>
-                                <SwitchMenu />
-                            </header>
-                            <ul className='tab tab-block'>
-                                {this.props.tabs.map((tab, index) => {
-                                    return (
-                                        <li key={index} className='tab-item c-hand'>
-                                            <NavLink to={tab.path}>
-                                                {tab.name}
-                                            </NavLink>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                            <Switch>
-                                {this.props.tabs.map((tab, index) => {
-                                    return <Route key={index}  path={tab.path} component={tab.component} />;
-                                })}
-                            </Switch>
-                        </React.Fragment>
-                    </UpdateBox>
-                </HashRouter>
-            </SearchContext.Provider>
+            <HashRouter>
+                <SearchContext.Provider value={{}}>
+                    <ul className='tab tab-block'>
+                        <li className='tab-item c-hand'>
+                            <NavLink to='/summary'>Summary</NavLink>
+                            <NavLink to='/duplicates'>Duplicated Files</NavLink>
+                            <NavLink to='/browse'>Browse Files</NavLink>
+                            <NavLink to='/import'>Import File Data</NavLink>
+                        </li>
+                    </ul>
+                    <Switch>
+                        <Route path='/summary' component={SummaryTab} />
+                        <Route path='/duplicates' component={DuplicatesTab} />
+                        <Route path='/browse' component={BrowseTab} />
+                        <Route path='/import' component={UpdateTabWithContext} />
+                    </Switch>
+                </SearchContext.Provider>
+            </HashRouter>
         );
     }
 }
