@@ -64,7 +64,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
             )
             page = json.loads(response.text)
 
-        build_file_database(attempt, file_objects)
+        build_file_database(attempt, file_objects, directory_type='CyVerse')
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False
@@ -147,7 +147,7 @@ def import_files_from_irods(attempt_id, password):
                     for subcol in col.subcollections:
                         folder_queue.append(subcol.path)
         
-        build_file_database(attempt, file_objects, file_checksums)
+        build_file_database(attempt, file_objects, file_checksums, directory_type='iRODS')
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False
@@ -182,7 +182,8 @@ def import_files_from_file(attempt_id, file_data):
         build_file_database(
             attempt, file_objects,
             file_checksums=file_checksums,
-            date_scanned=datetime.datetime.fromtimestamp(file_data['timestamp'])
+            date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
+            directory_type=file_data['type']
         )
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))

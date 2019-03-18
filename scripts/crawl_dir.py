@@ -69,6 +69,7 @@ else:
     obj = {
         'format': 'datahog:0.1',
         'root': root_path,
+        'type': 'Local folder',
         'date_scanned': datetime.datetime.now().timestamp(),
         'files': files
     }
