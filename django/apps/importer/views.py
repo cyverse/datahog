@@ -132,7 +132,6 @@ class ImportFromFile(views.APIView):
             file_data = pickle.load(file)
             assert file_data['format'] in ('datahog:0.1',)
         except Exception as e:
-            print(e)
             return Response('Not a valid .datahog file.', status=400)
 
         new_attempt = ImportAttempt.objects.create(
