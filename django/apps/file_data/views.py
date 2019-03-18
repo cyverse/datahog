@@ -138,26 +138,25 @@ class GetSearchCSV(views.APIView):
         return response
 
 
-class GetFileSummary(views.APIView):
+class GetImportedDirectories(views.APIView):
     def get(self, request):
-        try:
-            summary = FileSummary.objects.latest('date_scanned')
-        except FileSummary.DoesNotExist:
-            summary = FileSummary.objects.create()
+        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
+
+        for directory in directories:
+            if not directory.size_timeline_data:
+                directory.size_timeline_data = create_size_timeline_data(directory)
+                directory.save()
+            if not directory.type_chart_data:
+                directory.type_chart_data = create_type_chart_data(directory)
+                directory.save()
         
-        if not summary.size_timeline_data:
-            summary.size_timeline_data = create_size_timeline_data()
-        if not summary.type_chart_data:
-            summary.type_chart_data = create_type_chart_data()
-        summary.save()
-        
-        summary_serialized = FileSummarySerializer(summary)
-        return Response(summary_serialized.data)
+        directories_serialized = ImportedDirectorySerializer(directories, many=True)
+        return Response(directories_serialized.data)
 
 
 class GetBackupFile(views.APIView):
     def get(self, request):
-        summary = FileSummary.objects.latest('date_scanned')
+        summary = ImportedDirectory.objects.latest('date_scanned')
         files = []
 
         for file in File.objects.all():

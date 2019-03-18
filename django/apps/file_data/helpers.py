@@ -3,7 +3,7 @@ import json
 
 from django.db.models import Sum
 
-from apps.file_data.models import File, Folder, FileType, FileSummary
+from apps.file_data.models import File, Folder, FileType, ImportedDirectory
 
 class EchoBuffer:
     def write(self, value):
@@ -54,10 +54,10 @@ def filter_files(file_query, filters):
     return filtered_query
 
 
-def create_size_timeline_data():
+def create_size_timeline_data(directory):
     try:
         earliest_file = File.objects.earliest('date_created')
-        last_summary = FileSummary.objects.latest('date_scanned')
+        last_summary = ImportedDirectory.objects.latest('date_scanned')
     except File.DoesNotExist:
         return '[]'
     
@@ -90,7 +90,7 @@ def create_size_timeline_data():
     return json.dumps(files_per_period)
 
 
-def create_type_chart_data():
+def create_type_chart_data(directory):
     all_types = FileType.objects.order_by('-total_size')
     size_per_type = []
     
