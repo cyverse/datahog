@@ -47,7 +47,6 @@ export class DataWrapper extends React.Component {
         );
 
         if (this.state.directories.length) {
-            console.log(this.state.directories);
             return (
                 <DirectoryContext.Provider value={{
                     directory: this.state.directories[0]

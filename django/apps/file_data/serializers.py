@@ -32,5 +32,5 @@ class ImportedDirectorySerializer(serializers.ModelSerializer):
     date_scanned = serializers.DateTimeField(format=r'%Y-%m-%d %H:%M')
     class Meta:
         model = ImportedDirectory
-        fields = ('id', 'date_scanned', 'folder_count', 'file_count', 
-            'duplicate_count', 'total_size', 'size_timeline_data', 'type_chart_data')
+        fields = ('id', 'date_scanned', 'folder_count', 'file_count', 'root_path', 
+            'duplicate_count', 'total_size', 'size_timeline_data', 'type_chart_data', 'directory_type')
