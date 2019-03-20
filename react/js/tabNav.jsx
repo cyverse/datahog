@@ -15,7 +15,7 @@ export class TabNav extends React.Component {
     render() {
         return (
             <HashRouter>
-                <SearchContext.Provider value={{}}>
+                <React.Fragment>
                     <ul className='tab tab-block'>
                         <li className='tab-item c-hand'>
                             <NavLink to='/summary'>Summary</NavLink>
@@ -30,7 +30,7 @@ export class TabNav extends React.Component {
                         <Route path='/browse' component={BrowseTab} />
                         <Route path='/import' component={UpdateTabWithContext} />
                     </Switch>
-                </SearchContext.Provider>
+                </React.Fragment>
             </HashRouter>
         );
     }

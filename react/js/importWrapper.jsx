@@ -2,8 +2,7 @@ import axios from 'axios';
 import React from 'react';
 
 import { DataWrapper } from './dataWrapper';
-
-export const ImportContext = React.createContext(null);
+import { ImportContext } from './context';
 
 export class ImportWrapper extends React.Component {
 
@@ -116,7 +115,10 @@ export class ImportWrapper extends React.Component {
         );
 
         return (
-            <ImportContext.Provider value={this}>
+            <ImportContext.Provider value={{
+                updateTriggered: this.updateTriggered,
+                lastAttempt: this.state.lastAttempt
+            }}>
                 <DataWrapper context={this} lastAttempt={this.state.lastAttempt} />
             </ImportContext.Provider>
         );

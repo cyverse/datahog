@@ -4,10 +4,7 @@ import axios from 'axios';
 import { SwitchMenu } from './switchMenu';
 import { TabNav } from './tabNav';
 import { IrodsForm, FileForm, CyverseForm } from './updateForm';
-
-export const DirectoryContext = React.createContext({
-    directory: null
-});
+import { DirectoryContext } from './context';
 
 export class DataWrapper extends React.Component {
     constructor(props) {
