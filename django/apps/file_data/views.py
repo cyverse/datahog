@@ -15,12 +15,14 @@ from .helpers import create_size_timeline_data, create_type_chart_data, filter_f
 
 
 class GetBiggestFiles(generics.ListAPIView):
-    queryset = File.objects.all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('size',)
     ordering = ('-size',)
+
+    def get_queryset(self):
+        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
 
 
 class GetBiggestFolders(generics.ListAPIView):

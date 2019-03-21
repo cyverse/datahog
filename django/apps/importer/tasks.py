@@ -20,6 +20,12 @@ def import_files_from_cyverse(attempt_id, auth_token):
     attempt = ImportAttempt.objects.get(id=attempt_id)
     file_objects = []
 
+    directory = ImportedDirectory(
+        directory_type='CyVerse',
+        date_scanned=attempt.date_imported,
+        root_path=attempt.root_path
+    )
+
     try:
         attempt.current_step = 1
         attempt.save()
@@ -51,7 +57,8 @@ def import_files_from_cyverse(attempt_id, auth_token):
                         name=hit['_source']['label'],
                         path=hit['_source']['path'],
                         size=hit['_source']['fileSize'],
-                        date_created=datetime.datetime.fromtimestamp(hit['_source']['dateCreated']/1000)
+                        date_created=datetime.datetime.fromtimestamp(hit['_source']['dateCreated']/1000),
+                        directory=directory
                     )
                     file_objects.append(file_obj)
 
@@ -64,7 +71,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
             )
             page = json.loads(response.text)
 
-        build_file_database(attempt, file_objects, directory_type='CyVerse')
+        build_file_database(attempt, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False

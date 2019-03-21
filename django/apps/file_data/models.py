@@ -20,6 +20,8 @@ class ImportedDirectory(models.Model):
     type_chart_data = models.TextField(blank=True, null=True)
     directory_type = models.CharField(max_length=16, choices=DIRECTORY_TYPE_CHOICES, default='Local folder')
 
+    def __str__(self):
+        return self.root_path
 
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -44,7 +46,7 @@ class File(models.Model):
     file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
     dupe_group = models.ForeignKey('DupeGroup', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
     date_created = models.DateTimeField()
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE, blank=True, null=True)
+    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
 
     is_folder = False
 
@@ -56,7 +58,7 @@ class FileType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     extension = models.CharField(max_length=50, blank=True)
     total_size = models.BigIntegerField()
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE, blank=True, null=True)
+    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.extension
@@ -65,4 +67,7 @@ class DupeGroup(models.Model):
     checksum = models.CharField(max_length=32, primary_key=True)
     file_size = models.BigIntegerField(default=0)
     file_count = models.IntegerField(default=0)
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE, blank=True, null=True)
+    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.checksum[:10]
