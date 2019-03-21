@@ -120,7 +120,7 @@ export class ImportWrapper extends React.Component {
                 updateTriggered: this.updateTriggered,
                 lastAttempt: this.state.lastAttempt
             }}>
-                <DataWrapper context={this} lastAttempt={this.state.lastAttempt} />
+                <DataWrapper onSubmit={this.updateTriggered} lastAttempt={this.state.lastAttempt} />
             </ImportContext.Provider>
         );
     }

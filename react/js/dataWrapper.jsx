@@ -70,11 +70,16 @@ export class DataWrapper extends React.Component {
                             DataHog
                         </h1>
                     </header>
+                    { this.props.lastAttempt.failed && 
+                        <div className="toast toast-error">
+                            Your last import could not be completed. The folder you requested may be too large.
+                        </div>
+                    }
                     <div className="container">
                         <div className="columns">
-                            <IrodsForm lastAttempt={this.props.lastAttempt} context={this.props.context} />
-                            <FileForm context={this.props.context} />
-                            <CyverseForm lastAttempt={this.props.lastAttempt} context={this.props.context} />
+                            <IrodsForm lastAttempt={this.props.lastAttempt} onSubmit={this.props.onSubmit} />
+                            <FileForm onSubmit={this.props.onSubmit} />
+                            <CyverseForm lastAttempt={this.props.lastAttempt} onSubmit={this.props.onSubmit} />
                         </div>
                     </div>
                 </React.Fragment>
