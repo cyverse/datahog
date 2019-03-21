@@ -29,7 +29,7 @@ class Folder(models.Model):
     path = models.CharField(max_length=512)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     total_size = models.BigIntegerField(default=0)
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE, blank=True, null=True)
+    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
 
     is_folder = True
 
