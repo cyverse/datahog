@@ -16,13 +16,27 @@ header img {
     vertical-align: middle;
 }
 
-.menu.menu-switch {
+.menu.directory-menu {
     /* box-shadow: none; */
     position: absolute;
     right: 0;
     display: inline-block;
     text-align: left;
     width: 400px;
+}
+
+.directory-menu .collapse-icon {
+    float: right;
+    margin-top: 8px;
+}
+
+.directory-menu .menu-item .delete-button {
+    float: right;
+    display: none;
+}
+
+.directory-menu .menu-item:hover .delete-button {
+    display: inline;
 }
 
 a:focus {

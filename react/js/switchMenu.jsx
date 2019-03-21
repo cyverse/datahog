@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 export class SwitchMenu extends React.Component {
     constructor(props) {
@@ -7,8 +8,20 @@ export class SwitchMenu extends React.Component {
         this.state = {
             collapsed: true
         }
+        this.node = React.createRef();
+
         this.toggleCollapse = this.toggleCollapse.bind(this);
         this.switchDirectories = this.switchDirectories.bind(this);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    componentWillMount()   { document.addEventListener('mousedown', this.handleClick, false);    }
+    componentWillUnmount() { document.removeEventListener('mousedown', this.handleClick, false); }
+
+    handleClick(event) {
+        if (!this.state.collapsed && !this.node.current.contains(event.target)) {
+            this.toggleCollapse();
+        }
     }
 
     toggleCollapse() {
@@ -23,7 +36,7 @@ export class SwitchMenu extends React.Component {
 
     render() {
         return (
-            <ul className="menu menu-switch">
+            <ul className="menu directory-menu" ref={this.node}>
                 <li className="menu-item">
                     <a onClick={this.toggleCollapse}>
                         <span className="h5">
@@ -33,29 +46,38 @@ export class SwitchMenu extends React.Component {
                         <span className="text-gray">
                             &nbsp; ({this.props.directories[0].directory_type})
                         </span>
-                        { this.props.directories.length > 1 && 
-                            <span className="float-right">
-                                <i className={this.state.collapsed ? 'fa fa-lg fa-caret-down' : 'fa fa-lg fa-caret-up'}></i>
-                            </span>
-                        }
+                        <span className="collapse-icon">
+                            <i className={this.state.collapsed ? 'fa fa-lg fa-caret-down' : 'fa fa-lg fa-caret-up'}></i>
+                        </span>
                     </a>
                 </li>
-                { this.props.directories.length > 1 && !this.state.collapsed && 
+                { !this.state.collapsed && 
                     <React.Fragment>
                         <li className="divider"></li>
                         {this.props.directories.map((directory, index) => {
                             if (index !== 0) return (
-                                <li className="menu-item">
+                                <li className="menu-item" key={directory.date_viewed}>
                                     <a href="">
                                         <span>
                                             <i className="fa fa-fw fa-lg fa-folder-o"></i>
                                             {trimPath(directory.root_path, 20)}
                                         </span>
                                         <small className="text-gray">&nbsp; ({directory.directory_type})</small>
+                                        <button className="btn btn-link delete-button">
+                                            <small className="text-error">Delete</small>
+                                        </button>
                                     </a>
                                 </li>
                             )
                         })}
+                        <li className="menu-item">
+                            <a href='/#/import' onClick={this.toggleCollapse}>
+                                <span className="text-right">
+                                    <i className="fa fa-sm fa-fw fa-plus"></i>
+                                    Import new directory
+                                </span>
+                            </a>
+                        </li>
                     </React.Fragment>
                 }
             </ul>
