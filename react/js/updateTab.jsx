@@ -18,9 +18,9 @@ export class UpdateTab extends React.Component {
                 { this.context.lastAttempt &&
                     <div className="container">
                         <div className="columns">
-                            <IrodsForm lastAttempt={this.context.lastAttempt} context={this.props.context} />
-                            <FileForm context={this.props.context} />
-                            <CyverseForm lastAttempt={this.context.lastAttempt} context={this.props.context} />
+                            <IrodsForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />
+                            <FileForm onSubmit={this.context.updateTriggered} />
+                            <CyverseForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />
                         </div>
                     </div>
                 }

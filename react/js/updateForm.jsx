@@ -45,8 +45,8 @@ export class IrodsForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.context) {
-                this.props.context.updateTriggered();
+            if (this.props.onSubmit) {
+                this.props.onSubmit();
             }
         }.bind(this))
         .catch(function(error) {
@@ -191,8 +191,8 @@ export class CyverseForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.context) {
-                this.props.context.updateTriggered();
+            if (this.props.onSubmit) {
+                this.props.onSubmit();
             }
         }.bind(this))
         .catch(function(error) {
@@ -303,8 +303,8 @@ export class FileForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.context) {
-                this.props.context.updateTriggered();
+            if (this.props.onSubmit) {
+                this.props.onSubmit();
             }
         }.bind(this))
         .catch(function(error) {

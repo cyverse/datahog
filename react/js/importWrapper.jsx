@@ -18,6 +18,7 @@ export class ImportWrapper extends React.Component {
         };
 
         this.checkForUpdate = this.checkForUpdate.bind(this);
+        this.updateTriggered = this.updateTriggered.bind(this);
     }
 
     componentDidMount() {
