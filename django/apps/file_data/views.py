@@ -15,18 +15,16 @@ from .helpers import create_size_timeline_data, create_type_chart_data, filter_f
 
 
 class GetBiggestFiles(generics.ListAPIView):
+    queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('size',)
     ordering = ('-size',)
 
-    def get_queryset(self):
-        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
-
 
 class GetBiggestFolders(generics.ListAPIView):
-    queryset = Folder.objects.all()
+    queryset = Folder.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FolderSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -35,7 +33,7 @@ class GetBiggestFolders(generics.ListAPIView):
 
 
 class GetBiggestFileTypes(generics.ListAPIView):
-    queryset = FileType.objects.all()
+    queryset = FileType.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileTypeSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -44,7 +42,7 @@ class GetBiggestFileTypes(generics.ListAPIView):
 
 
 class GetBiggestDupeGroups(generics.ListAPIView):
-    queryset = DupeGroup.objects.all()
+    queryset = DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = DupeGroupSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -53,7 +51,7 @@ class GetBiggestDupeGroups(generics.ListAPIView):
 
 
 class GetMostDuped(generics.ListAPIView):
-    queryset = DupeGroup.objects.all()
+    queryset = DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = DupeGroupSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -62,7 +60,7 @@ class GetMostDuped(generics.ListAPIView):
 
 
 class GetNewestFiles(generics.ListAPIView):
-    queryset = File.objects.all()
+    queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -71,7 +69,7 @@ class GetNewestFiles(generics.ListAPIView):
 
 
 class GetOldestFiles(generics.ListAPIView):
-    queryset = File.objects.all()
+    queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -98,8 +96,8 @@ class GetChildrenOfFolder(views.APIView):
 class GetTopLevelFiles(views.APIView):
     def get(self, request):
         
-        top_folders = Folder.objects.filter(parent=None)
-        top_files   = File.objects.filter(parent=None)
+        top_folders = Folder.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed'), parent=None)
+        top_files   = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed'), parent=None)
 
         folder_serializer = FolderSerializer(top_folders.all(), many=True)
         file_serializer   = FileSerializer(top_files.all(), many=True)
@@ -156,12 +154,17 @@ class GetImportedDirectories(views.APIView):
         return Response(directories_serialized.data)
 
 
+class ViewDirectory(views.APIView):
+    def post(self, request):
+        pass
+
+
 class GetBackupFile(views.APIView):
     def get(self, request):
-        summary = ImportedDirectory.objects.latest('date_scanned')
+        directory = ImportedDirectory.objects.latest('date_viewed')
         files = []
 
-        for file in File.objects.all():
+        for file in File.objects.filter(directory=directory).all():
             if file.dupe_group:
                 checksum = file.dupe_group.checksum
             else:
