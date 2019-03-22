@@ -15,23 +15,38 @@ export class DataWrapper extends React.Component {
             error: false,
             directories: null
         };
+
+        this.onLoad = response
     }
 
     componentDidMount() {
         axios.get('/api/files/directories')
-        .then(function(response) {
-            this.setState({
-                loading: false,
-                error: false,
-                directories: response.data
-            });
-        }.bind(this))
-        .catch(function(error) {
-            this.setState({
-                loading: false,
-                error: true
-            });
-        }.bind(this));
+        .then(this.onLoad)
+        .catch(this.onError);
+    }
+
+    viewDirectory(directory) {
+        this.setState({
+            loading: true
+        });
+        axios.post('/api/files/viewdirectory', directory)
+        .then(this.onLoad)
+        .catch(this.onError);
+    }
+
+    onLoad(response) {
+        this.setState({
+            loading: false,
+            error: false,
+            directories: response.data
+        });
+    }
+
+    onError(error) {
+        this.setState({
+            loading: false,
+            error: true
+        });
     }
 
     render() {
@@ -56,7 +71,7 @@ export class DataWrapper extends React.Component {
                         <h1>
                             DataHog
                         </h1>
-                        <SwitchMenu directories={this.state.directories}/>
+                        <SwitchMenu directories={this.state.directories} onChange={this.viewDirectory} />
                     </header>
                     <TabNav/>
                 </DirectoryContext.Provider>
