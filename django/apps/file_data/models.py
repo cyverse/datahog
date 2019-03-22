@@ -9,6 +9,7 @@ class ImportedDirectory(models.Model):
         ('Local folder', 'Local folder')
     )
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     date_scanned = models.DateTimeField(auto_now_add=True)
     date_viewed = models.DateTimeField(auto_now_add=True)
     root_path = models.CharField(max_length=512, blank=True)
