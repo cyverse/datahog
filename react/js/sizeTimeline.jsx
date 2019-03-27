@@ -7,7 +7,7 @@ export class SizeTimeline extends React.Component {
         super(props);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidMount() {
         // check for valid data
         let data;
         if (this.props.data) {
