@@ -15,48 +15,58 @@ from .helpers import create_size_timeline_data, create_type_chart_data, filter_f
 
 
 class GetBiggestFiles(generics.ListAPIView):
-    queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('size',)
     ordering = ('-size',)
 
+    def get_queryset(self):
+        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+
 
 class GetBiggestFolders(generics.ListAPIView):
-    queryset = Folder.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FolderSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('total_size',)
     ordering = ('-total_size',)
 
+    def get_queryset(self):
+        return Folder.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+
 
 class GetBiggestFileTypes(generics.ListAPIView):
-    queryset = FileType.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileTypeSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('total_size',)
     ordering = ('-total_size',)
 
+    def get_queryset(self):
+        return FileType.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+
 
 class GetBiggestDupeGroups(generics.ListAPIView):
-    queryset = DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = DupeGroupSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('file_size',)
     ordering = ('-file_size',)
 
+    def get_queryset(self):
+        return DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+
 
 class GetMostDuped(generics.ListAPIView):
-    queryset = DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = DupeGroupSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('file_count',)
     ordering = ('-file_count',)
+
+    def get_queryset(self):
+        return DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
 
 
 class GetNewestFiles(generics.ListAPIView):
@@ -67,6 +77,9 @@ class GetNewestFiles(generics.ListAPIView):
     ordering_fields = ('date_created',)
     ordering = ('-date_created',)
 
+    def get_queryset(self):
+        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+
 
 class GetOldestFiles(generics.ListAPIView):
     queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
@@ -75,6 +88,9 @@ class GetOldestFiles(generics.ListAPIView):
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('date_created',)
     ordering = ('date_created',)
+
+    def get_queryset(self):
+        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
 
 
 class GetChildrenOfFolder(views.APIView):
@@ -156,7 +172,29 @@ class GetImportedDirectories(views.APIView):
 
 class ViewDirectory(views.APIView):
     def post(self, request):
-        pass
+        try:
+            directory = ImportedDirectory.objects.get(id=request.data['id'])
+            directory.date_viewed = datetime.datetime.now()
+            directory.save()
+        except:
+            directory = None
+        
+        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
+        directories_serialized = ImportedDirectorySerializer(directories, many=True)
+        return Response(directories_serialized.data)
+
+
+class DeleteDirectory(views.APIView):
+    def delete(self, request):
+        try:
+            directory = ImportedDirectory.objects.get(id=request.data['id'])
+            directory.delete()
+        except:
+            directory = None
+        
+        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
+        directories_serialized = ImportedDirectorySerializer(directories, many=True)
+        return Response(directories_serialized.data)
 
 
 class GetBackupFile(views.APIView):
