@@ -84,13 +84,20 @@ def import_files_from_irods(attempt_id, password):
     file_objects = []
     file_checksums = {}
 
+    directory = ImportedDirectory(
+        directory_type='iRODS',
+        date_scanned=attempt.date_imported,
+        root_path=attempt.root_path
+    )
+
     def save_file(collection, name, size, date_created, checksum):
         path = '{}/{}'.format(collection, name)
         file_obj = File(
             name=name,
             path=path,
             size=size,
-            date_created=date_created
+            date_created=date_created,
+            directory=directory
         )
         file_objects.append(file_obj)
         if checksum in file_checksums:
@@ -154,7 +161,7 @@ def import_files_from_irods(attempt_id, password):
                     for subcol in col.subcollections:
                         folder_queue.append(subcol.path)
         
-        build_file_database(attempt, file_objects, file_checksums, directory_type='iRODS')
+        build_file_database(attempt, directory, file_objects, file_checksums)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False
@@ -168,6 +175,12 @@ def import_files_from_file(attempt_id, file_data):
     file_objects = []
     file_checksums = {}
 
+    directory = ImportedDirectory(
+        directory_type=file_data['type'],
+        date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
+        root_path=attempt.root_path
+    )
+
     try:
         attempt.current_step = 2
         attempt.save()
@@ -177,7 +190,8 @@ def import_files_from_file(attempt_id, file_data):
                 name=os.path.basename(file['path']),
                 size=file['size'],
                 path=file['path'],
-                date_created=datetime.datetime.fromtimestamp(file['created'])
+                date_created=datetime.datetime.fromtimestamp(file['created']),
+                directory=directory
             )
             file_objects.append(file_obj)
             if file['checksum']:
@@ -186,12 +200,7 @@ def import_files_from_file(attempt_id, file_data):
                 else:
                     file_checksums[file['checksum']] = [file_obj]
 
-        build_file_database(
-            attempt, file_objects,
-            file_checksums=file_checksums,
-            date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
-            directory_type=file_data['type']
-        )
+        build_file_database(attempt, directory, file_objects, file_checksums)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False
