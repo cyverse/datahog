@@ -16,7 +16,10 @@ export class DataWrapper extends React.Component {
             directories: null
         };
 
-        this.onLoad = response
+        this.onLoad = this.onLoad.bind(this);
+        this.onError = this.onError.bind(this);
+        this.viewDirectory = this.viewDirectory.bind(this);
+        this.deleteDirectory = this.deleteDirectory.bind(this);
     }
 
     componentDidMount() {
@@ -32,6 +35,16 @@ export class DataWrapper extends React.Component {
         axios.post('/api/files/viewdirectory', directory)
         .then(this.onLoad)
         .catch(this.onError);
+    }
+
+    deleteDirectory(directory) {
+        console.log('deletion!');
+        // this.setState({
+        //     loading: true
+        // });
+        // axios.delete('api/files/deletedirectory', directory)
+        // .then(this.onLoad)
+        // .catch(this.onError);
     }
 
     onLoad(response) {
@@ -71,7 +84,10 @@ export class DataWrapper extends React.Component {
                         <h1>
                             DataHog
                         </h1>
-                        <SwitchMenu directories={this.state.directories} onChange={this.viewDirectory} />
+                        <SwitchMenu directories={this.state.directories} 
+                            onChange={this.viewDirectory} 
+                            onDelete={this.deleteDirectory}
+                        />
                     </header>
                     <TabNav/>
                 </DirectoryContext.Provider>

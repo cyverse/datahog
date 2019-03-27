@@ -8,6 +8,8 @@ urlpatterns = [
     path('api/files/searchcsv', GetSearchCSV.as_view()),
     path('api/files/<slug:folder_id>/children', GetChildrenOfFolder.as_view()),
     path('api/files/directories', GetImportedDirectories.as_view()),
+    path('api/files/viewdirectory', ViewDirectory.as_view()),
+    path('api/files/deletedirectory', DeleteDirectory.as_view()),
     path('api/files/biggestfiles', GetBiggestFiles.as_view()),
     path('api/files/biggestfolders', GetBiggestFolders.as_view()),
     path('api/files/newestfiles', GetNewestFiles.as_view()),
