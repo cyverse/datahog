@@ -5,13 +5,15 @@ export class SwitchMenu extends React.Component {
         super(props);
 
         this.state = {
-            collapsed: true
+            collapsed: true,
+            toDelete: null
         }
         this.node = React.createRef();
 
         this.toggleCollapse = this.toggleCollapse.bind(this);
-        this.switchDirectories = this.switchDirectories.bind(this);
         this.handleDocumentClick = this.handleDocumentClick.bind(this);
+        this.handleListClick = this.handleListClick.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
     }
 
     componentWillMount()   { document.addEventListener('mousedown', this.handleDocumentClick, false);    }
@@ -23,14 +25,30 @@ export class SwitchMenu extends React.Component {
         }
     }
 
+    handleListClick(event, directory) {
+        if (event.target.classList.contains('delete-button')) {
+            this.toggleModal(directory);
+        } else {
+            this.props.onChange(directory);
+        }
+    }
+
     toggleCollapse() {
         this.setState({
             collapsed: !this.state.collapsed
         });
     }
 
-    switchDirectories(dir) {
-        this.props.onSwitch(dir);
+    toggleModal(toDelete) {
+        if (this.state.toDelete) {
+            this.setState({
+                toDelete: null
+            });
+        } else if (toDelete) {
+            this.setState({
+                toDelete: toDelete
+            });
+        }
     }
 
     render() {
@@ -57,18 +75,13 @@ export class SwitchMenu extends React.Component {
                             {this.props.directories.map((directory, index) => {
                                 if (index !== 0) return (
                                     <li className="menu-item" key={directory.id}>
-                                        <a onClick={() => this.props.onChange(directory)}>
+                                        <a onClick={event => this.handleListClick(event, directory)}>
                                             <span>
                                                 <i className="fa fa-fw fa-lg fa-folder-o"></i>
                                                 {trimPath(directory.root_path, 20)}
                                             </span>
                                             <small className="text-gray">&nbsp; ({directory.directory_type})</small>
-                                            <button className="btn btn-link delete-button" onClick={event => {
-                                                event.stopPropagation;
-                                                this.props.onDelete(directory);
-                                            }}>
-                                                <small className="text-error">Delete</small>
-                                            </button>
+                                            <small className="delete-button c-hand">Remove</small>
                                         </a>
                                     </li>
                                 );
@@ -84,19 +97,20 @@ export class SwitchMenu extends React.Component {
                         </React.Fragment>
                     }
                 </ul>
-                <div className="modal" id="modal-id">
+                <div className={this.state.toDelete ? 'modal active' : 'modal'} id="modal-id">
                     <a href="#close" className="modal-overlay" aria-label="Close"></a>
                     <div className="modal-container">
                         <div className="modal-header">
-                            <div className="modal-title h5">Title</div>
+                            <div className="modal-title h5">Are you sure?</div>
                         </div>
                         <div className="modal-body">
                             <div className="content">
-                                Content
+                                If you remove this directory, it will need to be re-imported in order to be viewed again.
                             </div>
                         </div>
                         <div className="modal-footer">
-                            Footer
+                            <button className="btn btn-primary" onClick={() => this.props.onDelete(this.state.toDelete)}>Remove</button>
+                            <button className="btn btn-link" onClick={this.toggleModal}>Cancel</button>
                         </div>
                     </div>
                 </div>

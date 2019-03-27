@@ -38,13 +38,13 @@ export class DataWrapper extends React.Component {
     }
 
     deleteDirectory(directory) {
-        console.log('deletion!');
-        // this.setState({
-        //     loading: true
-        // });
-        // axios.delete('api/files/deletedirectory', directory)
-        // .then(this.onLoad)
-        // .catch(this.onError);
+        console.log('deletion');
+        this.setState({
+            loading: true
+        });
+        axios.delete('api/files/deletedirectory', directory)
+        .then(this.onLoad)
+        .catch(this.onError);
     }
 
     onLoad(response) {
