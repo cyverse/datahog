@@ -1,6 +1,9 @@
 import React from 'react';
 import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
-import { UpdateBox } from './updateBox';
+import { SummaryTab } from './summaryTab';
+import { DuplicatesTab } from './duplicatesTab';
+import { BrowseTab } from './browseTab';
+import { UpdateTab } from './updateTab';
 
 export const SearchContext = React.createContext({});
 
@@ -11,30 +14,30 @@ export class TabNav extends React.Component {
 
     render() {
         return (
-            <SearchContext.Provider value={{}}>
-                <HashRouter>
-                    <UpdateBox>
-                        <React.Fragment>
-                            <ul className='tab tab-block'>
-                                {this.props.tabs.map((tab, index) => {
-                                    return (
-                                        <li key={index} className='tab-item c-hand'>
-                                            <NavLink to={tab.path}>
-                                                {tab.name}
-                                            </NavLink>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                            <Switch>
-                                {this.props.tabs.map((tab, index) => {
-                                    return <Route key={index}  path={tab.path} component={tab.component} />;
-                                })}
-                            </Switch>
-                        </React.Fragment>
-                    </UpdateBox>
-                </HashRouter>
-            </SearchContext.Provider>
+            <HashRouter>
+                <React.Fragment>
+                    <ul className='tab tab-block'>
+                        <li className='tab-item c-hand'>
+                            <NavLink to='/summary'>Summary</NavLink>
+                        </li>
+                        <li className='tab-item c-hand'>
+                            <NavLink to='/duplicates'>Duplicated Files</NavLink>
+                        </li>
+                        <li className='tab-item c-hand'>
+                            <NavLink to='/browse'>Browse Files</NavLink>
+                        </li>
+                        <li className='tab-item c-hand'>
+                            <NavLink to='/import'>Import File Data</NavLink>
+                        </li>
+                    </ul>
+                    <Switch>
+                        <Route path='/summary' component={SummaryTab} />
+                        <Route path='/duplicates' component={DuplicatesTab} />
+                        <Route path='/browse' component={BrowseTab} />
+                        <Route path='/import' component={UpdateTab} />
+                    </Switch>
+                </React.Fragment>
+            </HashRouter>
         );
     }
 }

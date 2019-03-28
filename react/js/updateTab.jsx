@@ -1,53 +1,32 @@
 import React from 'react';
-import { LoadingBox } from './loadingBox';
-import { UpdateContext } from './updateBox';
 import { IrodsForm, CyverseForm, FileForm } from './updateForm';
-
-export function UpdateTabWithContext() {
-    return  (
-        <UpdateContext.Consumer>
-            {context =>
-                <UpdateTab context={context}/>
-            }
-        </UpdateContext.Consumer>
-    )
-}
+import { ImportContext } from './context';
 
 export class UpdateTab extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            lastAttempt: null
-        };
-
-        this.onLoad = this.onLoad.bind(this);
-    }
-
-    onLoad(response) {
-        this.setState({
-            lastAttempt: response.data
-        });
     }
     
     render() {
         return (
-            <LoadingBox get="/api/import/latest" callback={this.onLoad} checkForUpdate={false}>
-                { this.state.lastAttempt && this.state.lastAttempt.failed && 
+            <React.Fragment>
+                { this.context.lastAttempt && this.context.lastAttempt.failed && 
                     <div className="toast toast-error">
                         Your last import could not be completed. The folder you requested may be too large.
                     </div>
                 }
-                { this.state.lastAttempt &&
+                { this.context.lastAttempt &&
                     <div className="container">
                         <div className="columns">
-                            <IrodsForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
-                            <FileForm context={this.props.context} />
-                            <CyverseForm lastAttempt={this.state.lastAttempt} context={this.props.context} />
+                            <IrodsForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />
+                            <FileForm onSubmit={this.context.updateTriggered} />
+                            <CyverseForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />
                         </div>
                     </div>
                 }
-            </LoadingBox>
+            </React.Fragment>
         );
     }
 }
+
+UpdateTab.contextType = ImportContext;

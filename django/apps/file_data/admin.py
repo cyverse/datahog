@@ -30,12 +30,12 @@ class FileTypeAdmin(admin.ModelAdmin):
     )
 
 
-class FileSummaryAdmin(admin.ModelAdmin):
+class ImportedDirectoryAdmin(admin.ModelAdmin):
     list_display = (
-        'timestamp', 'file_count', 'folder_count', 'total_size'
+        'date_scanned', 'file_count', 'folder_count', 'total_size'
     )
     search_fields = (
-        'timestamp',
+        'date_scanned',
     )
 
 class DupeGroupAdmin(admin.ModelAdmin):
@@ -49,5 +49,5 @@ class DupeGroupAdmin(admin.ModelAdmin):
 admin.site.register(File, FileAdmin)
 admin.site.register(Folder, FolderAdmin)
 admin.site.register(FileType, FileTypeAdmin)
-admin.site.register(FileSummary, FileSummaryAdmin)
+admin.site.register(ImportedDirectory, ImportedDirectoryAdmin)
 admin.site.register(DupeGroup, DupeGroupAdmin)

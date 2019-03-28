@@ -1,11 +1,9 @@
 from apps.file_data.models import *
 from django.db import transaction
 
-def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None):
+def build_file_database(attempt, directory, file_objects, file_checksums={}):
     attempt.current_step = 3
     attempt.save()
-
-    if not timestamp: timestamp = attempt.timestamp
 
     file_count = 0
     folder_count = 0
@@ -34,12 +32,13 @@ def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None
                 parent_obj = Folder(
                     path=parent_path,
                     name=parent_path[last_slash+1:],
-                    total_size=file_obj.size
+                    total_size=file_obj.size,
+                    directory=directory
                 )
                 folder_objects_by_path[parent_path] = parent_obj
             # iterate up the hierarchy
             child_obj.parent = parent_obj
-            if parent_path == attempt.top_folder:
+            if parent_path == attempt.root_path:
                 break
             child_obj = parent_obj
             parent_path = parent_path[:last_slash]
@@ -57,14 +56,15 @@ def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None
             # if this file type doesn't exist yet, create it
             file_type = FileType(
                 extension=extension,
-                total_size=file_obj.size
+                total_size=file_obj.size,
+                directory=directory
             )
             file_types_by_extension[extension] = file_type
         file_obj.file_type = file_type
 
     # rename top folder to include parents
-    if attempt.top_folder in folder_objects_by_path:
-        folder_objects_by_path[attempt.top_folder].name = attempt.top_folder
+    if attempt.root_path in folder_objects_by_path:
+        folder_objects_by_path[attempt.root_path].name = attempt.root_path
 
     # find dupe groups with identical checksums
     for checksum, file_list in file_checksums.items():
@@ -72,33 +72,27 @@ def build_file_database(attempt, file_objects, file_checksums={}, timestamp=None
             dupe_group = DupeGroup(
                 checksum=checksum,
                 file_count=len(file_list),
-                file_size=file_list[0].size
+                file_size=file_list[0].size,
+                directory=directory
             )
             for file_obj in file_list:
                 file_obj.dupe_group = dupe_group
             dupe_groups.append(dupe_group)
 
+    directory.folder_count = len(folder_objects_by_path.values())
+    directory.file_count = len(file_objects)
+    directory.duplicate_count = len(dupe_groups)
+    directory.total_size = total_size
+
     attempt.current_step = 4
     attempt.save()
     print('Filling database...')
     with transaction.atomic(using='file_data'):
-        FileType.objects.all().delete()
-        File.objects.all().delete()
-        Folder.objects.all().delete()
-        DupeGroup.objects.all().delete()
-
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
         DupeGroup.objects.bulk_create(dupe_groups)
-        FileSummary.objects.create(
-            timestamp=timestamp,
-            top_folder=attempt.top_folder,
-            folder_count=len(folder_objects_by_path.values()),
-            file_count=len(file_objects),
-            duplicate_count=len(dupe_groups),
-            total_size=total_size
-        )
+        directory.save()
 
         attempt.in_progress = False
         attempt.failed = False

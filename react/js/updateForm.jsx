@@ -12,7 +12,7 @@ export class IrodsForm extends React.Component {
             host: this.props.lastAttempt.irods_host,
             port: this.props.lastAttempt.irods_port,
             zone: this.props.lastAttempt.irods_zone,
-            folder: this.props.lastAttempt.top_folder,
+            folder: this.props.lastAttempt.root_path,
             waiting: false,
             error: ''
         };
@@ -45,8 +45,8 @@ export class IrodsForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.context) {
-                this.props.context.updateTriggered();
+            if (this.props.onSubmit) {
+                this.props.onSubmit();
             }
         }.bind(this))
         .catch(function(error) {
@@ -161,7 +161,7 @@ export class CyverseForm extends React.Component {
         this.state = {
             user: this.props.lastAttempt.username,
             password: '',
-            folder: this.props.lastAttempt.top_folder,
+            folder: this.props.lastAttempt.root_path,
             waiting: false,
             error: ''
         };
@@ -191,8 +191,8 @@ export class CyverseForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.context) {
-                this.props.context.updateTriggered();
+            if (this.props.onSubmit) {
+                this.props.onSubmit();
             }
         }.bind(this))
         .catch(function(error) {
@@ -303,8 +303,8 @@ export class FileForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.context) {
-                this.props.context.updateTriggered();
+            if (this.props.onSubmit) {
+                this.props.onSubmit();
             }
         }.bind(this))
         .catch(function(error) {
@@ -363,47 +363,3 @@ export class FileForm extends React.Component {
         );
     }
 }
-
-class SimpleReactFileUpload extends React.Component {
-
-    constructor(props) {
-      super(props);
-      this.state ={
-        file:null
-      }
-      this.onFormSubmit = this.onFormSubmit.bind(this)
-      this.onChange = this.onChange.bind(this)
-      this.fileUpload = this.fileUpload.bind(this)
-    }
-    onFormSubmit(e){
-      e.preventDefault() // Stop form submit
-      this.fileUpload(this.state.file).then((response)=>{
-        console.log(response.data);
-      })
-    }
-    onChange(e) {
-      this.setState({file:e.target.files[0]})
-    }
-    fileUpload(file){
-      const url = 'http://example.com/file-upload';
-      const formData = new FormData();
-      formData.append('file',file)
-      const config = {
-          headers: {
-              'content-type': 'multipart/form-data'
-          }
-      }
-      return  post(url, formData,config)
-    }
-  
-    render() {
-      return (
-        <form onSubmit={this.onFormSubmit}>
-          <h1>File Upload</h1>
-          <input type="file" onChange={this.onChange} />
-          <button type="submit">Upload</button>
-        </form>
-     )
-    }
-  }
-  

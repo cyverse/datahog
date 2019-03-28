@@ -3,8 +3,7 @@ h1, h2 {
 }
 
 header {
-    text-align: center;
-    margin: 0.5rem;
+    margin: 0.75rem 0.5rem 0.25rem 0.5rem;
 }
 
 header h1 {
@@ -17,6 +16,29 @@ header img {
     vertical-align: middle;
 }
 
+.menu.directory-menu {
+    /* box-shadow: none; */
+    position: absolute;
+    right: 0;
+    display: inline-block;
+    text-align: left;
+    width: 400px;
+}
+
+.directory-menu .collapse-icon {
+    float: right;
+    margin-top: 8px;
+}
+
+.directory-menu .menu-item .delete-button {
+    float: right;
+    display: none;
+}
+
+.directory-menu .menu-item:hover .delete-button {
+    display: inline;
+}
+
 a:focus {
     outline:none;
     box-shadow:none;
@@ -26,9 +48,11 @@ a:focus {
     box-shadow: none;
 }
 
-#main {
+#app {
+    position: relative;
     max-width: 1000px;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .panel, .card {
@@ -140,4 +164,8 @@ nav#tabs {
 .tab .tab-item a.active, .tab .tab-item.active a {
     border-bottom-color: #5755d9;
     color: #5755d9;
+}
+
+.empty {
+    background: inherit;
 }

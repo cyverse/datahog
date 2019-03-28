@@ -3,7 +3,7 @@ import json
 
 from django.db.models import Sum
 
-from apps.file_data.models import File, Folder, FileType, FileSummary
+from apps.file_data.models import File, Folder, FileType, ImportedDirectory
 
 class EchoBuffer:
     def write(self, value):
@@ -11,7 +11,7 @@ class EchoBuffer:
 
 
 def filter_files(file_query, filters):
-    filtered_query = file_query
+    filtered_query = file_query.filter(directory=ImportedDirectory.objects.latest('date_viewed'))
 
     if 'name' in filters:
         if 'type' in filters and filters['type'] == 'regex':
@@ -54,17 +54,17 @@ def filter_files(file_query, filters):
     return filtered_query
 
 
-def create_size_timeline_data():
+def create_size_timeline_data(directory):
     try:
-        earliest_file = File.objects.earliest('date_created')
-        last_summary = FileSummary.objects.latest('timestamp')
+        earliest_file = File.objects.filter(directory=directory).earliest('date_created')
     except File.DoesNotExist:
         return '[]'
     
-    time_period = (last_summary.timestamp - earliest_file.date_created) / 50
+    time_period = (directory.date_scanned - earliest_file.date_created) / 50
 
     current_date = earliest_file.date_created
     current_size = File.objects.filter(
+        directory=directory,
         date_created__gte=current_date,
         date_created__lte=current_date + time_period
     ).aggregate(Sum('size'))['size__sum'] or 0
@@ -76,9 +76,10 @@ def create_size_timeline_data():
         }
     ]
 
-    while current_date + time_period < last_summary.timestamp:
+    while current_date + time_period < directory.date_scanned:
         current_date += time_period
         current_size += File.objects.filter(
+            directory=directory,
             date_created__gt=current_date,
             date_created__lte=current_date + time_period
         ).aggregate(Sum('size'))['size__sum'] or 0
@@ -90,8 +91,8 @@ def create_size_timeline_data():
     return json.dumps(files_per_period)
 
 
-def create_type_chart_data():
-    all_types = FileType.objects.order_by('-total_size')
+def create_type_chart_data(directory):
+    all_types = FileType.objects.filter(directory=directory).order_by('-total_size')
     size_per_type = []
     
     if all_types.count() > 5:

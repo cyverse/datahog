@@ -1,30 +1,18 @@
 import React from 'react';
-import { LoadingBox } from './loadingBox';
 import { PaginatedPanel } from './paginatedPanel';
 import { DuplicateTable } from './duplicateTable';
+import { DirectoryContext } from './context';
 
 export class DuplicatesTab extends React.Component {
 
     constructor(props) {
         super(props);
-        
-        this.state = {
-            summary: {}
-        };
-
-        this.onLoad = this.onLoad.bind(this);
-    }
-
-    onLoad(response) {
-        this.setState({
-            summary: response.data
-        });
     }
 
     render() {
         return (
-            <LoadingBox get="/api/files/summary" callback={this.onLoad} checkForUpdate={true}>
-                { this.state.summary.duplicate_count > 0 ?
+            <React.Fragment>
+                { this.context.directory.duplicate_count > 0 ?
                     <div className="container">
                         <div className="columns">
                             <div className="column col-9 col-mx-auto">
@@ -41,7 +29,9 @@ export class DuplicatesTab extends React.Component {
                         <p className="empty-subtitle">You have no duplicate files!</p>
                     </div>
                 }
-            </LoadingBox>
+            </React.Fragment>
         );
     }
 }
+
+DuplicatesTab.contextType = DirectoryContext;
