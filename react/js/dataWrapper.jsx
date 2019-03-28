@@ -42,7 +42,7 @@ export class DataWrapper extends React.Component {
         this.setState({
             loading: true
         });
-        axios.delete('api/files/deletedirectory', directory)
+        axios.delete('api/files/deletedirectory', { data: directory })
         .then(this.onLoad)
         .catch(this.onError);
     }
