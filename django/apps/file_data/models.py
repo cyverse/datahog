@@ -15,6 +15,7 @@ class ImportedDirectory(models.Model):
     root_path = models.CharField(max_length=512, blank=True)
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
+    checksums = models.BooleanField(default=False)
     duplicate_count = models.IntegerField(default=0)
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
