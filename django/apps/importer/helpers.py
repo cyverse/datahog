@@ -11,7 +11,8 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
     folder_objects_by_path = {}
     file_types_by_extension = {}
 
-    dupe_groups = []
+    new_dupe_groups = []
+    updated_dupe_groups = []
 
     for file_obj in file_objects:
         total_size += file_obj.size
@@ -68,20 +69,26 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
 
     # find dupe groups with identical checksums
     for checksum, file_list in file_checksums.items():
-        if len(file_list) >= 2:
+        if DupeGroup.objects.filter(checksum=checksum).exists():
+            dupe_group = DupeGroup.objects.get(checksum=checksum)
+            dupe_group.file_size += len(file_list)
+            updated_dupe_groups.append(dupe_group)
+        else:
             dupe_group = DupeGroup(
                 checksum=checksum,
                 file_count=len(file_list),
                 file_size=file_list[0].size,
                 directory=directory
             )
-            for file_obj in file_list:
-                file_obj.dupe_group = dupe_group
-            dupe_groups.append(dupe_group)
+            new_dupe_groups.append(dupe_group)
+        dupe_group.directories.add(directory)
+        for file_obj in file_list:
+            file_obj.dupe_group = dupe_group
+            
 
     directory.folder_count = len(folder_objects_by_path.values())
     directory.file_count = len(file_objects)
-    directory.duplicate_count = len(dupe_groups)
+    directory.duplicate_count = len(new_dupe_groups) + len(updated_dupe_groups)
     directory.total_size = total_size
 
     attempt.current_step = 4
@@ -91,7 +98,11 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
-        DupeGroup.objects.bulk_create(dupe_groups)
+        DupeGroup.objects.bulk_create(new_dupe_groups)
+
+        for group in updated_dupe_groups:
+            group.save()
+
         directory.save()
 
         attempt.in_progress = False
