@@ -54,6 +54,15 @@ def filter_files(file_query, filters):
     return filtered_query
 
 
+def filter_dupe_groups(group_query, filters):
+    filtered_query = group_query
+    
+    if 'sort' in filters:
+        filtered_query = filtered_query.order_by(filters['sort'])
+    
+    return filtered_query
+
+
 def create_size_timeline_data(directory):
     try:
         earliest_file = File.objects.filter(directory=directory).earliest('date_created')

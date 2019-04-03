@@ -11,7 +11,7 @@ from rest_framework import views, pagination, generics, filters
 
 from .models import *
 from .serializers import *
-from .helpers import create_size_timeline_data, create_type_chart_data, filter_files, EchoBuffer
+from .helpers import *
 
 
 class GetBiggestFiles(generics.ListAPIView):
@@ -47,30 +47,7 @@ class GetBiggestFileTypes(generics.ListAPIView):
         return FileType.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
 
 
-class GetBiggestDupeGroups(generics.ListAPIView):
-    serializer_class = DupeGroupSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('file_size',)
-    ordering = ('-file_size',)
-
-    def get_queryset(self):
-        return DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
-
-
-class GetMostDuped(generics.ListAPIView):
-    serializer_class = DupeGroupSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('file_count',)
-    ordering = ('-file_count',)
-
-    def get_queryset(self):
-        return DupeGroup.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
-
-
 class GetNewestFiles(generics.ListAPIView):
-    queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -82,7 +59,6 @@ class GetNewestFiles(generics.ListAPIView):
 
 
 class GetOldestFiles(generics.ListAPIView):
-    queryset = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
     serializer_class = FileSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.OrderingFilter,)
@@ -133,6 +109,20 @@ class SearchFiles(views.APIView):
         
         files_serialized = FileSerializer(matching_files, many=True)
         return Response(files_serialized.data)
+
+
+class GetDupeGroups(views.APIView):
+    def get(self, request):
+        matching_groups = filter_dupe_groups(DupeGroup.objects, request.GET)
+
+        if 'offset' in request.GET:
+            offset = int(request.GET['offset'])
+            matching_groups = matching_groups.all()[offset:offset+100]
+        else:
+            matching_groups = matching_groups.all()[:100]
+
+        groups_serialized = DupeGroupSerializer(matching_groups, many=True)
+        return Response(groups_serialized.data)
 
 
 class GetSearchCSV(views.APIView):
