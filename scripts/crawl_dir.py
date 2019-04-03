@@ -72,7 +72,7 @@ else:
         'type': 'Local folder',
         'date_scanned': datetime.datetime.now().timestamp(),
         'files': files,
-        'checksums': get_checksums
+        'has_checksums': gen_checksums
     }
 
     with open(output_path, 'wb') as outfile:

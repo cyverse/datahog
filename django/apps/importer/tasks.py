@@ -24,7 +24,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
         directory_type='CyVerse',
         date_scanned=attempt.date_imported,
         root_path=attempt.root_path,
-        checksums=False
+        has_checksums=False
     )
 
     try:
@@ -89,7 +89,7 @@ def import_files_from_irods(attempt_id, password):
         directory_type='iRODS',
         date_scanned=attempt.date_imported,
         root_path=attempt.root_path,
-        checksums=True
+        has_checksums=True
     )
 
     def save_file(collection, name, size, date_created, checksum):
@@ -181,7 +181,7 @@ def import_files_from_file(attempt_id, file_data):
         directory_type=file_data['type'],
         date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
         root_path=attempt.root_path,
-        checksums=file_data['checksums']
+        has_checksums=file_data['has_checksums']
     )
 
     try:
