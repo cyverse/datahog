@@ -118,3 +118,25 @@ export function trimPath(path, max) {
         else                 return '…' + sub.substring(slashPos);
     }
 }
+
+export function SortHeader(props) {
+    let sortDirection;
+    if (props.currentSort === props.sortBy) {
+        sortDirection = 1;
+    } else if (props.currentSort === '-' + props.sortBy) {
+        sortDirection = -1;
+    } else {
+        sortDirection = 0;
+    }
+    return (
+        <th className={props.className}>
+            <a className='btn btn-link'
+                onClick={props.onClick}
+                data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
+                {props.title} &nbsp;
+                {sortDirection > 0 && <i className='fa fa-caret-up'></i>}
+                {sortDirection < 0 && <i className='fa fa-caret-down'></i>}
+            </a>
+        </th>
+    );
+}

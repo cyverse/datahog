@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { Size, ClickToCopy } from './util';
+import { Size, ClickToCopy, SortHeader } from './util';
 
 export class FileTree extends React.Component {
     constructor(props) {
@@ -105,28 +105,6 @@ function recursiveSort(files, sortBy) {
             recursiveSort(file.children, sortBy);
         }
     }
-}
-
-export function SortHeader(props) {
-    let sortDirection;
-    if (props.currentSort === props.sortBy) {
-        sortDirection = 1;
-    } else if (props.currentSort === '-' + props.sortBy) {
-        sortDirection = -1;
-    } else {
-        sortDirection = 0;
-    }
-    return (
-        <th className={props.className}>
-            <a className='btn btn-link'
-                onClick={props.onClick}
-                data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
-                {props.title} &nbsp;
-                {sortDirection > 0 && <i className='fa fa-caret-up'></i>}
-                {sortDirection < 0 && <i className='fa fa-caret-down'></i>}
-            </a>
-        </th>
-    );
 }
 
 export class FileTreeNode extends React.Component {

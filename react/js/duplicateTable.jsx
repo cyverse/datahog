@@ -1,14 +1,13 @@
 import React from 'react';
-import { FileRow } from './fileTable';
-import { Size, trimPath } from './util';
+import { Size, trimPath, SortHeader, ClickToCopy } from './util';
 
 export class DuplicateTable extends React.Component {
 
     constructor(props) {
+        super(props);
         this.state = {
             sort: ''
         }
-
         this.resort = this.resort.bind(this);
     }
 
@@ -19,17 +18,17 @@ export class DuplicateTable extends React.Component {
             this.props.searchCallback(this.props.params);
         } else {
             if (sortBy === '-total_size') {
-                files.sort((a, b) => b.file_size*b.file_count - a.file_size*a.file_count);
+                this.props.dupeGroups.sort((a, b) => b.file_size*b.file_count - a.file_size*a.file_count);
             } else if (sortBy === 'total_size') {
-                files.sort((a, b) => a.file_size*a.file_count - b.file_size*b.file_count);
+                this.props.dupeGroups.sort((a, b) => a.file_size*a.file_count - b.file_size*b.file_count);
             } else if (sortBy === '-file_size') {
-                files.sort((a, b) => b.file_size - a.file_size);
+                this.props.dupeGroups.sort((a, b) => b.file_size - a.file_size);
             } else if (sortBy === 'file_size') {
-                files.sort((a, b) => a.file_size - b.file_size);
+                this.props.dupeGroups.sort((a, b) => a.file_size - b.file_size);
             } else if (sortBy === '-file_count') {
-                files.sort((a, b) => b.file_count - a.file_count);
+                this.props.dupeGroups.sort((a, b) => b.file_count - a.file_count);
             } else if (sortBy === 'file_count') {
-                files.sort((a, b) => a.file_count - b.file_count);
+                this.props.dupeGroups.sort((a, b) => a.file_count - b.file_count);
             }
         }
         this.setState({
@@ -49,7 +48,7 @@ export class DuplicateTable extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {props.dupeGroups.map((group, index) => {
+                    {this.props.dupeGroups.map((group, index) => {
                         return (
                             <DupeGroupRow key={group.checksum} group={group} />
                         )
@@ -59,7 +58,6 @@ export class DuplicateTable extends React.Component {
         );
     }
 }
-
 
 
 export class DupeGroupRow extends React.Component {
@@ -108,7 +106,7 @@ export class DupeGroupRow extends React.Component {
 export function DuplicateFileRow(props) {
     return (
         <tr>
-            <td className="name-cell" style={{paddingLeft: 30*props.depth}}>
+            <td className="name-cell" style={{paddingLeft: 30}}>
                 {props.file.name}
                 {props.crossDirectory && '(' + trimPath(props.file.directory.root_path, 20) + ')'}
             </td>

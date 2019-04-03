@@ -1,6 +1,7 @@
 import React from 'react';
+import axios from 'axios';
 import { DuplicateTable } from './duplicateTable';
-
+import { DirectoryContext } from './context';
 
 export class DuplicatesTab extends React.Component {
 
@@ -15,12 +16,14 @@ export class DuplicatesTab extends React.Component {
             params: {}
         };
 
-        this.searchForm = React.createRef();
-        
-        this.searchFiles = this.searchFiles.bind(this);
         this.onLoad = this.onLoad.bind(this);
-        this.onError = this.onSearchError.bind(this);
+        this.onError = this.onError.bind(this);
         this.handleScroll = this.handleScroll.bind(this);
+        this.searchDupeGroups = this.searchDupeGroups.bind(this);
+
+        axios.get('/api/files/duplicates')
+        .then(this.onLoad)
+        .catch(this.onError);
     }
 
     onLoad(response) {
@@ -40,14 +43,14 @@ export class DuplicatesTab extends React.Component {
         });
     }
 
-    getDupeGroups(params) {
+    searchDupeGroups(params) {
         this.setState({
             loading: true,
             error: false,
             dupeGroups: [],
             moreResults: false
         });
-        axios.get('/api/files/dupegroups', {
+        axios.get('/api/files/duplicates', {
             params: params
         }).then(this.onLoad)
         .catch(this.onError);
@@ -79,13 +82,18 @@ export class DuplicatesTab extends React.Component {
                             <div className="column col-9 col-mx-auto">
                                 <div className="panel fixed-height">
                                     <div className="panel-header search-header form-horizontal">
-                                        <DuplicatesForm state={null} submit={this.getDupeGroups}/>
+                                        <div className="form-group">
+                                            <label className="form-switch">
+                                                <input type="checkbox">
+                                                <i className="form-icon"></i> Send me emails with news and tips
+                                            </label>
+                                        </div>
                                     </div>
                                     <div className="panel-body" onScroll={this.handleScroll}>
                                         <React.Fragment>
                                             <DuplicateTable dupeGroups={this.state.dupeGroups}
                                                 searchOnSort={this.state.moreResults}
-                                                searchCallback={this.searchFiles}
+                                                searchCallback={this.searchDupeGroups}
                                                 searchParams={this.state.searchParams}/>
                                             {this.state.loading && 
                                                 <div className="loading loading-lg"></div>
@@ -104,3 +112,5 @@ export class DuplicatesTab extends React.Component {
         );
     }
 }
+
+DuplicatesTab.contextType = DirectoryContext;
