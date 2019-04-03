@@ -104,3 +104,17 @@ export class SelectButton extends React.Component {
         )
     }
 }
+
+export function trimPath(path, max) {
+    if (!path) path = '';
+    if (!max)  max = 30;
+    
+    if (path.length <= max) {
+        return path;
+    } else {
+        let sub = path.substring(path.length-max+1);
+        let slashPos = sub.indexOf('/');
+        if (slashPos === -1) return '…' + sub;
+        else                 return '…' + sub.substring(slashPos);
+    }
+}
