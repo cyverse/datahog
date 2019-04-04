@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 import { FileTree } from './fileTree'
-import { LoadingBox } from './loadingBox';
+import { LoadingBox } from '../loadingBox';
 import { SearchForm } from './searchForm';
 
 export class BrowseTab extends React.Component {

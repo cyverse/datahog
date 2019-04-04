@@ -1,9 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 
-import { SwitchMenu } from './switchMenu';
+import { SourceMenu } from './sourceMenu';
 import { TabNav } from './tabNav';
-import { IrodsForm, FileForm, CyverseForm } from './updateForm';
+import { ImportForm } from './forms/importForm';
 import { DirectoryContext } from './context';
 
 export class DataWrapper extends React.Component {
@@ -84,7 +84,7 @@ export class DataWrapper extends React.Component {
                         <h1>
                             DataHog
                         </h1>
-                        <SwitchMenu directories={this.state.directories} 
+                        <SourceMenu directories={this.state.directories} 
                             onChange={this.viewDirectory} 
                             onDelete={this.deleteDirectory}
                         />
@@ -101,18 +101,7 @@ export class DataWrapper extends React.Component {
                             DataHog
                         </h1>
                     </header>
-                    { this.props.lastAttempt.failed && 
-                        <div className="toast toast-error">
-                            Your last import could not be completed. The folder you requested may be too large.
-                        </div>
-                    }
-                    <div className="container">
-                        <div className="columns">
-                            <IrodsForm lastAttempt={this.props.lastAttempt} onSubmit={this.props.onSubmit} />
-                            <FileForm onSubmit={this.props.onSubmit} />
-                            <CyverseForm lastAttempt={this.props.lastAttempt} onSubmit={this.props.onSubmit} />
-                        </div>
-                    </div>
+                    <ImportForm />
                 </React.Fragment>
             )
         }

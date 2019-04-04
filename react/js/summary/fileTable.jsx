@@ -1,5 +1,5 @@
 import React from 'react';
-import { Size, ClickToCopy } from './util';
+import { Size, ClickToCopy } from '../util';
 
 export function FileTable(props) {
     return (

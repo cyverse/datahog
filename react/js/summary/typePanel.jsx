@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paginator } from './paginator';
 import { TypeChart } from './typeChart';
-import { Size } from './util';
+import { Size } from '../util';
 
 const PIE_COLORS = [
     "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45"

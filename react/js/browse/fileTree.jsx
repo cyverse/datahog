@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-import { Size, ClickToCopy, SortHeader } from './util';
+import { Size, ClickToCopy, SortHeader } from '../util';
 
 export class FileTree extends React.Component {
     constructor(props) {

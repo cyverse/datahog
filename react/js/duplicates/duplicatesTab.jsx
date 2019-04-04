@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { DuplicateTable } from './duplicateTable';
-import { DirectoryContext } from './context';
+import { DirectoryContext } from '../context';
 
 export class DuplicatesTab extends React.Component {
 
@@ -81,14 +81,6 @@ export class DuplicatesTab extends React.Component {
                         <div className="columns">
                             <div className="column col-9 col-mx-auto">
                                 <div className="panel fixed-height">
-                                    <div className="panel-header search-header form-horizontal">
-                                        <div className="form-group">
-                                            <label className="form-switch">
-                                                <input type="checkbox">
-                                                <i className="form-icon"></i> Send me emails with news and tips
-                                            </label>
-                                        </div>
-                                    </div>
                                     <div className="panel-body" onScroll={this.handleScroll}>
                                         <React.Fragment>
                                             <DuplicateTable dupeGroups={this.state.dupeGroups}

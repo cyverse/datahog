@@ -4,7 +4,7 @@ import { PaginatedPanel } from './paginatedPanel';
 import { Link } from 'react-router-dom';
 import { SizeTimeline } from './sizeTimeline';
 import { TypePanel } from './typePanel';
-import { DirectoryContext } from './context';
+import { DirectoryContext } from '../context';
 
 export class SummaryTab extends React.Component {
 

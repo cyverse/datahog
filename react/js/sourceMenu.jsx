@@ -1,21 +1,24 @@
 import React from 'react';
 
+import { ImportForm } from './forms/importForm';
 import { trimPath } from './util';
 
-export class SwitchMenu extends React.Component {
+export class SourceMenu extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             collapsed: true,
-            toDelete: null
+            toDelete: null,
+            importNew: false
         }
         this.node = React.createRef();
 
         this.toggleCollapse = this.toggleCollapse.bind(this);
         this.handleDocumentClick = this.handleDocumentClick.bind(this);
         this.handleListClick = this.handleListClick.bind(this);
-        this.toggleModal = this.toggleModal.bind(this);
+        this.toggleDeleteModal = this.toggleDeleteModal.bind(this);
+        this.toggleImportModal = this.toggleImportModal.bind(this);
     }
 
     componentWillMount()   { document.addEventListener('mousedown', this.handleDocumentClick, false);    }
@@ -29,7 +32,7 @@ export class SwitchMenu extends React.Component {
 
     handleListClick(event, directory) {
         if (event.target.classList.contains('delete-button')) {
-            this.toggleModal(directory);
+            this.toggleDeleteModal(directory);
         } else {
             this.props.onChange(directory);
         }
@@ -41,7 +44,7 @@ export class SwitchMenu extends React.Component {
         });
     }
 
-    toggleModal(toDelete) {
+    toggleDeleteModal(toDelete) {
         if (this.state.toDelete) {
             this.setState({
                 toDelete: null
@@ -51,6 +54,13 @@ export class SwitchMenu extends React.Component {
                 toDelete: toDelete
             });
         }
+    }
+
+    toggleImportModal() {
+        this.setState({
+            collapsed: true,
+            importNew: !this.state.importNew
+        })
     }
 
     render() {
@@ -89,7 +99,7 @@ export class SwitchMenu extends React.Component {
                                 );
                             })}
                             <li className="menu-item" key="2">
-                                <a href='/#/import' onClick={this.toggleCollapse}>
+                                <a onClick={this.toggleImportModal}>
                                     <span className="text-right">
                                         <i className="fa fa-sm fa-fw fa-plus"></i>
                                         Import new directory
@@ -109,6 +119,21 @@ export class SwitchMenu extends React.Component {
                             <div className="content">
                                 If you remove this directory, it will need to be re-imported in order to be viewed again.
                             </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-primary" onClick={() => this.props.onDelete(this.state.toDelete)}>Remove</button>
+                            <button className="btn btn-link" onClick={this.toggleDeleteModal}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div className={this.state.importNew ? 'modal active' : 'modal'} id="modal-id">
+                    <a href="#close" className="modal-overlay" aria-label="Close"></a>
+                    <div className="modal-container">
+                        <div className="modal-header">
+                            <div className="modal-title h5">Import File Data</div>
+                        </div>
+                        <div className="modal-body">
+                            <ImportForm/>
                         </div>
                         <div className="modal-footer">
                             <button className="btn btn-primary" onClick={() => this.props.onDelete(this.state.toDelete)}>Remove</button>

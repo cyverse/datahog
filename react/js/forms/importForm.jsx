@@ -1,8 +1,10 @@
 import React from 'react';
-import { IrodsForm, CyverseForm, FileForm } from './updateForm';
-import { ImportContext } from './context';
+import { IrodsForm } from './irodsForm';
+import { CyverseForm } from './cyverseForm';
+import { FileForm } from './fileForm';
+import { ImportContext } from '../context';
 
-export class UpdateTab extends React.Component {
+export class ImportForm extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -29,4 +31,4 @@ export class UpdateTab extends React.Component {
     }
 }
 
-UpdateTab.contextType = ImportContext;
+ImportForm.contextType = ImportContext;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Size, trimPath, SortHeader, ClickToCopy } from './util';
+import { Size, trimPath, SortHeader, ClickToCopy } from '../util';
 
 export class DuplicateTable extends React.Component {
 
@@ -41,7 +41,7 @@ export class DuplicateTable extends React.Component {
             <table className='table file-table table-hover'>
                 <thead>
                     <tr>
-                        <SortHeader title='Count' sortBy='file_count' currentSort={this.state.sort} onClick={this.resort}/>
+                        <SortHeader title='Duplications' sortBy='file_count' currentSort={this.state.sort} onClick={this.resort}/>
                         <th className='options-cell'></th>
                         <SortHeader className='size-cell' title='File Size' sortBy='file_size' currentSort={this.state.sort} onClick={this.resort}/>
                         <SortHeader className='size-cell' title='Total Size' sortBy='total_size' currentSort={this.state.sort} onClick={this.resort}/>
