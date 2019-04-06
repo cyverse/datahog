@@ -77,8 +77,7 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
             dupe_group = DupeGroup(
                 checksum=checksum,
                 file_count=len(file_list),
-                file_size=file_list[0].size,
-                directory=directory
+                file_size=file_list[0].size
             )
             new_dupe_groups.append(dupe_group)
         dupe_group.directories.add(directory)
