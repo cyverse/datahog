@@ -7,6 +7,10 @@ import { ImportContext } from '../context';
 export class ImportForm extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            activeForm: 0
+        }
     }
     
     render() {
@@ -17,14 +21,30 @@ export class ImportForm extends React.Component {
                         Your last import could not be completed. The folder you requested may be too large.
                     </div>
                 }
-                { this.context.lastAttempt &&
-                    <div className="container">
-                        <div className="columns">
-                            <IrodsForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />
-                            <FileForm onSubmit={this.context.updateTriggered} />
-                            <CyverseForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />
-                        </div>
-                    </div>
+                <ul className="tab tab-block">
+                    <li className='tab-item c-hand source-tab'>
+                        <a className={this.state.activeForm === 1 ? 'active' : ''} onClick={() => this.setState({activeForm: 1})}>
+                            iRODS
+                        </a>
+                    </li>
+                    <li className='tab-item c-hand source-tab'>
+                        <a className={this.state.activeForm === 2 ? 'active' : ''} onClick={() => this.setState({activeForm: 2})}>
+                            .datahog File
+                        </a>
+                    </li>
+                    <li className='tab-item c-hand source-tab'>
+                        <a className={this.state.activeForm === 3 ? 'active' : ''} onClick={() => this.setState({activeForm: 3})}>
+                            CyVerse
+                        </a>
+                    </li>
+                </ul>
+                {
+                    [
+                        <div></div>,
+                        <IrodsForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
+                        <FileForm onSubmit={this.context.updateTriggered} />,
+                        <CyverseForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
+                    ][this.state.activeForm]
                 }
             </React.Fragment>
         );

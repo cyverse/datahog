@@ -110,7 +110,7 @@ export class SourceMenu extends React.Component {
                     }
                 </ul>
                 <div className={this.state.toDelete ? 'modal active' : 'modal'} id="modal-id">
-                    <a href="#close" className="modal-overlay" aria-label="Close"></a>
+                    <a className="modal-overlay" onClick={this.toggleDeleteModal}></a>
                     <div className="modal-container">
                         <div className="modal-header">
                             <div className="modal-title h5">Are you sure?</div>
@@ -127,17 +127,16 @@ export class SourceMenu extends React.Component {
                     </div>
                 </div>
                 <div className={this.state.importNew ? 'modal active' : 'modal'} id="modal-id">
-                    <a href="#close" className="modal-overlay" aria-label="Close"></a>
-                    <div className="modal-container">
+                    <a className="modal-overlay" onClick={this.toggleImportModal}></a>
+                    <div className="modal-container import-modal">
                         <div className="modal-header">
                             <div className="modal-title h5">Import File Data</div>
                         </div>
                         <div className="modal-body">
-                            <ImportForm/>
+                            <ImportForm />
                         </div>
                         <div className="modal-footer">
-                            <button className="btn btn-primary" onClick={() => this.props.onDelete(this.state.toDelete)}>Remove</button>
-                            <button className="btn btn-link" onClick={this.toggleModal}>Cancel</button>
+                            <button className="btn btn-link" onClick={this.toggleImportModal}>Cancel</button>
                         </div>
                     </div>
                 </div>
