@@ -13,6 +13,7 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
 
     new_dupe_groups = []
     updated_dupe_groups = []
+    dgs_to_dir = [] # new dupegroup-to-directory relationships
 
     for file_obj in file_objects:
         total_size += file_obj.size
@@ -71,7 +72,7 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
     for checksum, file_list in file_checksums.items():
         if DupeGroup.objects.filter(checksum=checksum).exists():
             dupe_group = DupeGroup.objects.get(checksum=checksum)
-            dupe_group.file_size += len(file_list)
+            dupe_group.file_count += len(file_list)
             updated_dupe_groups.append(dupe_group)
         else:
             dupe_group = DupeGroup(
@@ -80,14 +81,15 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
                 file_size=file_list[0].size
             )
             new_dupe_groups.append(dupe_group)
-        dupe_group.directories.add(directory)
+        
+        dgs_to_dir.append(DupeGroup.directories.through(dupegroup_id=dupe_group.checksum, importeddirectory_id=directory.id))
         for file_obj in file_list:
             file_obj.dupe_group = dupe_group
             
 
     directory.folder_count = len(folder_objects_by_path.values())
     directory.file_count = len(file_objects)
-    directory.duplicate_count = len(new_dupe_groups) + len(updated_dupe_groups)
+    directory.duplicate_count = len(dgs_to_dir)
     directory.total_size = total_size
 
     attempt.current_step = 4
@@ -97,8 +99,9 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
-        DupeGroup.objects.bulk_create(new_dupe_groups)
 
+        DupeGroup.objects.bulk_create(new_dupe_groups)
+        DupeGroup.directories.through.objects.bulk_create(dgs_to_dir)
         for group in updated_dupe_groups:
             group.save()
 
