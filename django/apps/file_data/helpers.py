@@ -55,7 +55,7 @@ def filter_files(file_query, filters):
 
 
 def filter_dupe_groups(group_query, filters):
-    filtered_query = group_query
+    filtered_query = group_query.filter(file_count__gte=2)
     
     if 'sort' in filters:
         filtered_query = filtered_query.order_by(filters['sort'])

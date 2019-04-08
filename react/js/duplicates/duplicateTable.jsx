@@ -85,6 +85,7 @@ export class DupeGroupRow extends React.Component {
                     <td className="name-cell">
                         <i className={"fa fa-fw " + icon}/>
                         {this.props.group.file_count} duplicates of "{this.props.group.files[0].name}"
+                        across {this.props.group.directories.length} source(s)
                     </td>
                     <td className="options-cell"></td>
                     <td className="size-cell">
@@ -95,7 +96,7 @@ export class DupeGroupRow extends React.Component {
                     </td>
                 </tr>
                 {!this.state.collapsed && this.props.group.files.map(file => (
-                    <DuplicateFileRow crossDirectory={this.props.crossDirectory} file={file} key={file.id} />
+                    <DuplicateFileRow file={file} key={file.id} />
                 ))}
             </React.Fragment>
         );
@@ -107,8 +108,7 @@ export function DuplicateFileRow(props) {
     return (
         <tr>
             <td className="name-cell" style={{paddingLeft: 30}}>
-                {props.file.name}
-                {props.crossDirectory && '(' + trimPath(props.file.directory.root_path, 20) + ')'}
+                {props.file.name + ' (' + props.file.directory_type + ')'}
             </td>
             <td className="options-cell">
                 <ClickToCopy text={props.file.path}>Copy path</ClickToCopy>
