@@ -3,6 +3,7 @@ import { IrodsForm } from './irodsForm';
 import { CyverseForm } from './cyverseForm';
 import { FileForm } from './fileForm';
 import { ImportContext } from '../context';
+import { S3Form } from './s3Form';
 
 export class ImportForm extends React.Component {
     constructor(props) {
@@ -38,7 +39,7 @@ export class ImportForm extends React.Component {
                         </a>
                     </li>
                     <li className='tab-item c-hand source-tab'>
-                        <a className={this.state.activeForm === 4 ? 'active' : ''}>
+                        <a className={this.state.activeForm === 4 ? 'active' : ''} onClick={() => this.setState({activeForm: 4})}>
                             S3 Bucket
                         </a>
                     </li>
@@ -49,6 +50,7 @@ export class ImportForm extends React.Component {
                         <IrodsForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
                         <FileForm onSubmit={this.context.updateTriggered} />,
                         <CyverseForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
+                        <S3Form lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
                     ][this.state.activeForm]
                 }
             </React.Fragment>
