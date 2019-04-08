@@ -83,13 +83,11 @@ def import_files_from_cyverse(attempt_id, auth_token):
 def import_files_from_irods(attempt_id, password):
     attempt = ImportAttempt.objects.get(id=attempt_id)
     file_objects = []
-    file_checksums = {}
 
     directory = ImportedDirectory(
         directory_type='iRODS',
         date_scanned=attempt.date_imported,
-        root_path=attempt.root_path,
-        has_checksums=True
+        root_path=attempt.root_path
     )
 
     def save_file(collection, name, size, date_created, checksum):
@@ -99,13 +97,10 @@ def import_files_from_irods(attempt_id, password):
             path=path,
             size=size,
             date_created=date_created,
-            directory=directory
+            directory=directory,
+            checksum=checksum
         )
         file_objects.append(file_obj)
-        if checksum in file_checksums:
-            file_checksums[checksum].append(file_obj)
-        else:
-            file_checksums[checksum] = [file_obj]
 
     try:
         attempt.current_step = 1
@@ -163,7 +158,7 @@ def import_files_from_irods(attempt_id, password):
                     for subcol in col.subcollections:
                         folder_queue.append(subcol.path)
         
-        build_file_database(attempt, directory, file_objects, file_checksums)
+        build_file_database(attempt, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False
@@ -175,7 +170,6 @@ def import_files_from_irods(attempt_id, password):
 def import_files_from_file(attempt_id, file_data):
     attempt = ImportAttempt.objects.get(id=attempt_id)
     file_objects = []
-    file_checksums = {}
 
     directory = ImportedDirectory(
         directory_type=file_data['type'],
@@ -194,16 +188,13 @@ def import_files_from_file(attempt_id, file_data):
                 size=file['size'],
                 path=file['path'],
                 date_created=datetime.datetime.fromtimestamp(file['created']),
-                directory=directory
+                directory=directory,
+                checksum=file['checksum']
             )
+            if 'checksum' in file: file_obj.checksum = file['checksum']
             file_objects.append(file_obj)
-            if file['checksum']:
-                if file['checksum'] in file_checksums:
-                    file_checksums[file['checksum']].append(file_obj)
-                else:
-                    file_checksums[file['checksum']] = [file_obj]
 
-        build_file_database(attempt, directory, file_objects, file_checksums)
+        build_file_database(attempt, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
         attempt.in_progress = False

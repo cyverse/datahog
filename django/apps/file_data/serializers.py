@@ -15,21 +15,13 @@ class FileSerializer(serializers.ModelSerializer):
     directory_type = serializers.CharField(source='directory.directory_type', read_only=True)
     class Meta:
         model = File
-        fields = ('id', 'name', 'size', 'path', 'date_created', 'is_folder', 'directory_type')
+        fields = ('id', 'name', 'size', 'path', 'date_created', 'is_folder', 'checksum', 'directory_type')
 
 
 class FolderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Folder
         fields = ('id', 'name', 'total_size', 'path', 'is_folder')
-
-
-class DupeGroupSerializer(serializers.ModelSerializer):
-    files = FileSerializer(many=True)
-    class Meta:
-        depth = 1
-        model = DupeGroup
-        fields = ('checksum', 'files', 'file_size', 'file_count', 'directories',)
 
 
 class FileTypeSerializer(serializers.ModelSerializer):

@@ -46,7 +46,8 @@ class File(models.Model):
     parent = models.ForeignKey('Folder', on_delete=models.SET_NULL, blank=True, null=True)
     size = models.BigIntegerField(default=0)
     file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
-    dupe_group = models.ForeignKey('DupeGroup', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
+    # dupe_group = models.ForeignKey('DupeGroup', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
+    checksum = models.CharField(max_length=32, blank=True, null=True)
     date_created = models.DateTimeField()
     directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
 
@@ -65,11 +66,11 @@ class FileType(models.Model):
     def __str__(self):
         return self.extension
 
-class DupeGroup(models.Model):
-    checksum = models.CharField(max_length=32, primary_key=True)
-    file_size = models.BigIntegerField(default=0)
-    file_count = models.IntegerField(default=0)
-    directories = models.ManyToManyField('ImportedDirectory')
+# class DupeGroup(models.Model):
+#     checksum = models.CharField(max_length=32, primary_key=True)
+#     file_size = models.BigIntegerField(default=0)
+#     file_count = models.IntegerField(default=0)
+#     directories = models.ManyToManyField('ImportedDirectory')
 
-    def __str__(self):
-        return self.checksum[:10]
+#     def __str__(self):
+#         return self.checksum[:10]

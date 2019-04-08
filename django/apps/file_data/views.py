@@ -8,6 +8,7 @@ from django.http import StreamingHttpResponse
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
+from django.db.models import Count
 
 from .models import *
 from .serializers import *
@@ -111,18 +112,12 @@ class SearchFiles(views.APIView):
         return Response(files_serialized.data)
 
 
-class GetDupeGroups(views.APIView):
+class GetDuplicates(views.APIView):
     def get(self, request):
-        matching_groups = filter_dupe_groups(DupeGroup.objects, request.GET)
-
-        if 'offset' in request.GET:
-            offset = int(request.GET['offset'])
-            matching_groups = matching_groups.all()[offset:offset+100]
-        else:
-            matching_groups = matching_groups.all()[:100]
-
-        groups_serialized = DupeGroupSerializer(matching_groups, many=True)
-        return Response(groups_serialized.data)
+        dupes = File.objects.values('checksum').annotate(Count('id')).order_by().filter(id__count__gt=1)
+        files = File.objects.filter(checksum__in=[group['checksum'] for group in dupes])
+        files_serialized = FileSerializer(files, many=True)
+        return Response(files_serialized.data)
 
 
 class GetSearchCSV(views.APIView):
@@ -193,14 +188,9 @@ class GetBackupFile(views.APIView):
         files = []
 
         for file in File.objects.filter(directory=directory).all():
-            if file.dupe_group:
-                checksum = file.dupe_group.checksum
-            else:
-                checksum = None
-
             files.append({
                 'path': file.path,
-                'checksum': checksum,
+                'checksum': file.checksum,
                 'size': file.size,
                 'modified': file.date_created.timestamp()
             })
