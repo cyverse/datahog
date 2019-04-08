@@ -68,86 +68,81 @@ export class IrodsForm extends React.Component {
             !this.state.zone.length
         );
         return (
-            <div className="column col-9 col-mx-auto">
-                <form className="card" onSubmit={this.submitForm}>
-                    <div className="card-header">
-                        <div className="card-title h5">Import from iRODS</div>
+            <form onSubmit={this.submitForm} className="form-horizontal">
+                <div className="form-group">
+                    <div className="col-2">
+                        <br/>
+                        <label>Server</label>
                     </div>
-                    <div className="card-body form-horizontal">
-                        <div className="form-group">
-                            <div className="col-2">
-                                <br/>
-                                <label>Server</label>
-                            </div>
-                            <div className="col-4">
-                                <LabeledInput name="host"
-                                    label="Host"
-                                    value={this.state.host}
-                                    onChange={this.handleChange}/>
-                            </div>
-                            <div className="col-2">
-                                <LabeledInput name="port"
-                                    label="Port"
-                                    value={this.state.port}
-                                    onChange={this.handleChange}/>
-                            </div>
-                            <div className="col-4">
-                                <LabeledInput name="zone"
-                                    label="Zone"
-                                    value={this.state.zone}
-                                    onChange={this.handleChange}/>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-3">
-                                <br/>
-                                <label>Credentials</label>
-                            </div>
-                            <div className="col-4">
-                                <LabeledInput name="user"
-                                    label="Username"
-                                    value={this.state.user}
-                                    onChange={this.handleChange}/>
-                            </div>
-                            <div className="col-4">
-                                <LabeledInput type="password"
-                                    name="password"
-                                    label="Password"
-                                    value={this.state.password}
-                                    onChange={this.handleChange}/>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-3">
-                                <br/>
-                                <label>Folder to Import</label>
-                            </div>
-                            <div className="col-8">
-                                <LabeledInput name="folder"
-                                    label="Folder"
-                                    value={this.state.folder}
-                                    onChange={this.handleChange}/>
-                            </div>
-                        </div>
+                    <div className="col-4">
+                        <LabeledInput name="host"
+                            label="Host"
+                            value={this.state.host}
+                            onChange={this.handleChange}/>
                     </div>
-                    <div className="card-footer">
+                    <div className="col-2">
+                        <LabeledInput name="port"
+                            label="Port"
+                            value={this.state.port}
+                            onChange={this.handleChange}/>
+                    </div>
+                    <div className="col-4">
+                        <LabeledInput name="zone"
+                            label="Zone"
+                            value={this.state.zone}
+                            onChange={this.handleChange}/>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="col-3">
+                        <br/>
+                        <label>Credentials</label>
+                    </div>
+                    <div className="col-4">
+                        <LabeledInput name="user"
+                            label="Username"
+                            value={this.state.user}
+                            onChange={this.handleChange}/>
+                    </div>
+                    <div className="col-4">
+                        <LabeledInput type="password"
+                            name="password"
+                            label="Password"
+                            value={this.state.password}
+                            onChange={this.handleChange}/>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="col-3">
+                        <br/>
+                        <label>Folder to Import</label>
+                    </div>
+                    <div className="col-8">
+                        <LabeledInput name="folder"
+                            label="Folder"
+                            value={this.state.folder}
+                            onChange={this.handleChange}/>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="col-3">
                         <input type="submit" 
                             className="btn btn-primary"
                             value="Import from iRODS"
                             disabled={submitDisabled} />
-                        <div className="float-right text-right">
-                            { this.state.waiting ?
-                                <span className="text-primary">
-                                    <i className="loading">load</i> Connecting to iRODS...
-                                </span> :
-                                <span className="text-error">
-                                    {this.state.error}
-                                </span>
-                            }
-                        </div>
                     </div>
-                </form>
-            </div>
+                    <div className="col-8">
+                        { this.state.waiting ?
+                            <span className="text-primary">
+                                <i className="loading">load</i> Connecting to iRODS...
+                            </span> :
+                            <span className="text-error">
+                                {this.state.error}
+                            </span>
+                        }
+                    </div>
+                </div>
+            </form>
         );
     }
 }

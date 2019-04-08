@@ -21,7 +21,7 @@ export class ImportForm extends React.Component {
                         Your last import could not be completed. The folder you requested may be too large.
                     </div>
                 }
-                <ul className="tab tab-block">
+                <ul className="tab tab-block source-tabs">
                     <li className='tab-item c-hand source-tab'>
                         <a className={this.state.activeForm === 1 ? 'active' : ''} onClick={() => this.setState({activeForm: 1})}>
                             iRODS
@@ -35,6 +35,11 @@ export class ImportForm extends React.Component {
                     <li className='tab-item c-hand source-tab'>
                         <a className={this.state.activeForm === 3 ? 'active' : ''} onClick={() => this.setState({activeForm: 3})}>
                             CyVerse
+                        </a>
+                    </li>
+                    <li className='tab-item c-hand source-tab'>
+                        <a className={this.state.activeForm === 4 ? 'active' : ''}>
+                            S3 Bucket
                         </a>
                     </li>
                 </ul>
@@ -52,3 +57,15 @@ export class ImportForm extends React.Component {
 }
 
 ImportForm.contextType = ImportContext;
+
+export function ImportTab(props) {
+    return (
+        <div className="container">
+            <div className="columns">
+                <div className="column col-7 col-mx-auto">
+                    <ImportForm />
+                </div>
+            </div>
+        </div>
+    );
+}

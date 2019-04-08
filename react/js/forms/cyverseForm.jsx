@@ -59,50 +59,46 @@ export class CyverseForm extends React.Component {
             !this.state.folder.length
         );
         return (
-            <div className="column col-9 col-mx-auto">
-                <form className="card" onSubmit={this.submitForm}>
-                    <div className="card-header">
-                        <div className="card-title h5">Import from CyVerse (under development)</div>
-                    </div>
-                    <div className="card-body form-horizontal">
-                        <div className="form-group">
-                            <div className="col-3">
-                                <br/>
-                                <label>Credentials</label>
-                            </div>
-                            <div className="col-4">
-                                <LabeledInput name="user"
-                                    label="Username"
-                                    value={this.state.user}
-                                    onChange={this.handleChange}/>
-                            </div>
-                            <div className="col-4">
-                                <LabeledInput type="password"
-                                    name="password"
-                                    label="Password"
-                                    value={this.state.password}
-                                    onChange={this.handleChange}/>
-                            </div>
+                <form className="form-horizontal" onSubmit={this.submitForm}>
+                    <div className="form-group">
+                        <div className="col-3">
+                            <br/>
+                            <label>Credentials</label>
                         </div>
-                        <div className="form-group">
-                            <div className="col-3">
-                                <br/>
-                                <label>Folder to Import</label>
-                            </div>
-                            <div className="col-8">
-                                <LabeledInput name="folder"
-                                    label="Folder"
-                                    value={this.state.folder}
-                                    onChange={this.handleChange}/>
-                            </div>
+                        <div className="col-4">
+                            <LabeledInput name="user"
+                                label="Username"
+                                value={this.state.user}
+                                onChange={this.handleChange}/>
+                        </div>
+                        <div className="col-4">
+                            <LabeledInput type="password"
+                                name="password"
+                                label="Password"
+                                value={this.state.password}
+                                onChange={this.handleChange}/>
                         </div>
                     </div>
-                    <div className="card-footer">
-                        <input type="submit" 
-                            className="btn btn-primary"
-                            value="Import from CyVerse"
-                            disabled={submitDisabled} />
-                        <div className="float-right text-right">
+                    <div className="form-group">
+                        <div className="col-3">
+                            <br/>
+                            <label>Folder to Import</label>
+                        </div>
+                        <div className="col-8">
+                            <LabeledInput name="folder"
+                                label="Folder"
+                                value={this.state.folder}
+                                onChange={this.handleChange}/>
+                        </div>
+                    </div>
+                    <div className="form-group">
+                        <div className="col-3">
+                            <input type="submit" 
+                                className="btn btn-primary"
+                                value="Import from CyVerse"
+                                disabled={submitDisabled} />
+                        </div>
+                        <div className="col-9">
                             { this.state.waiting ?
                                 <span className="text-primary">
                                     <i className="loading">load</i> Connecting to CyVerse...
@@ -114,7 +110,6 @@ export class CyverseForm extends React.Component {
                         </div>
                     </div>
                 </form>
-            </div>
         );
     }
 }

@@ -59,36 +59,31 @@ export class FileForm extends React.Component {
     render() {
         //let submitDisabled = this.state.waiting;
         return (
-            <div className="column col-9 col-mx-auto">
-                <form className="card" onSubmit={this.submitForm}>
-                    <div className="card-header">
-                        <div className="card-title h5">Import from a .datahog file</div>
+            <form className="form-horizontal" onSubmit={this.submitForm}>
+                <div className="form-group">
+                    <div className="col-6 col-mx-auto">
+                        <input type="file" className="form-input" onChange={this.fileChanged} accept=".datahog"/>
                     </div>
-                    <div className="card-body form-horizontal">
-                        <div className="form-group">
-                            <div className="col-6 col-mx-auto">
-                                <input type="file" className="form-input" onChange={this.fileChanged} accept=".datahog"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="card-footer">
+                </div>
+                <div className="form-group">
+                    <div className="col-3">
                         <input type="submit" 
                             className="btn btn-primary"
                             value="Import from File"
                             disabled={!this.state.file}/>
-                        <div className="float-right text-right">
-                            { this.state.waiting ?
-                                <span className="text-primary">
-                                    <i className="loading">load</i> Uploading file...
-                                </span> :
-                                <span className="text-error">
-                                    {this.state.error}
-                                </span>
-                            }
-                        </div>
                     </div>
-                </form>
-            </div>
+                    <div className="col-9">
+                        { this.state.waiting ?
+                            <span className="text-primary">
+                                <i className="loading">load</i> Uploading file...
+                            </span> :
+                            <span className="text-error">
+                                {this.state.error}
+                            </span>
+                        }
+                    </div>
+                </div>
+            </form>
         );
     }
 }

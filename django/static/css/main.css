@@ -17,7 +17,6 @@ header img {
 }
 
 .menu.directory-menu {
-    /* box-shadow: none; */
     position: absolute;
     right: 0;
     display: inline-block;
@@ -88,13 +87,17 @@ a:focus {
 }
 
 .file-table .size-cell {
-    width: 90px;
+    width: 95px;
     text-align: right;
 }
 
 .file-table .date-cell {
-    width: 90px;
+    width: 95px;
     text-align: right;
+}
+
+.import-modal .modal-body {
+    height: 2000px !important;
 }
 
 .file-table .options-cell {
@@ -168,4 +171,8 @@ nav#tabs {
 
 .empty {
     background: inherit;
+}
+
+.tab-block.source-tabs {
+    border-bottom: none;
 }

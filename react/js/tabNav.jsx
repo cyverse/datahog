@@ -3,6 +3,7 @@ import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
 import { SummaryTab } from './summary/summaryTab';
 import { DuplicatesTab } from './duplicates/duplicatesTab';
 import { BrowseTab } from './browse/browseTab';
+import { ImportTab } from './forms/importForm';
 
 export const SearchContext = React.createContext({});
 
@@ -30,6 +31,7 @@ export class TabNav extends React.Component {
                         <Route path='/summary' component={SummaryTab} />
                         <Route path='/duplicates' component={DuplicatesTab} />
                         <Route path='/browse' component={BrowseTab} />
+                        <Route path='/import' component={ImportTab} />
                     </Switch>
                 </React.Fragment>
             </HashRouter>
