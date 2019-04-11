@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { interpolateGreens } from 'd3';
 
 import { Size, ClickToCopy, SortHeader } from '../util';
 
@@ -41,7 +42,13 @@ export class FileTree extends React.Component {
                 <tbody>
                     {this.props.files.map((file, index) => {
                         return (
-                            <FileTreeNode key={file.id} file={file} depth={0} sort={this.state.sort}/>
+                            <FileTreeNode
+                                key={file.id}
+                                file={file}
+                                percentage={100}
+                                depth={0}
+                                sort={this.state.sort}
+                            />
                         )
                     })}
                 </tbody>
@@ -149,6 +156,13 @@ export class FileTreeNode extends React.Component {
     }
 
     render() {
+        let sizeBg;
+        if (this.props.percentage >= 1) {
+            sizeBg = 'linear-gradient(90deg, ' + interpolateGreens(this.props.percentage / 300 + 0.15) + 
+                ' ' + this.props.percentage + '%, rgba(0, 0, 0, 0) ' + this.props.percentage + '%)';
+        } else {
+            sizeBg = '';
+        }
         if (this.props.file.is_folder) {
             let icon;
             if      (this.state.collapsed)      icon = 'fa-caret-right';
@@ -158,7 +172,7 @@ export class FileTreeNode extends React.Component {
             return (
                 <React.Fragment>
                     <tr className="c-hand" onClick={this.handleClick}>
-                        <td className="name-cell" style={{paddingLeft: 30*this.props.depth}}>
+                        <td className="name-cell" style={{paddingLeft: 20*this.props.depth}}>
                             <i className={"fa fa-fw " + icon}/>
                             {this.props.file.name}
                         </td>
@@ -166,17 +180,18 @@ export class FileTreeNode extends React.Component {
                             <ClickToCopy text={this.props.file.path}>Copy path</ClickToCopy>
                         </td>
                         <td className="date-cell"></td>
-                        <td className="size-cell">
+                        <td className="size-cell" style={{background: sizeBg}}>
                             <Size bytes={this.props.file.total_size}/>
                         </td>
                     </tr>
-                    {this.state.childrenLoaded && !this.state.collapsed && 
-                        this.props.file.children.map(child => {
+                    {this.state.childrenLoaded && !this.state.collapsed && this.props.file.children.map(child => {
+                        let childPercentage = ((child.is_folder ? child.total_size : child.size)/this.props.file.total_size)*this.props.percentage;
                         return <FileTreeNode 
                                 file={child} 
+                                percentage={childPercentage}
                                 key={child.id}
                                 depth={this.props.depth + 1}
-                                sort={this.props.sort}/>
+                                sort={this.props.sort}/>;
                         })
                     }
                 </React.Fragment>
@@ -184,7 +199,7 @@ export class FileTreeNode extends React.Component {
         } else {
             return (
                 <tr>
-                    <td className="name-cell" style={{paddingLeft: 30*this.props.depth}}>
+                    <td className="name-cell" style={{paddingLeft: 20*this.props.depth}}>
                         {this.props.file.name}
                     </td>
                     <td className="options-cell">
@@ -193,7 +208,7 @@ export class FileTreeNode extends React.Component {
                     <td className="date-cell">
                         {this.props.file.date_created}
                     </td>
-                    <td className="size-cell">
+                    <td className="size-cell" style={{background: sizeBg}}>
                         <Size bytes={this.props.file.size}/>
                     </td>
                 </tr>
