@@ -97,7 +97,7 @@ a:focus {
 }
 
 .import-modal .modal-body {
-    height: 2000px !important;
+    height: 450px;
 }
 
 .file-table .options-cell {
