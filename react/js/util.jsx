@@ -65,6 +65,7 @@ export class ClickToCopy extends React.Component {
     }
 }
 
+
 export function LabeledInput(props) {
     let labelPos = props.value.length > 0 ? 0 : 20;
     return (
@@ -139,4 +140,37 @@ export function SortHeader(props) {
             </a>
         </th>
     );
+}
+
+export class MultiSelect extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick(event) {
+        let id = event.target.dataset.id;
+        if (this.props.value.has(id)) {
+            this.props.value.delete(id);
+        } else {
+            this.props.value.add(id);
+        }
+        this.props.onChange(this.props.value);
+    }
+
+    render() {
+        return (
+            <div>
+                Include files from: &nbsp;
+                {this.props.choices.map((choice, index) => {
+                    let css = this.props.value.has(choice.id) ? 'chip active c-hand' : 'chip c-hand';
+                    return (
+                        <div className={css} data-id={choice.id} key={choice.id} onClick={this.handleClick}>
+                            {choice.name}
+                        </div>
+                    );
+                })}
+            </div>
+        )
+    }
 }

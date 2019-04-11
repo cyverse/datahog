@@ -114,10 +114,16 @@ class SearchFiles(views.APIView):
 
 class GetDuplicates(views.APIView):
     def get(self, request):
-        dupes = File.objects.values('checksum').annotate(Count('id')).order_by().filter(id__count__gt=1)
-        files = File.objects.filter(checksum__in=[group['checksum'] for group in dupes])
-        files_serialized = FileSerializer(files, many=True)
-        return Response(files_serialized.data)
+        dirs = request.GET.getlist('include[]')
+        if len(dirs):
+            print(dirs)
+            files = File.objects.filter(directory__id__in=dirs)
+            dupes = files.values('checksum').annotate(Count('id')).order_by().filter(id__count__gt=1)
+            duped_files = File.objects.filter(directory_id__in=dirs, checksum__in=[group['checksum'] for group in dupes]).order_by('checksum')
+            files_serialized = FileSerializer(duped_files, many=True)
+            return Response(files_serialized.data)
+        else:
+            return Response([])
 
 
 class GetSearchCSV(views.APIView):
