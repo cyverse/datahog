@@ -1,5 +1,5 @@
 import React from 'react';
-import { Size, trimPath, SortHeader, ClickToCopy } from '../util';
+import { Size, SortHeader, ClickToCopy } from '../util';
 
 export class DuplicateTable extends React.Component {
 
@@ -13,23 +13,18 @@ export class DuplicateTable extends React.Component {
 
     resort(event) {
         let sortBy = event.target.dataset.sort;
-        if (this.props.searchOnSort) {
-            this.props.params.sort = sortBy;
-            this.props.searchCallback(this.props.params);
-        } else {
-            if (sortBy === '-total_size') {
-                this.props.dupeGroups.sort((a, b) => b.file_size*b.file_count - a.file_size*a.file_count);
-            } else if (sortBy === 'total_size') {
-                this.props.dupeGroups.sort((a, b) => a.file_size*a.file_count - b.file_size*b.file_count);
-            } else if (sortBy === '-file_size') {
-                this.props.dupeGroups.sort((a, b) => b.file_size - a.file_size);
-            } else if (sortBy === 'file_size') {
-                this.props.dupeGroups.sort((a, b) => a.file_size - b.file_size);
-            } else if (sortBy === '-file_count') {
-                this.props.dupeGroups.sort((a, b) => b.file_count - a.file_count);
-            } else if (sortBy === 'file_count') {
-                this.props.dupeGroups.sort((a, b) => a.file_count - b.file_count);
-            }
+        if (sortBy === '-total_size') {
+            this.props.dupeGroups.sort((a, b) => b[0].size*b.length - a[0].size*a.length);
+        } else if (sortBy === 'total_size') {
+            this.props.dupeGroups.sort((a, b) => a[0].size*a.length - b[0].size*b.length);
+        } else if (sortBy === '-file_size') {
+            this.props.dupeGroups.sort((a, b) => b[0].size - a[0].size);
+        } else if (sortBy === 'file_size') {
+            this.props.dupeGroups.sort((a, b) => a[0].size - b[0].size);
+        } else if (sortBy === '-file_count') {
+            this.props.dupeGroups.sort((a, b) => b.length - a.length);
+        } else if (sortBy === 'file_count') {
+            this.props.dupeGroups.sort((a, b) => a.length - b.length);
         }
         this.setState({
             sort: sortBy
@@ -50,7 +45,7 @@ export class DuplicateTable extends React.Component {
                 <tbody>
                     {this.props.dupeGroups.map((group, index) => {
                         return (
-                            <DupeGroupRow key={group.checksum} group={group} />
+                            <DupeGroupRow key={group[0].checksum} group={group} />
                         )
                     })}
                 </tbody>
@@ -81,21 +76,20 @@ export class DupeGroupRow extends React.Component {
         else                      icon = 'fa-caret-down';
         return (
             <React.Fragment>
-                <tr className="c-hand" onClick={this.handleClick}>
+                <tr className="c-hand" onClick={this.handleClick} >
                     <td className="name-cell">
                         <i className={"fa fa-fw " + icon}/>
-                        {this.props.group.file_count} duplicates of "{this.props.group.files[0].name}"
-                        across {this.props.group.directories.length} source(s)
+                        {this.props.group.length} duplicates of "{this.props.group[0].name}"
                     </td>
                     <td className="options-cell"></td>
                     <td className="size-cell">
-                        <Size bytes={this.props.group.file_size}/>
+                        <Size bytes={this.props.group[0].size}/>
                     </td>
                     <td className="size-cell">
-                        <Size bytes={this.props.group.file_size * this.props.group.file_count}/>
+                        <Size bytes={this.props.group[0].size * this.props.group.length}/>
                     </td>
                 </tr>
-                {!this.state.collapsed && this.props.group.files.map(file => (
+                {!this.state.collapsed && this.props.group.map(file => (
                     <DuplicateFileRow file={file} key={file.id} />
                 ))}
             </React.Fragment>

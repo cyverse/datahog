@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ImportForm } from './forms/importForm';
+import { ImportForm } from './sources/importForm';
 import { trimPath } from './util';
 
 export class SourceMenu extends React.Component {
@@ -129,9 +129,6 @@ export class SourceMenu extends React.Component {
                 <div className={this.state.importNew ? 'modal active' : 'modal'} id="modal-id">
                     <a className="modal-overlay" onClick={this.toggleImportModal}></a>
                     <div className="modal-container import-modal">
-                        <div className="modal-header">
-                            <div className="modal-title h5">Import File Data</div>
-                        </div>
                         <div className="modal-body">
                             <ImportForm />
                         </div>

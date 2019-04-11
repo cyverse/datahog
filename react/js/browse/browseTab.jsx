@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 import { FileTree } from './fileTree'
-import { LoadingBox } from './loadingBox';
+import { LoadingWrapper } from '../loadingWrapper';
 import { SearchForm } from './searchForm';
 
 export class BrowseTab extends React.Component {
@@ -108,7 +108,7 @@ export class BrowseTab extends React.Component {
 
     render() {
         return (
-            <LoadingBox get="/api/files/top" callback={this.onLoad} checkForUpdate={true}>
+            <LoadingWrapper get="/api/files/top" callback={this.onLoad}>
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
@@ -147,7 +147,7 @@ export class BrowseTab extends React.Component {
                         </div>
                     </div>
                 </div>
-            </LoadingBox>
+            </LoadingWrapper>
         );
     }
 }
