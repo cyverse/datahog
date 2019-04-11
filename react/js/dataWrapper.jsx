@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { SourceMenu } from './sourceMenu';
 import { TabNav } from './tabNav';
-import { ImportForm } from './forms/importForm';
+import { ImportForm } from './sources/importForm';
 import { DirectoryContext } from './context';
 
 export class DataWrapper extends React.Component {

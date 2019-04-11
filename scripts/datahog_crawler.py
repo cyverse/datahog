@@ -5,19 +5,19 @@ import getopt
 import pickle
 import datetime
 
-'''
-usage:
+help_msg = '''
+Usage:
 
-python crawl_dir.py <root path> [options]
+python datahog_crawler.py <root path> [options]
 
-options:
+Options:
 
 -n --no-checksums    Do not calculate checksums for files (much faster)
 -o --output          Specify an output file
 '''
  
 if len(sys.argv) < 2:
-    print('Please specify a root directory.')
+    print(help_msg) 
     sys.exit()
 
 root_path = os.path.abspath(sys.argv[1])
