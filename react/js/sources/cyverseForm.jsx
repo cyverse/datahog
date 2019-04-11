@@ -91,7 +91,7 @@ export class CyverseForm extends React.Component {
                                 onChange={this.handleChange}/>
                         </div>
                     </div>
-                    <div className="form-group">
+                    <div className="form-group" style={{marginTop: '30px'}}>
                         <div className="col-3">
                             <input type="submit" 
                                 className="btn btn-primary"

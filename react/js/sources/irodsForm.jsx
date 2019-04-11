@@ -13,6 +13,7 @@ export class IrodsForm extends React.Component {
             port: this.props.lastAttempt.irods_port,
             zone: this.props.lastAttempt.irods_zone,
             folder: this.props.lastAttempt.root_path,
+            name: '',
             waiting: false,
             error: ''
         };
@@ -124,7 +125,19 @@ export class IrodsForm extends React.Component {
                             onChange={this.handleChange}/>
                     </div>
                 </div>
-                <div className="form-group">
+                {/* <div className="form-group">
+                    <div className="col-3">
+                        <br/>
+                        <label>Name (optional)</label>
+                    </div>
+                    <div className="col-4">
+                        <LabeledInput name="name"
+                            label="Name"
+                            value={this.state.name}
+                            onChange={this.handleChange}/>
+                    </div>
+                </div> */}
+                <div className="form-group" style={{marginTop: '30px'}}>
                     <div className="col-3">
                         <input type="submit" 
                             className="btn btn-primary"

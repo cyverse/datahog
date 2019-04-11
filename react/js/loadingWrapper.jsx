@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 
-export class LoadingBox extends React.Component {
+export class LoadingWrapper extends React.Component {
 
     constructor(props) {
         super(props);

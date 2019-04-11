@@ -7,7 +7,7 @@ class ImportedDirectorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportedDirectory
         fields = ('id', 'date_scanned', 'folder_count', 'file_count', 'root_path', 
-            'duplicate_count', 'total_size', 'size_timeline_data', 'type_chart_data', 'directory_type')
+            'duplicate_count', 'total_size', 'size_timeline_data', 'type_chart_data', 'name', 'directory_type')
 
 
 class FileSerializer(serializers.ModelSerializer):

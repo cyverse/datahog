@@ -10,7 +10,7 @@ export class ImportForm extends React.Component {
         super(props);
 
         this.state = {
-            activeForm: 0
+            activeForm: 1
         }
     }
     
@@ -22,7 +22,8 @@ export class ImportForm extends React.Component {
                         Your last import could not be completed. The folder you requested may be too large.
                     </div>
                 }
-                <ul className="tab tab-block source-tabs">
+                <h5 className="text-center" style={{margin: '30px'}}>Import file data from...</h5>
+                <ul className="tab tab-block source-tabs" style={{marginBottom: '20px'}}>
                     <li className='tab-item c-hand source-tab'>
                         <a className={this.state.activeForm === 1 ? 'active' : ''} onClick={() => this.setState({activeForm: 1})}>
                             iRODS

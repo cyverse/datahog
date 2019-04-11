@@ -57,7 +57,6 @@ export class FileForm extends React.Component {
     }
     
     render() {
-        //let submitDisabled = this.state.waiting;
         return (
             <form className="form-horizontal" onSubmit={this.submitForm}>
                 <div className="form-group">
@@ -65,14 +64,14 @@ export class FileForm extends React.Component {
                         <input type="file" className="form-input" onChange={this.fileChanged} accept=".datahog"/>
                     </div>
                 </div>
-                <div className="form-group">
-                    <div className="col-3">
+                <div className="form-group" style={{marginTop: '30px'}}>
+                    <div className="col-6 text-center">
                         <input type="submit" 
                             className="btn btn-primary"
                             value="Import from File"
                             disabled={!this.state.file}/>
                     </div>
-                    <div className="col-9">
+                    <div className="col-6">
                         { this.state.waiting ?
                             <span className="text-primary">
                                 <i className="loading">load</i> Uploading file...
@@ -82,6 +81,10 @@ export class FileForm extends React.Component {
                             </span>
                         }
                     </div>
+                </div>
+                <div style={{marginTop: '30px'}}>
+                    You can use <a href="/static/scripts/datahog_crawler.py" download>this Python utility</a> to generate a .datahog file
+                    for any directory on your computer.
                 </div>
             </form>
         );
