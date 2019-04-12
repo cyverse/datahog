@@ -88,14 +88,15 @@ class GetChildrenOfFolder(views.APIView):
 
 class GetTopLevelFiles(views.APIView):
     def get(self, request):
-        
-        top_folders = Folder.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed'), parent=None)
-        top_files   = File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed'), parent=None)
-
-        folder_serializer = FolderSerializer(top_folders.all(), many=True)
-        file_serializer   = FileSerializer(top_files.all(), many=True)
-
-        return Response(folder_serializer.data + file_serializer.data)
+        dirs = request.GET.getlist('sources[]')
+        if len(dirs):
+            top_folders = Folder.objects.filter(parent=None, directory__id__in=dirs)
+            top_files   = File.objects.filter(parent=None, directory__id__in=dirs)
+            folders_serialized = FolderSerializer(top_folders.all(), many=True)
+            files_serialized   = FileSerializer(top_files.all(), many=True)
+            return Response(folders_serialized.data + files_serialized.data)
+        else:
+            return Response([])
 
 
 class SearchFiles(views.APIView):
@@ -114,12 +115,21 @@ class SearchFiles(views.APIView):
 
 class GetDuplicates(views.APIView):
     def get(self, request):
-        dirs = request.GET.getlist('include[]')
+        dirs = request.GET.getlist('sources[]')
         if len(dirs):
-            print(dirs)
+            if 'allow_different_names' in request.GET:
+                diff_names = request.GET['allow_different_names'] == 'true'
+            else:
+                diff_names = True
+
             files = File.objects.filter(directory__id__in=dirs)
-            dupes = files.values('checksum').annotate(Count('id')).order_by().filter(id__count__gt=1)
-            duped_files = File.objects.filter(directory_id__in=dirs, checksum__in=[group['checksum'] for group in dupes]).order_by('checksum')
+            
+            if diff_names:
+                dupe_groups = files.values('checksum').annotate(Count('id')).filter(id__count__gt=1)
+            else:
+                dupe_groups = files.values('checksum', 'name').annotate(Count('id')).filter(id__count__gt=1)
+
+            duped_files = files.filter(checksum__in=[group['checksum'] for group in dupe_groups]).order_by('checksum', 'name')
             files_serialized = FileSerializer(duped_files, many=True)
             return Response(files_serialized.data)
         else:
