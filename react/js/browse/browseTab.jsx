@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FileTree } from './fileTree'
 import { LoadingWrapper } from '../loadingWrapper';
 import { SearchForm } from './searchForm';
+import { MultiSelect } from '../util';
 
 export class BrowseTab extends React.Component {
 
@@ -81,6 +82,9 @@ export class BrowseTab extends React.Component {
         .catch(this.onSearcherror);
     }
 
+    getTopFiles() {
+    }
+
     getCsvUrl() {
         return axios.getUri({
             url: '/api/files/searchcsv',
@@ -106,6 +110,10 @@ export class BrowseTab extends React.Component {
         }
     }
 
+    sourcesChanged() {
+
+    }
+
     render() {
         return (
             <LoadingWrapper get="/api/files/top" callback={this.onLoad}>
@@ -114,6 +122,9 @@ export class BrowseTab extends React.Component {
                         <div className="column col-9 col-mx-auto">
                             <div className="panel fixed-height">
                                 <div className="panel-header search-header form-horizontal">
+                                    <div className="form-group">
+                                        <MultiSelect value={this.state.include} onChange={this.sourcesChanged}/>
+                                    </div>
                                     <SearchForm state={null} submit={this.searchFiles} ref={this.searchForm} />
                                     { this.state.searching && !this.state.searchLoading &&
                                         <div className="toast">

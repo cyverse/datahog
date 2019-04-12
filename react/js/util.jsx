@@ -155,7 +155,7 @@ export class MultiSelect extends React.Component {
         } else {
             this.props.value.add(id);
         }
-        this.props.onChange(this.props.value);
+        this.props.onChange(event);
     }
 
     render() {
