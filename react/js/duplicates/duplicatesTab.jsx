@@ -1,9 +1,9 @@
 import React from 'react';
+import axios from '../axios';
 
 import { DuplicateTable } from './duplicateTable';
 import { LoadingWrapper } from '../loadingWrapper';
 import { MultiSelect } from '../util';
-import { axios, cancel } from '../axios';
 
 export class DuplicatesTab extends React.Component {
 
@@ -15,9 +15,10 @@ export class DuplicatesTab extends React.Component {
             include: new Set(),
             allowDifferentNames: true,
             dupeGroups: [],
-            searchLoading: true
+            searchLoading: false
         };
 
+        this.cancelToken = null;
         this.onLoad = this.onLoad.bind(this);
         this.onSearchLoad = this.onSearchLoad.bind(this);
         this.onSearchError = this.onSearchError.bind(this);
@@ -64,28 +65,25 @@ export class DuplicatesTab extends React.Component {
         if (!axios.isCancel(error)) {
             this.setState({
                 dupeGroups: [],
-                error: true,
                 searchLoading: false
             });
-        } else {
-            console.log('cancelled');
         }
     }
 
     getDuplicates() {
+        if (this.cancelToken) this.cancelToken.cancel();
+        this.cancelToken = axios.CancelToken.source();
         this.setState({
             searchLoading: true,
             error: false,
             dupeGroups: []
         });
-        cancel.cancel('test');
         axios.get('/api/files/duplicates', {
             params: {
                 sources: Array.from(this.state.include),
                 allow_different_names: this.state.allowDifferentNames
-            }
-        }, {
-            cancelToken: cancel.token
+            },
+            cancelToken: this.cancelToken.token
         }).then(this.onSearchLoad)
         .catch(this.onSearchError);
     }
@@ -112,8 +110,10 @@ export class DuplicatesTab extends React.Component {
                                     </div>
                                     <div className="form-group">
                                         <label className="form-switch">
-                                            <input type="checkbox" checked={this.state.allowDifferentNames} onChange={this.handleChange}/>
-                                            <i className="form-icon"></i> include differently-named duplicates
+                                            <input type="checkbox"
+                                                checked={this.state.allowDifferentNames}
+                                                onChange={this.handleChange}/>
+                                            <i className="form-icon"></i> Include differently-named duplicates
                                         </label>
                                     </div>
                                 </div>
