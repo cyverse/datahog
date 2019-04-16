@@ -45,7 +45,7 @@ export class FileTree extends React.Component {
                             <FileTreeNode
                                 key={file.id}
                                 file={file}
-                                percentage={100}
+                                percentage={file.is_folder ? 100 : 0}
                                 depth={0}
                                 sort={this.state.sort}
                             />

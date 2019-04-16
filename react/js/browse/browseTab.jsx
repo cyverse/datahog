@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import axios from '../axios';
 
 import { FileTree } from './fileTree'
 import { LoadingWrapper } from '../loadingWrapper';
@@ -13,76 +13,119 @@ export class BrowseTab extends React.Component {
 
         this.state = {
             files: [],
+            sources: [],
+            include: new Set(),
+            loading: true,
             searching: false,
-            searchResults: [],
             moreResults: false,
-            searchLoading: false,
             searchParams: {}
         };
 
+        // this.cancelToken = null;
         this.searchForm = React.createRef();
-        
+
+        this.onLoad = this.onLoad.bind(this);
+        this.getTopFiles = this.getTopFiles.bind(this);
+        this.onFilesLoad = this.onFilesLoad.bind(this);
+        this.onError = this.onError.bind(this);
         this.searchFiles = this.searchFiles.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
-        this.onLoad = this.onLoad.bind(this);
         this.onSearchLoad = this.onSearchLoad.bind(this);
-        this.onSearchError = this.onSearchError.bind(this);
         this.handleScroll = this.handleScroll.bind(this);
         this.getCsvUrl = this.getCsvUrl.bind(this);
+        this.sourcesChanged = this.sourcesChanged.bind(this);
     }
 
     onLoad(response) {
+        let include = new Set();
+        for (let source of response.data) {
+            include.add(source.id);
+        }
+        this.state.searchParams.sources = Array.from(include);
         this.setState({
-            files: response.data
+            sources: response.data,
+            include: include
         });
+        axios.get('/api/files/top', {
+            params: {
+                sources: Array.from(this.state.include)
+            }
+        }).then(this.onFilesLoad)
+        .catch(this.onError);
     }
 
-    onSearchLoad(response) {
+    getTopFiles() {
         this.setState({
-            files: this.state.files,
-            searching: true,
-            searchLoading: false,
-            searchResults: this.state.searchResults.concat(response.data),
-            searchParams: this.state.searchParams,
-            moreResults: response.data.length >= 100
-        });
-    }
-
-    onSearchError(error) {
-        this.setState({
-            files: this.state.files,
-            searching: true,
-            searchLoading: false,
-            searchResults: [],
-            searchParams: this.state.searchParams,
+            loading: true,
+            searching: false,
+            files: [],
             moreResults: false
         });
+        axios.get('/api/files/top', {
+            params: {
+                sources: Array.from(this.state.include)
+            }
+        }).then(this.onFilesLoad)
+        .catch(this.onError);
+    }
+    
+    onFilesLoad(response) {
+        this.setState({
+            files: response.data,
+            loading: false
+        });
     }
 
-    clearSearch() {
-        this.searchForm.current.clearSearch();
-        this.setState({
-            searching: false,
-            searchLoading: false,
-            searchResults: [],
-            searchParams: {}
-        });
+    onError(error) {
+        if (!axios.isCancel(error)) {
+            this.setState({
+                files: [],
+                loading: false,
+                moreResults: false
+            });
+        }
     }
 
     searchFiles(params) {
         this.setState({
             searching: true,
-            searchLoading: true,
-            searchResults: [],
+            loading: true,
+            files: [],
             searchParams: params
         });
         axios.get('/api/files/search', {
             params: params
         }).then(this.onSearchLoad)
-        .catch(this.onSearcherror);
+        .catch(this.onError);
     }
 
-    getTopFiles() {
+    onSearchLoad(response) {
+        this.setState({
+            files: this.state.files.concat(response.data),
+            loading: false,
+            moreResults: response.data.length >= 100
+        });
+    }
+
+    clearSearch() {
+        this.searchForm.current.clearSearch();
+        this.getTopFiles();
+    }
+
+    handleScroll(event) {
+        let hitBottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+        if (hitBottom && this.state.searching && !this.state.loading && this.state.moreResults) {
+            let params = this.state.searchParams;
+            params.offset = this.state.files.length;
+            this.setState({
+                loading: true
+            });
+            axios.get('/api/files/search', {
+                params: params
+            })
+            .then(this.onSearchLoad)
+            .catch(this.onError);
+        }
     }
 
     getCsvUrl() {
@@ -93,42 +136,30 @@ export class BrowseTab extends React.Component {
         });
     }
 
-    handleScroll(event) {
-        let hitBottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
-        if (hitBottom && this.state.searching && !this.state.searchLoading && this.state.moreResults) {
-            let params = this.state.searchParams;
-            params.offset = this.state.searchResults.length;
-            this.setState({
-                searching: true,
-                searchLoading: true
-            });
-            axios.get('/api/files/search', {
-                params: params
-            })
-            .then(this.onSearchLoad)
-            .catch(this.onSearchError);
-        }
-    }
-
     sourcesChanged() {
-
+        this.state.searchParams.sources = Array.from(this.state.include);
+        if (this.state.searching) {
+            this.searchFiles();
+        } else {
+            this.getTopFiles();
+        }
     }
 
     render() {
         return (
-            <LoadingWrapper get="/api/files/top" callback={this.onLoad}>
+            <LoadingWrapper get="/api/files/directories" callback={this.onLoad}>
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">
                             <div className="panel fixed-height">
                                 <div className="panel-header search-header form-horizontal">
                                     <div className="form-group">
-                                        <MultiSelect value={this.state.include} onChange={this.sourcesChanged}/>
+                                        <MultiSelect choices={this.state.sources} value={this.state.include} onChange={this.sourcesChanged}/>
                                     </div>
                                     <SearchForm state={null} submit={this.searchFiles} ref={this.searchForm} />
-                                    { this.state.searching && !this.state.searchLoading &&
+                                    { this.state.searching && !this.state.loading &&
                                         <div className="toast">
-                                            Found {this.state.searchResults.length}{this.state.moreResults && '+'} results.
+                                            Found {this.state.files.length}{this.state.moreResults && '+'} results.
                                             <a className="float-right c-hand" onClick={this.clearSearch}>
                                                 Clear search
                                             </a>
@@ -139,19 +170,12 @@ export class BrowseTab extends React.Component {
                                     }   
                                 </div>
                                 <div className="panel-body" onScroll={this.handleScroll}>
-                                    { this.state.searching ?
-                                        (
-                                            <React.Fragment>
-                                                <FileTree files={this.state.searchResults}
-                                                    searchOnSort={this.state.moreResults}
-                                                    searchCallback={this.searchFiles}
-                                                    searchParams={this.state.searchParams}/>
-                                                {this.state.searchLoading && 
-                                                    <div className="loading loading-lg"></div>
-                                                }
-                                            </React.Fragment>
-                                        ) :
-                                        <FileTree files={this.state.files} />
+                                    <FileTree files={this.state.files}
+                                        searchOnSort={this.state.moreResults}
+                                        searchCallback={this.searchFiles}
+                                        searchParams={this.state.searchParams}/>
+                                    { this.state.loading && 
+                                        <div className="loading loading-lg"></div>
                                     }
                                 </div>
                             </div>
