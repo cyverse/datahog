@@ -87,6 +87,7 @@ export class BrowseTab extends React.Component {
     }
 
     searchFiles(params) {
+        params.sources = Array.from(this.state.include);
         this.setState({
             searching: true,
             loading: true,
@@ -137,9 +138,8 @@ export class BrowseTab extends React.Component {
     }
 
     sourcesChanged() {
-        this.state.searchParams.sources = Array.from(this.state.include);
         if (this.state.searching) {
-            this.searchFiles();
+            this.searchFiles(this.state.searchParams);
         } else {
             this.getTopFiles();
         }
