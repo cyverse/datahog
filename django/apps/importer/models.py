@@ -20,3 +20,4 @@ class ImportAttempt(models.Model):
     irods_host = models.CharField(max_length=64, blank=True, default='data.cyverse.org')
     irods_port = models.CharField(max_length=64, blank=True, default='1247')
     s3_bucket = models.CharField(max_length=64, blank=True)
+    source_name = models.CharField(max_length=32, blank=True)

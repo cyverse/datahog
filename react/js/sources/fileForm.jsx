@@ -1,12 +1,15 @@
 import React from 'react';
 import axios from '../axios';
 
+import { LabeledInput } from '../util';
+
 export class FileForm extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             file: null,
+            name: '',
             waiting: false,
             error: ''
         };
@@ -64,7 +67,19 @@ export class FileForm extends React.Component {
                         <input type="file" className="form-input" onChange={this.fileChanged} accept=".datahog"/>
                     </div>
                 </div>
-                <div className="form-group" style={{marginTop: '30px'}}>
+                <div className="form-group">
+                    <div className="col-3 col-ml-auto">
+                        <br/>
+                        <label>Name this source</label>
+                    </div>
+                    <div className="col-4 col-mr-auto">
+                        <LabeledInput name="name"
+                            label="Name"
+                            value={this.state.name}
+                            onChange={this.handleChange}/>
+                    </div>
+                </div>
+                <div className="form-group submit-group">
                     <div className="col-6 text-center">
                         <input type="submit" 
                             className="btn btn-primary"

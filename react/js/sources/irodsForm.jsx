@@ -13,7 +13,7 @@ export class IrodsForm extends React.Component {
             port: this.props.lastAttempt.irods_port,
             zone: this.props.lastAttempt.irods_zone,
             folder: this.props.lastAttempt.root_path,
-            name: '',
+            name: this.props.lastAttempt.source_name || 'My iRODS Files',
             waiting: false,
             error: ''
         };
@@ -66,7 +66,8 @@ export class IrodsForm extends React.Component {
             !this.state.host.length || 
             !this.state.folder.length || 
             !this.state.port.length || 
-            !this.state.zone.length
+            !this.state.zone.length ||
+            !this.state.name.length
         );
         return (
             <form onSubmit={this.submitForm} className="form-horizontal">
@@ -116,7 +117,7 @@ export class IrodsForm extends React.Component {
                 <div className="form-group">
                     <div className="col-3">
                         <br/>
-                        <label>Folder to Import</label>
+                        <label>Folder to import</label>
                     </div>
                     <div className="col-8">
                         <LabeledInput name="folder"
@@ -125,19 +126,19 @@ export class IrodsForm extends React.Component {
                             onChange={this.handleChange}/>
                     </div>
                 </div>
-                {/* <div className="form-group">
-                    <div className="col-3">
+                <div className="form-group">
+                    <div className="col-3 col-ml-auto">
                         <br/>
-                        <label>Name (optional)</label>
+                        <label>Name this source</label>
                     </div>
-                    <div className="col-4">
+                    <div className="col-4 col-mr-auto">
                         <LabeledInput name="name"
                             label="Name"
                             value={this.state.name}
                             onChange={this.handleChange}/>
                     </div>
-                </div> */}
-                <div className="form-group" style={{marginTop: '30px'}}>
+                </div>
+                <div className="form-group submit-group">
                     <div className="col-3">
                         <input type="submit" 
                             className="btn btn-primary"
