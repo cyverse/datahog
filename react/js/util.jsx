@@ -160,7 +160,7 @@ export class MultiSelect extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="multi-select">
                 Include files from: &nbsp;
                 {this.props.choices.map((choice, index) => {
                     let css = this.props.value.has(choice.id) ? 'chip active c-hand' : 'chip c-hand';

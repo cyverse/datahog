@@ -30,14 +30,14 @@ export class LoadingWrapper extends React.Component {
     }
 
     render() {
-        if (this.state.error) return (
+        if (this.state.error || this.props.error) return (
             <div className="empty">
                 <p className="empty-title h5">Unable to contact server</p>
                 <p className="empty-subtitle">An error occurred, please try again later</p>
             </div>
         );
 
-        if (this.state.loading) return (
+        if (this.state.loading || this.props.loading) return (
             <div className="loading loading-lg"></div>
         );  
 

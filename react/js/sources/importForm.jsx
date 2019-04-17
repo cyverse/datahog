@@ -5,6 +5,24 @@ import { FileForm } from './fileForm';
 import { ImportContext } from '../context';
 import { S3Form } from './s3Form';
 
+
+export function ImportModal(props) {
+    return (
+        <div className={props.active ? 'modal active' : 'modal'} id="modal-id">
+            <a className="modal-overlay" onClick={props.onToggle}></a>
+            <div className="modal-container import-modal">
+                <div className="modal-body">
+                    <ImportForm />
+                </div>
+                <div className="modal-footer">
+                    <button className="btn btn-link" onClick={props.onToggle}>Cancel</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+
 export class ImportForm extends React.Component {
     constructor(props) {
         super(props);
@@ -16,14 +34,14 @@ export class ImportForm extends React.Component {
     
     render() {
         return (
-            <React.Fragment>
+            <div className="import-form">
                 { this.context.lastAttempt && this.context.lastAttempt.failed && 
                     <div className="toast toast-error">
                         Your last import could not be completed. The folder you requested may be too large.
                     </div>
                 }
-                <h5 className="text-center" style={{margin: '30px'}}>Import file data from...</h5>
-                <ul className="tab tab-block source-tabs" style={{marginBottom: '20px'}}>
+                <h5 className="text-center">Import file data from...</h5>
+                <ul className="tab tab-block source-tabs">
                     <li className='tab-item c-hand source-tab'>
                         <a className={this.state.activeForm === 1 ? 'active' : ''} onClick={() => this.setState({activeForm: 1})}>
                             iRODS
@@ -54,21 +72,9 @@ export class ImportForm extends React.Component {
                         <S3Form lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
                     ][this.state.activeForm]
                 }
-            </React.Fragment>
+            </div>
         );
     }
 }
 
 ImportForm.contextType = ImportContext;
-
-export function ImportTab(props) {
-    return (
-        <div className="container">
-            <div className="columns">
-                <div className="column col-7 col-mx-auto">
-                    <ImportForm />
-                </div>
-            </div>
-        </div>
-    );
-}

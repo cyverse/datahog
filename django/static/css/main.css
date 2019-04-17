@@ -16,22 +16,21 @@ header img {
     vertical-align: middle;
 }
 
-.menu.directory-menu {
+.source-menu-wrapper {
+    height: 54px;
+    margin-top: 14px;
+}
+
+.source-menu-wrapper .menu {
     position: absolute;
-    right: 0;
     display: inline-block;
     text-align: left;
-    width: 400px;
+    width: 480px;
 }
 
-.directory-menu .collapse-icon {
+.collapse-icon {
     float: right;
     margin-top: 8px;
-}
-
-.directory-menu .menu-item .delete-button {
-    float: right;
-    display: none;
 }
 
 .directory-menu .menu-item:hover .delete-button {
@@ -173,6 +172,27 @@ nav#tabs {
     background: inherit;
 }
 
-.tab-block.source-tabs {
-    border-bottom: none;
+
+
+.import-form h5 {
+    margin: 30px;
 }
+
+.import-form {
+    max-width: 600px;
+    margin: auto;
+}
+
+.import-form .tab-block {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+.import-form .submit-group {
+    margin-top: 30px;
+}
+
+.multi-select {
+    margin-top: -8px;
+}
+
