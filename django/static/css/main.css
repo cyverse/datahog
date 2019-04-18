@@ -17,15 +17,14 @@ header img {
 }
 
 .source-menu-wrapper {
-    height: 54px;
-    margin-top: 14px;
+    height: 70px;
 }
 
 .source-menu-wrapper .menu {
     position: absolute;
     display: inline-block;
     text-align: left;
-    width: 480px;
+    width: 445px;
 }
 
 .collapse-icon {
@@ -129,6 +128,10 @@ a:focus {
     margin-left: 75px;
 }
 
+#sizeTimeline {
+    margin: 10px 0;
+}
+
 nav#tabs {
     display: flex;
     justify-content: center;
@@ -196,3 +199,8 @@ nav#tabs {
     margin-top: -8px;
 }
 
+
+.timeline-subtitle {
+    font-size: 80%;
+    fill: #acb3c2;
+}

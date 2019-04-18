@@ -57,12 +57,9 @@ export class SummaryTab extends React.Component {
                     <div className="container">
                         <div className="columns">
                             <div className="column">
-                                <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
                                 <div className="card fixed-height">
-                                    <div className="card-header">
-                                        <div className="card-title h5">This source has...</div>
-                                    </div>
                                     <div className="card-body">
+                                        <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
                                         <p>
                                             <i className="fa fa-fw fa-file"></i>
                                             {this.state.sources[0].file_count} files
@@ -75,12 +72,7 @@ export class SummaryTab extends React.Component {
                                             <Size bytes={this.state.sources[0].total_size} /> occupied
                                         </p>
                                     </div>
-                                    <div className="visualization">
-                                        <SizeTimeline data={this.state.sources[0].size_timeline_data} id="sizeTimeline"/>
-                                    </div>
-                                    <div className="card-footer text-center">
-                                        <small className="text-gray">Estimated based on file creation time.</small>
-                                    </div>
+                                    <SizeTimeline data={this.state.sources[0].size_timeline_data} id="sizeTimeline"/>
                                 </div>
                             </div>
                             <div className="column">
@@ -89,35 +81,27 @@ export class SummaryTab extends React.Component {
                         </div>
                         <div className="columns">
                             <div className="column">
-                                <PaginatedPanel
-                                    scroll={false}
-                                    title="Biggest Files"
+                                <PaginatedPanel title="Biggest Files"
                                     get="/api/files/biggestfiles"
-                                    component={FileTable}/>
+                                    source={this.state.sources[0]}/>
                             </div>
                             <div className="column">
-                                <PaginatedPanel
-                                    scroll={false}
-                                    title="Biggest Folders"
+                                <PaginatedPanel title="Biggest Folders"
                                     get="/api/files/biggestfolders"
-                                    component={FileTable}/>
+                                    source={this.state.sources[0]}/>
                             </div>
                         </div>
                         <div className="columns">
                             <div className="column">
-                                <PaginatedPanel
-                                    scroll={false}
-                                    title="Newest Files"
+                                <PaginatedPanel title="Newest Files"
                                     get="/api/files/newestfiles"
-                                    component={FileTable}
+                                    source={this.state.sources[0]}
                                     showDate={true}/>
                             </div>
                             <div className="column">
-                                <PaginatedPanel
-                                    scroll={false}
-                                    title="Oldest Files"
+                                <PaginatedPanel title="Oldest Files"
                                     get="/api/files/oldestfiles"
-                                    component={FileTable}
+                                    source={this.state.sources[0]}
                                     showDate={true}/>
                             </div>
                         </div>
