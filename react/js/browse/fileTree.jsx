@@ -133,7 +133,7 @@ export class FileTreeNode extends React.Component {
                     collapsed: false
                 });
             } else {
-                axios.get('/api/files/' + this.props.file.id + '/children')
+                axios.get('/api/filedata/children/' + this.props.file.id)
                 .then(this.receiveChildren)
                 .catch(function(error) {
                     console.log(error);

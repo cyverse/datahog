@@ -131,7 +131,7 @@ export class BrowseTab extends React.Component {
 
     getCsvUrl() {
         return axios.getUri({
-            url: '/api/files/searchcsv',
+            url: '/api/filedata/searchcsv',
             method: 'get',
             params: this.state.searchParams
         });

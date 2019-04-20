@@ -45,7 +45,7 @@ export class SummaryTab extends React.Component {
         this.setState({
             loading: true
         });
-        axios.post('/api/files/viewdirectory', source)
+        axios.post('/api/filedata/changesource', source)
         .then(this.onLoad)
         .catch(this.onError);
     }

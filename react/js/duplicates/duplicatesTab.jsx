@@ -78,7 +78,7 @@ export class DuplicatesTab extends React.Component {
             error: false,
             dupeGroups: []
         });
-        axios.get('/api/files/duplicates', {
+        axios.get('/api/filedata/duplicates', {
             params: {
                 sources: Array.from(this.state.include),
                 allow_different_names: this.state.allowDifferentNames
