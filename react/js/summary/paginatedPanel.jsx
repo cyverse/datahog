@@ -1,5 +1,6 @@
 import React from 'react';
 import { Paginator } from './paginator';
+import { FileTable } from './fileTable';
 
 export class PaginatedPanel extends React.Component {
     constructor(props) {
@@ -24,7 +25,7 @@ export class PaginatedPanel extends React.Component {
 
     onLoad(files) {
         this.setState({
-            files: files,
+            files: files || [],
             loading: false,
             error: false
         });
@@ -39,35 +40,36 @@ export class PaginatedPanel extends React.Component {
     }
 
     render() {
-        let panelBody;
-        if (this.state.error) {
-            panelBody = <div>An error occurred.</div>
-        } else if (this.state.loading) {
-            panelBody = <div className="loading"></div>
-        } else {
-            panelBody = <this.props.component files={this.state.files} showDate={this.props.showDate}/>
-        }
-
-        return (
-            <div className={this.props.scroll ? "panel fixed-height" : "card fixed-height"}>
-                <div className={this.props.scroll ? "panel-header" : "card-header"}>
-                    <div className={this.props.scroll ? "panel-title h5" : "card-title h5"}>
-                        {this.props.title}
+        if (this.props.get) {
+            return (
+                <div className="card fixed-height">
+                    <div className="card-header">
+                        <div className="card-title h5">
+                            {this.props.title}
+                        </div>
+                    </div>
+                    <div className="card-body">
+                        {this.state.loading ?
+                            <div className="loading"></div> :
+                            <FileTable files={this.state.files} showDate={this.props.showDate}/>
+                        }
+                    </div>
+                    <div className="card-footer">
+                        <Paginator
+                            get={this.props.get}
+                            pageSize={10}
+                            params={this.props.params}
+                            onLoad={this.onLoad}
+                            onError={this.onError}
+                            onClick={this.onClick}
+                        />
                     </div>
                 </div>
-                <div className={this.props.scroll ? "panel-body" : "card-body"}>
-                    {panelBody}
-                </div>
-                <div className={this.props.scroll ? "panel-footer" : "card-footer"}>
-                    <Paginator
-                        get={this.props.get}
-                        limit={10}
-                        onLoad={this.onLoad}
-                        onError={this.onError}
-                        onClick={this.onClick}
-                    />
-                </div>
-            </div>
-        );
+            );
+        } else {
+            return (
+                <div className="card fixed-height"></div>
+            );
+        }
     }
 }

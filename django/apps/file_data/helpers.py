@@ -14,7 +14,9 @@ def filter_files(file_query, filters):
 
     dirs = filters.getlist('sources[]')
     if len(dirs): file_query = file_query.filter(directory__id__in=dirs)
-    print(dirs);
+
+    if 'source' in filters:
+        file_query = file_query.filter(directory__id=filters['source'])
 
     if 'name' in filters:
         if 'type' in filters and filters['type'] == 'regex':
@@ -55,6 +57,20 @@ def filter_files(file_query, filters):
         file_query = file_query.order_by(filters['sort'])
     
     return file_query
+
+
+def filter_folders(folder_query, filters):
+
+    dirs = filters.getlist('sources[]')
+    if len(dirs): folder_query = folder_query.filter(directory__id__in=dirs)
+
+    if 'source' in filters:
+        folder_query = folder_query.filter(directory__id=filters['source'])
+    
+    if 'sort' in filters:
+        folder_query = folder_query.order_by(filters['sort'])
+    
+    return folder_query
 
 
 def create_size_timeline_data(directory):

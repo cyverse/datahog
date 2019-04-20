@@ -46,7 +46,7 @@ export class BrowseTab extends React.Component {
             sources: response.data,
             include: include
         });
-        axios.get('/api/files/top', {
+        axios.get('/api/filedata/top', {
             params: {
                 sources: Array.from(this.state.include)
             }
@@ -61,7 +61,7 @@ export class BrowseTab extends React.Component {
             files: [],
             moreResults: false
         });
-        axios.get('/api/files/top', {
+        axios.get('/api/filedata/top', {
             params: {
                 sources: Array.from(this.state.include)
             }
@@ -147,7 +147,7 @@ export class BrowseTab extends React.Component {
 
     render() {
         return (
-            <LoadingWrapper get="/api/files/directories" callback={this.onLoad}>
+            <LoadingWrapper get="/api/filedata/sources" callback={this.onLoad}>
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">

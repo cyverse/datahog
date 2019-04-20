@@ -88,15 +88,16 @@ export class TypePanel extends React.Component {
                     <div className="card-title h5">File Type Breakdown</div>
                 </div>
                 <div className="visualization">
-                    <TypeChart id="typeChart" data={this.props.data} colors={this.state.colors}/>
+                    <TypeChart id="typeChart" data={this.props.source.type_chart_data} colors={this.state.colors}/>
                 </div>
                 <div className="card-body">
                     {typeList}
                 </div>
                 <div className="card-footer">
                     <Paginator
-                        get="/api/files/biggestfiletypes"
-                        limit={5}
+                        get="/api/filedata/types"
+                        pageSize={5}
+                        params={{ source: this.props.source.id }}
                         onLoad={this.onLoad}
                         onError={this.onError}
                         onClick={this.onClick}
@@ -108,7 +109,6 @@ export class TypePanel extends React.Component {
 }
 
 export function TypeTable(props) {
-    console.log(props.colors);
     return (
         <table className='table file-table table-hover'>
             <tbody>
@@ -120,7 +120,7 @@ export function TypeTable(props) {
                             color={(props.page > 0) ? props.colors[5] : props.colors[index]}
                             onMouseEnter={props.onMouseEnter}
                             onMouseLeave={props.onMouseLeave}
-                            />
+                        />
                     );
                 })}
             </tbody>

@@ -51,8 +51,9 @@ export class SummaryTab extends React.Component {
     }
 
     render() {
+        let selectedSource = this.state.sources[0];
         return (
-            <LoadingWrapper get="/api/files/directories" callback={this.onLoad} loading={this.state.loading} error={this.state.error}>
+            <LoadingWrapper get="/api/filedata/sources" callback={this.onLoad} loading={this.state.loading} error={this.state.error}>
                 { this.state.sources.length && 
                     <div className="container">
                         <div className="columns">
@@ -62,47 +63,59 @@ export class SummaryTab extends React.Component {
                                         <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
                                         <p>
                                             <i className="fa fa-fw fa-file"></i>
-                                            {this.state.sources[0].file_count} files
+                                            {selectedSource.file_count} files
                                         </p>
                                         <p>
                                             <i className="fa fa-fw fa-folder-open"></i>
-                                            {this.state.sources[0].folder_count} folders
+                                            {selectedSource.folder_count} folders
                                         </p>
                                         <p>
-                                            <Size bytes={this.state.sources[0].total_size} /> occupied
+                                            <Size bytes={selectedSource.total_size} /> occupied
                                         </p>
                                     </div>
-                                    <SizeTimeline data={this.state.sources[0].size_timeline_data} id="sizeTimeline"/>
+                                    <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/>
                                 </div>
                             </div>
                             <div className="column">
-                                <TypePanel data={this.state.sources[0].type_chart_data}/>
+                                <TypePanel source={selectedSource}/>
                             </div>
                         </div>
                         <div className="columns">
                             <div className="column">
                                 <PaginatedPanel title="Biggest Files"
-                                    get="/api/files/biggestfiles"
-                                    source={this.state.sources[0]}/>
+                                    get="/api/filedata/files"
+                                    params={{
+                                        source: selectedSource.id,
+                                        sort: '-size'
+                                    }}/>
                             </div>
                             <div className="column">
                                 <PaginatedPanel title="Biggest Folders"
-                                    get="/api/files/biggestfolders"
-                                    source={this.state.sources[0]}/>
+                                    get="/api/filedata/folders"
+                                    params={{
+                                        source: selectedSource.id,
+                                        sort: '-total_size'
+                                    }}/>
                             </div>
                         </div>
                         <div className="columns">
                             <div className="column">
                                 <PaginatedPanel title="Newest Files"
-                                    get="/api/files/newestfiles"
-                                    source={this.state.sources[0]}
-                                    showDate={true}/>
+                                    get="/api/filedata/files"
+                                    showDate={true}
+                                    params={{
+                                        source: selectedSource.id,
+                                        sort: '-date_created'
+                                    }}/>
                             </div>
                             <div className="column">
                                 <PaginatedPanel title="Oldest Files"
-                                    get="/api/files/oldestfiles"
-                                    source={this.state.sources[0]}
-                                    showDate={true}/>
+                                    get="/api/filedata/files"
+                                    showDate={true}
+                                    params={{
+                                        source: selectedSource.id,
+                                        sort: 'date_created'
+                                    }}/>
                             </div>
                         </div>
                     </div>

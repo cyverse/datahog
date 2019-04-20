@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { SourceMenu } from './sourceMenu';
 import { TabNav } from './tabNav';
 import { ImportForm } from './sources/importForm';
 import { LoadingWrapper } from './loadingWrapper';
@@ -34,7 +33,7 @@ export class DataWrapper extends React.Component {
 
     render() {
         return (
-            <LoadingWrapper get="/api/files/directories" callback={this.onLoad}>
+            <LoadingWrapper get="/api/filedata/sources" callback={this.onLoad}>
                 <header className="text-center">
                     <img src="/static/img/DataHog.png" alt="DataHog" />
                     <h1>

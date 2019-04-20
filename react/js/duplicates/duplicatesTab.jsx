@@ -97,7 +97,7 @@ export class DuplicatesTab extends React.Component {
 
     render() {
         return (
-            <LoadingWrapper get="/api/files/directories" callback={this.onLoad}>
+            <LoadingWrapper get="/api/filedata/sources" callback={this.onLoad}>
                 <div className="container">
                     <div className="columns">
                         <div className="column col-9 col-mx-auto">

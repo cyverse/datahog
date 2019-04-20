@@ -15,59 +15,64 @@ from .serializers import *
 from .helpers import *
 
 
-class GetBiggestFiles(generics.ListAPIView):
-    serializer_class = FileSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('size',)
-    ordering = ('-size',)
+class GetFiles(views.APIView):
+    def get(self, request):
+        matching_files = filter_files(File.objects, request.GET)
 
-    def get_queryset(self):
-        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
-
-
-class GetBiggestFolders(generics.ListAPIView):
-    serializer_class = FolderSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('total_size',)
-    ordering = ('-total_size',)
-
-    def get_queryset(self):
-        return Folder.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+        if 'limit' in request.GET:
+            total = matching_files.count()
+            limit = int(request.GET['limit'])
+            offset = int(request.GET.get('offset', 0))
+            matching_files = matching_files.all()[offset:offset+limit]
+            files_serialized = FileSerializer(matching_files, many=True)
+            return Response({
+                'page': files_serialized.data,
+                'total': total
+            })
+        else:
+            files_serialized = FileSerializer(matching_files, many=True)
+            return Response(files_serialized.data)
 
 
-class GetBiggestFileTypes(generics.ListAPIView):
-    serializer_class = FileTypeSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('total_size',)
-    ordering = ('-total_size',)
+class GetFolders(views.APIView):
+    def get(self, request):
+        matching_folders = filter_folders(Folder.objects, request.GET)
 
-    def get_queryset(self):
-        return FileType.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
-
-
-class GetNewestFiles(generics.ListAPIView):
-    serializer_class = FileSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('date_created',)
-    ordering = ('-date_created',)
-
-    def get_queryset(self):
-        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+        if 'limit' in request.GET:
+            total = matching_folders.count()
+            limit = int(request.GET['limit'])
+            offset = int(request.GET.get('offset', 0))
+            matching_folders = matching_folders.all()[offset:offset+limit]
+            folders_serialized = FolderSerializer(matching_folders, many=True)
+            return Response({
+                'page': folders_serialized.data,
+                'total': total
+            })
+        else:
+            folders_serialized = FolderSerializer(matching_folders, many=True)
+            return Response(folders_serialized.data)
 
 
-class GetOldestFiles(generics.ListAPIView):
-    serializer_class = FileSerializer
-    pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('date_created',)
-    ordering = ('date_created',)
+class GetFileTypes(views.APIView):
+    def get(self, request):
+        file_types = FileType.objects
 
-    def get_queryset(self):
-        return File.objects.filter(directory=ImportedDirectory.objects.latest('date_viewed')).all()
+        if 'source' in request.GET:
+            file_types = file_types.filter(directory__id=request.GET['source'])
+
+        if 'limit' in request.GET:
+            total = int(file_types.count())
+            limit = int(request.GET['limit'])
+            offset = int(request.GET.get('offset', 0))
+            file_types = file_types.order_by('-total_size').all()[offset:offset+limit]
+            types_serialized = FileTypeSerializer(file_types, many=True)
+            return Response({
+                'page': types_serialized.data,
+                'total': total
+            })
+        else:
+            types_serialized = FileTypeSerializer(file_types, many=True)
+            return Response(types_serialized.data)
 
 
 class GetChildrenOfFolder(views.APIView):
@@ -99,18 +104,18 @@ class GetTopLevelFiles(views.APIView):
             return Response([])
 
 
-class SearchFiles(views.APIView):
-    def get(self, request):
-        matching_files = filter_files(File.objects, request.GET)
+# class SearchFiles(views.APIView):
+#     def get(self, request):
+#         matching_files = filter_files(File.objects, request.GET)
 
-        if 'offset' in request.GET:
-            offset = int(request.GET['offset'])
-            matching_files = matching_files.all()[offset:offset+100]
-        else:
-            matching_files = matching_files.all()[:100]
+#         if 'offset' in request.GET:
+#             offset = int(request.GET['offset'])
+#             matching_files = matching_files.all()[offset:offset+100]
+#         else:
+#             matching_files = matching_files.all()[:100]
         
-        files_serialized = FileSerializer(matching_files, many=True)
-        return Response(files_serialized.data)
+#         files_serialized = FileSerializer(matching_files, many=True)
+#         return Response(files_serialized.data)
 
 
 class GetDuplicates(views.APIView):
