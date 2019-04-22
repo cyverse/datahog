@@ -14,7 +14,7 @@ export class FileForm extends React.Component {
             error: ''
         };
         this.submitForm = this.submitForm.bind(this);
-        this.fileChanged = this.fileChanged.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     submitForm(event) {
@@ -47,24 +47,25 @@ export class FileForm extends React.Component {
         }.bind(this));
     }
 
-    fileChanged(event) {
-        if (event.target.files.length) {
-            this.setState({
-                file: event.target.files[0]
-            });
+    handleChange(event) {
+        let value;
+        if (event.target.type === 'file') {
+            value = event.target.files.length ? event.target.files[0] : null;
         } else {
-            this.setState({
-                file: null
-            });
+            value = event.target.value;
         }
+
+        this.setState({
+            [event.target.name]: event.target.value
+        });
     }
-    
+
     render() {
         return (
             <form className="form-horizontal" onSubmit={this.submitForm}>
                 <div className="form-group">
                     <div className="col-6 col-mx-auto">
-                        <input type="file" className="form-input" onChange={this.fileChanged} accept=".datahog"/>
+                        <input type="file" name="file" className="form-input" onChange={this.handleChange} accept=".datahog"/>
                     </div>
                 </div>
                 <div className="form-group">
