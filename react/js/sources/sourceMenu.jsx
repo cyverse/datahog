@@ -87,23 +87,6 @@ export class SourceMenu extends React.Component {
                         }
                     </ul>
                 }
-                <div className={this.state.toDelete ? 'modal active' : 'modal'} id="modal-id">
-                    <a className="modal-overlay" onClick={this.toggleDeleteModal}></a>
-                    <div className="modal-container">
-                        <div className="modal-header">
-                            <div className="modal-title h5">Are you sure?</div>
-                        </div>
-                        <div className="modal-body">
-                            <div className="content">
-                                If you remove this directory, it will need to be re-imported in order to be viewed again.
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-primary" onClick={() => this.props.onDelete(this.state.toDelete)}>Remove</button>
-                            <button className="btn btn-link" onClick={this.toggleDeleteModal}>Cancel</button>
-                        </div>
-                    </div>
-                </div>
                 <ImportModal active={this.state.showModal} onToggle={this.toggleModal}/>
             </div>
         );

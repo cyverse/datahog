@@ -15,16 +15,6 @@ export class DataWrapper extends React.Component {
         this.onLoad = this.onLoad.bind(this);
     }
 
-    // deleteDirectory(directory) {
-    //     console.log('deletion');
-    //     this.setState({
-    //         loading: true
-    //     });
-    //     axios.delete('api/files/deletedirectory', { data: directory })
-    //     .then(this.onLoad)
-    //     .catch(this.onError);
-    // }
-
     onLoad(response) {
         this.setState({
             directories: response.data

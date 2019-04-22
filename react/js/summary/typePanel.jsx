@@ -87,9 +87,7 @@ export class TypePanel extends React.Component {
                 <div className="card-header">
                     <div className="card-title h5">File Type Breakdown</div>
                 </div>
-                <div className="visualization">
-                    <TypeChart id="typeChart" data={this.props.source.type_chart_data} colors={this.state.colors}/>
-                </div>
+                <TypeChart id="typeChart" data={this.props.source.type_chart_data} colors={this.state.colors}/>
                 <div className="card-body">
                     {typeList}
                 </div>

@@ -82,7 +82,8 @@ export class SummaryTab extends React.Component {
                         </div>
                         <div className="columns">
                             <div className="column">
-                                <PaginatedPanel title="Biggest Files"
+                                <PaginatedPanel
+                                    title={'Biggest files in "'+selectedSource.name+'"'}
                                     get="/api/filedata/files"
                                     params={{
                                         source: selectedSource.id,
@@ -90,7 +91,8 @@ export class SummaryTab extends React.Component {
                                     }}/>
                             </div>
                             <div className="column">
-                                <PaginatedPanel title="Biggest Folders"
+                                <PaginatedPanel
+                                    title={'Biggest folders in "'+selectedSource.name+'"'}
                                     get="/api/filedata/folders"
                                     params={{
                                         source: selectedSource.id,
@@ -100,7 +102,8 @@ export class SummaryTab extends React.Component {
                         </div>
                         <div className="columns">
                             <div className="column">
-                                <PaginatedPanel title="Newest Files"
+                                <PaginatedPanel
+                                    title={'Newest files in  "'+selectedSource.name+'"'}
                                     get="/api/filedata/files"
                                     showDate={true}
                                     params={{
@@ -109,7 +112,8 @@ export class SummaryTab extends React.Component {
                                     }}/>
                             </div>
                             <div className="column">
-                                <PaginatedPanel title="Oldest Files"
+                                <PaginatedPanel
+                                    title={'Oldest files in "'+selectedSource.name+'"'}
                                     get="/api/filedata/files"
                                     showDate={true}
                                     params={{

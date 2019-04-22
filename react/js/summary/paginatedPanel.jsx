@@ -40,21 +40,21 @@ export class PaginatedPanel extends React.Component {
     }
 
     render() {
-        if (this.props.get) {
-            return (
-                <div className="card fixed-height">
-                    <div className="card-header">
-                        <div className="card-title h5">
-                            {this.props.title}
-                        </div>
+        return (
+            <div className="card fixed-height">
+                <div className="card-header">
+                    <div className="card-title h5">
+                        {this.props.title}
                     </div>
-                    <div className="card-body">
-                        {this.state.loading ?
-                            <div className="loading"></div> :
-                            <FileTable files={this.state.files} showDate={this.props.showDate}/>
-                        }
-                    </div>
-                    <div className="card-footer">
+                </div>
+                <div className="card-body">
+                    {this.state.loading ?
+                        <div className="loading"></div> :
+                        <FileTable files={this.state.files} showDate={this.props.showDate}/>
+                    }
+                </div>
+                <div className="card-footer">
+                    {this.props.get &&
                         <Paginator
                             get={this.props.get}
                             pageSize={10}
@@ -63,13 +63,9 @@ export class PaginatedPanel extends React.Component {
                             onError={this.onError}
                             onClick={this.onClick}
                         />
-                    </div>
+                    }
                 </div>
-            );
-        } else {
-            return (
-                <div className="card fixed-height"></div>
-            );
-        }
+            </div>
+        );
     }
 }

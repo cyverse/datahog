@@ -103,12 +103,12 @@ a:focus {
     text-align: right;
 }
 
-.file-table .click-to-copy {
+.file-table .table-option {
     font-size: 0.6rem;
     display: none;
 }
 
-.file-table tr:hover .click-to-copy {
+.file-table tr:hover .table-option {
     display: inline;
 }
 
@@ -128,7 +128,7 @@ a:focus {
     margin-left: 75px;
 }
 
-#sizeTimeline {
+#sizeTimeline, #typeChart {
     margin: 10px 0;
 }
 
