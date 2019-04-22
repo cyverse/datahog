@@ -104,20 +104,6 @@ class GetTopLevelFiles(views.APIView):
             return Response([])
 
 
-# class SearchFiles(views.APIView):
-#     def get(self, request):
-#         matching_files = filter_files(File.objects, request.GET)
-
-#         if 'offset' in request.GET:
-#             offset = int(request.GET['offset'])
-#             matching_files = matching_files.all()[offset:offset+100]
-#         else:
-#             matching_files = matching_files.all()[:100]
-        
-#         files_serialized = FileSerializer(matching_files, many=True)
-#         return Response(files_serialized.data)
-
-
 class GetDuplicates(views.APIView):
     def get(self, request):
         dirs = request.GET.getlist('sources[]')
@@ -205,26 +191,31 @@ class DeleteDirectory(views.APIView):
 
 class GetBackupFile(views.APIView):
     def get(self, request):
+        
+        source_id = request.GET.get('source', None)
+        
         directory = ImportedDirectory.objects.latest('date_viewed')
         files = []
 
-        for file in File.objects.filter(directory=directory).all():
+        for file in File.objects.filter(directory__id=source_id).all():
             files.append({
                 'path': file.path,
                 'checksum': file.checksum,
                 'size': file.size,
-                'modified': file.date_created.timestamp()
+                'created': file.date_created.timestamp()
             })
 
         file_data = {
             'format': 'datahog:0.1',
-            'root': summary.root_path,
+            'root': directory.root_path,
+            'type': directory.directory_type,
+            'date_scanned': directory.date_scanned.timestamp(),
             'files': files,
-            'date_scanned': summary.date_scanned.timestamp()
+            'has_checksums': directory.has_checksums
         }
 
         backup_file = ContentFile(pickle.dumps(file_data))
-        file_name = '{}.datahog'.format(os.path.basename(summary.root_path))
+        file_name = '{}.datahog'.format(directory.name)
 
         def get_file_chunks():
             while True:

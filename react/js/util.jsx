@@ -55,7 +55,7 @@ export class ClickToCopy extends React.Component {
 
     render() {
         return (
-            <a className="btn btn-link tooltip click-to-copy"
+            <a className="btn btn-link tooltip table-option"
                 data-tooltip={this.state.toolTipText}
                 onMouseEnter={this.resetText}
                 onClick={this.copyText}>
