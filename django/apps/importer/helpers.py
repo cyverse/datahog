@@ -36,7 +36,7 @@ def build_file_database(attempt, directory, file_objects):
                 folder_objects_by_path[parent_path] = parent_obj
             # iterate up the hierarchy
             child_obj.parent = parent_obj
-            if parent_path == attempt.root_path:
+            if parent_path == directory.root_path:
                 break
             child_obj = parent_obj
             parent_path = parent_path[:last_slash]
@@ -61,8 +61,8 @@ def build_file_database(attempt, directory, file_objects):
         file_obj.file_type = file_type
 
     # rename top folder to include parents
-    if attempt.root_path in folder_objects_by_path:
-        folder_objects_by_path[attempt.root_path].name = attempt.root_path
+    if directory.root_path in folder_objects_by_path:
+        folder_objects_by_path[directory.root_path].name = directory.name
 
     directory.folder_count = len(folder_objects_by_path.values())
     directory.file_count = len(file_objects)
