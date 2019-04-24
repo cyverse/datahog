@@ -92,12 +92,12 @@ export class ImportWrapper extends React.Component {
                         <span>Building file database...</span>
                     ][this.state.currentStep]}
                 </p>
-                {/* <p className="empty-subtitle">
-                    { this.state.extraLarge ?
+                <p className="empty-subtitle">
+                    { this.state.currentStep === 2 ?
                         <span>This folder is very large. The import process may take longer than usual.</span> :
                         <span>This may take a few minutes.</span>
                     }
-                </p> */}
+                </p>
             </div>
         );
 

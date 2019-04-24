@@ -16,6 +16,20 @@ header img {
     vertical-align: middle;
 }
 
+article {
+    margin: 25px;
+    padding: 1px 25px 25px 25px;
+    background-color: #f3f5f9;
+}
+
+article h5 {
+    margin-top: 0;
+}
+
+p {
+    margin: inherit;
+}
+
 .source-menu-wrapper {
     height: 70px;
 }
@@ -94,8 +108,12 @@ a:focus {
     text-align: right;
 }
 
+.modal-container {
+    max-height: inherit;
+}
+
 .import-modal .modal-body {
-    height: 450px;
+    height: 500px;
 }
 
 .file-table .options-cell {

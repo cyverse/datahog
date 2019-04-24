@@ -61,17 +61,20 @@ export class SummaryTab extends React.Component {
                                 <div className="card fixed-height">
                                     <div className="card-body">
                                         <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
-                                        <p>
-                                            <i className="fa fa-fw fa-file"></i>
-                                            {selectedSource.file_count} files
-                                        </p>
-                                        <p>
-                                            <i className="fa fa-fw fa-folder-open"></i>
-                                            {selectedSource.folder_count} folders
-                                        </p>
-                                        <p>
-                                            <Size bytes={selectedSource.total_size} /> occupied
-                                        </p>
+                                        <div style={{marginTop: '20px'}}>
+                                            <p>
+                                                <i className="fa fa-fw fa-file"></i>
+                                                {selectedSource.file_count} files <br/>
+                                            </p>
+                                            <p>
+                                                <i className="fa fa-fw fa-folder-open"></i>
+                                                {selectedSource.folder_count} folders <br/>
+                                            </p>
+                                            <p>
+                                                <i className="fa fa-fw fa-area-chart"></i>
+                                                <Size bytes={selectedSource.total_size} />
+                                            </p>
+                                        </div>
                                     </div>
                                     <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/>
                                 </div>
