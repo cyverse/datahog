@@ -7,13 +7,13 @@ export class IrodsForm extends React.Component {
         super(props);
 
         this.state = {
-            user: this.props.lastAttempt.username,
+            user: this.props.lastAttempt.irods_user,
             password: '',
             host: this.props.lastAttempt.irods_host,
             port: this.props.lastAttempt.irods_port,
             zone: this.props.lastAttempt.irods_zone,
-            folder: this.props.lastAttempt.root_path,
-            name: this.props.lastAttempt.source_name || 'My iRODS Files',
+            folder: this.props.lastAttempt.irods_root,
+            name: this.props.lastAttempt.irods_name,
             waiting: false,
             error: ''
         };
@@ -40,7 +40,8 @@ export class IrodsForm extends React.Component {
             host: this.state.host,
             port: this.state.port,
             zone: this.state.zone,
-            folder: this.state.folder
+            root: this.state.folder,
+            name: this.state.name
         })
         .then(function(response) {
             this.setState({

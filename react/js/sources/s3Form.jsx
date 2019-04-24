@@ -6,25 +6,15 @@ export class S3Form extends React.Component {
     constructor(props) {
         super(props);
 
-        if (this.props.lastAttempt.import_method === 'S3') {
-            this.state = {
-                access: this.props.lastAttempt.username,
-                secret: '',
-                bucket: this.props.lastAttempt.s3_bucket,
-                folder: this.props.lastAttempt.root_path,
-                waiting: false,
-                error: ''
-            };
-        } else {
-            this.state = {
-                access: '',
-                secret: '',
-                bucket: '',
-                folder: '',
-                waiting: false,
-                error: ''
-            };
-        }
+        this.state = {
+            access: this.props.lastAttempt.s3_key,
+            secret: '',
+            bucket: this.props.lastAttempt.s3_bucket,
+            folder: this.props.lastAttempt.s3_root,
+            name: this.props.lastAttempt.s3_name,
+            waiting: false,
+            error: ''
+        };
 
         this.handleChange = this.handleChange.bind(this);
         this.submitForm = this.submitForm.bind(this);
@@ -75,38 +65,57 @@ export class S3Form extends React.Component {
         return (
             <form className="form-horizontal" onSubmit={this.submitForm}>
                 <div className="form-group">
-                    <div className="col-3">
+                    <div className="col-2">
                         <br/>
-                        <label>Credentials</label>
+                        <label>Access Keys</label>
                     </div>
-                    <div className="col-4">
+                    <div className="col-5">
                         <LabeledInput name="access"
                             label="Access Key ID"
                             value={this.state.access}
                             onChange={this.handleChange}/>
                     </div>
-                    <div className="col-4">
+                    <div className="col-5">
                         <LabeledInput name="secret"
+                            type="password"
                             label="Secret Access Key"
                             value={this.state.secret}
                             onChange={this.handleChange}/>
                     </div>
                 </div>
                 <div className="form-group">
-                    <div className="col-3">
+                    <div className="col-2">
                         <br/>
-                        <label>Files to Import</label>
+                        <label>Bucket</label>
                     </div>
-                    <div className="col-4">
+                    <div className="col-6">
                         <LabeledInput name="bucket"
                             label="Bucket Name"
                             value={this.state.bucket}
                             onChange={this.handleChange}/>
                     </div>
-                    <div className="col-4">
+                </div>
+                <div className="form-group">
+                    <div className="col-5">
+                        <br/>
+                        <label>Folder to Import (optional)</label>
+                    </div>
+                    <div className="col-7">
                         <LabeledInput name="folder"
-                            label="Folder (optional)"
+                            label="Folder"
                             value={this.state.folder}
+                            onChange={this.handleChange}/>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="col-3 col-ml-auto">
+                        <br/>
+                        <label>Name this source</label>
+                    </div>
+                    <div className="col-4 col-mr-auto">
+                        <LabeledInput name="name"
+                            label="Name"
+                            value={this.state.name}
                             onChange={this.handleChange}/>
                     </div>
                 </div>
