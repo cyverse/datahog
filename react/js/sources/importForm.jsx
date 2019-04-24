@@ -67,7 +67,7 @@ export class ImportForm extends React.Component {
                     [
                         <div></div>,
                         <IrodsForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
-                        <FileForm onSubmit={this.context.updateTriggered} />,
+                        <FileForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
                         <CyverseForm lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
                         <S3Form lastAttempt={this.context.lastAttempt} onSubmit={this.context.updateTriggered} />,
                     ][this.state.activeForm]
