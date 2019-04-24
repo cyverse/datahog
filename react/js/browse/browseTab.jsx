@@ -153,9 +153,11 @@ export class BrowseTab extends React.Component {
                         <div className="column col-9 col-mx-auto">
                             <div className="panel fixed-height">
                                 <div className="panel-header search-header form-horizontal">
-                                    <div className="form-group">
-                                        <MultiSelect choices={this.state.sources} value={this.state.include} onChange={this.sourcesChanged}/>
-                                    </div>
+                                    { this.state.sources.length > 1 && 
+                                        <div className="form-group">
+                                            <MultiSelect choices={this.state.sources} value={this.state.include} onChange={this.sourcesChanged}/>
+                                        </div>
+                                    }
                                     <SearchForm state={null} submit={this.searchFiles} ref={this.searchForm} />
                                     { this.state.searching && !this.state.loading &&
                                         <div className="toast">

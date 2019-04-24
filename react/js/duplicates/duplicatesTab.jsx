@@ -103,11 +103,13 @@ export class DuplicatesTab extends React.Component {
                         <div className="column col-9 col-mx-auto">
                             <div className="panel fixed-height">
                                 <div className="panel-header form-horizontal search-header">
-                                    <div className="form-group">
-                                        <MultiSelect choices={this.state.sources}
-                                            value={this.state.include}
-                                            onChange={this.handleChange}/>
-                                    </div>
+                                    { this.state.sources.length > 1 &&
+                                        <div className="form-group">
+                                            <MultiSelect choices={this.state.sources}
+                                                value={this.state.include}
+                                                onChange={this.handleChange}/>
+                                        </div>
+                                    }
                                     <div className="form-group">
                                         <label className="form-switch">
                                             <input type="checkbox"
