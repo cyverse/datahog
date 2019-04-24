@@ -12,10 +12,9 @@ class ImportedDirectorySerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.ModelSerializer):
     date_created = serializers.DateTimeField(format=r'%Y-%m-%d')
-    directory_type = serializers.CharField(source='directory.directory_type', read_only=True)
     class Meta:
         model = File
-        fields = ('id', 'name', 'size', 'path', 'date_created', 'is_folder', 'checksum', 'directory_type')
+        fields = ('id', 'name', 'size', 'path', 'date_created', 'is_folder', 'checksum', 'directory_name')
 
 
 class FolderSerializer(serializers.ModelSerializer):

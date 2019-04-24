@@ -50,6 +50,7 @@ class File(models.Model):
     checksum = models.CharField(max_length=32, blank=True, null=True)
     date_created = models.DateTimeField()
     directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
+    directory_name = models.CharField(max_length=32)
 
     is_folder = False
 
