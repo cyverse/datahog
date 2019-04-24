@@ -12,37 +12,29 @@ from .serializers import ImportAttemptSerializer
 from .tasks import *
 
 
-# class BackupDirectory(views.APIView):
-#     def get(self, request):
-#         cmd = ''
-#         pdf_status = call(cmd, shell=True)
-
 class GetLastAttempt(views.APIView):
     def get(self, request):
         try:
-            latest_attempt = ImportAttempt.objects.latest('date_imported')
+            last_attempt = ImportAttempt.objects.latest('date_imported')
         except ImportAttempt.DoesNotExist:
-            latest_attempt = ImportAttempt(
-                in_progress=False,
-                irods_host='data.cyverse.org',
-                irods_port='1247',
-                irods_zone='iplant'
-            )
+            last_attempt = ImportAttempt()
 
             iplant_user = os.environ.get('IPLANT_USER')
             if iplant_user:
-                latest_attempt.username = iplant_user
-                latest_attempt.root_path = '/iplant/home/{}'.format(iplant_user)
+                last_attempt.irods_user   = iplant_user
+                last_attempt.cyverse_user = iplant_user
+                last_attempt.irods_root   = '/iplant/home/{}'.format(iplant_user)
+                last_attempt.cyverse_root = '/iplant/home/{}'.format(iplant_user)
             
-            latest_attempt.save()
+            last_attempt.save()
         
-        serializer = ImportAttemptSerializer(latest_attempt)
+        serializer = ImportAttemptSerializer(last_attempt)
         return Response(serializer.data)
 
 
 class ImportFromIrods(views.APIView):
     def post(self, request):
-        required_fields = ('user', 'password', 'host', 'port', 'zone', 'folder')
+        required_fields = ('user', 'password', 'host', 'port', 'zone', 'root', 'name')
         for field in required_fields:
             if field not in request.data:
                 return Response('Missing required field: {}'.format(field), status=400)
@@ -52,7 +44,8 @@ class ImportFromIrods(views.APIView):
         host = request.data['host']
         port = request.data['port']
         zone = request.data['zone']
-        folder = request.data['folder']
+        root = request.data['root']
+        name = request.data['name']
         
         with irods.session.iRODSSession(
             user=user,
@@ -62,7 +55,7 @@ class ImportFromIrods(views.APIView):
             zone=zone,
         ) as session:
             try:
-                session.collections.get(folder)
+                session.collections.get(root)
             except irods.exception.NetworkException:
                 return Response('Unable to connect to iRODS server at {}:{}.'.format(host, port), status=400)
             except irods.exception.CAT_INVALID_AUTHENTICATION:
@@ -72,14 +65,28 @@ class ImportFromIrods(views.APIView):
             except Exception as e:
                 return Response('Error: {}'.format(e))
         
+        
+        last_attempt = ImportAttempt.objects.latest('date_imported')
+
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
-            username=user,
+            irods_user=user,
             irods_host=host,
             irods_port=port,
             irods_zone=zone,
-            root_path=folder,
+            irods_root=root,
+            irods_name=name,
+
+            cyverse_user=last_attempt.cyverse_user,
+            cyverse_root=last_attempt.cyverse_root,
+            cyverse_name=last_attempt.cyverse_name,
+            
+            s3_key=last_attempt.s3_key,
+            s3_bucket=last_attempt.s3_bucket,
+            s3_root=last_attempt.s3_root,
+            s3_name=last_attempt.s3_name,
         )
+
         import_files_from_irods.delay(new_attempt.id, password=password)
 
         serializer = ImportAttemptSerializer(new_attempt)
@@ -88,7 +95,7 @@ class ImportFromIrods(views.APIView):
 
 class ImportFromCyverse(views.APIView):
     def post(self, request):
-        required_fields = ('user', 'password', 'folder')
+        required_fields = ('cyverse_user', 'password', 'cyverse_name')
         for field in required_fields:
             if field not in request.data:
                 return Response('Missing required field: {}'.format(field), status=400)
@@ -124,20 +131,43 @@ class ImportFromCyverse(views.APIView):
 
 class ImportFromFile(views.APIView):
     def post(self, request):
+        if 'name' not in request.data:
+            return Response('Missing required field: name', status=400)
         if 'file' not in request.FILES:
             return Response('File not found.', status=400)
 
+        name = request.data['name']
         file = request.FILES['file']
+
         try:
             file_data = pickle.load(file)
             assert file_data['format'] in ('datahog:0.1',)
-        except Exception as e:
+        except:
             return Response('Not a valid .datahog file.', status=400)
+
+        last_attempt = ImportAttempt.objects.latest('date_imported')
 
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
-            root_path=file_data['root']
+            file_name=name,
+
+            irods_user=last_attempt.irods_user,
+            irods_host=last_attempt.irods_host,
+            irods_port=last_attempt.irods_port,
+            irods_zone=last_attempt.irods_zone,
+            irods_root=last_attempt.irods_root,
+            irods_name=last_attempt.irods_name,
+
+            cyverse_user=last_attempt.cyverse_user,
+            cyverse_root=last_attempt.cyverse_root,
+            cyverse_name=last_attempt.cyverse_name,
+            
+            s3_key=last_attempt.s3_key,
+            s3_bucket=last_attempt.s3_bucket,
+            s3_root=last_attempt.s3_root,
+            s3_name=last_attempt.s3_name,
         )
+
         import_files_from_file.delay(new_attempt.id, file_data)
 
         serializer = ImportAttemptSerializer(new_attempt)

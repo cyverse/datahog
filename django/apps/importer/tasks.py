@@ -15,6 +15,135 @@ from .models import ImportAttempt
 from .helpers import build_file_database
 from apps.file_data.models import *
 
+
+@shared_task
+def import_files_from_irods(attempt_id, password):
+    attempt = ImportAttempt.objects.get(id=attempt_id)
+    file_objects = []
+
+    directory = ImportedDirectory(
+        name=attempt.irods_name,
+        directory_type='iRODS',
+        date_scanned=attempt.date_imported,
+        root_path=attempt.irods_root
+    )
+
+    def save_file(collection, name, size, date_created, checksum):
+        path = '{}/{}'.format(collection, name)
+        file_obj = File(
+            name=name,
+            path=path,
+            size=size,
+            date_created=date_created,
+            directory=directory,
+            directory_name=directory.name,
+            checksum=checksum
+        )
+        file_objects.append(file_obj)
+
+    try:
+
+        attempt.current_step = 1
+        attempt.save()
+        print('Contacting server...')
+        with iRODSSession(
+            user=attempt.irods_user,
+            password=password,
+            host=attempt.irods_host,
+            port=attempt.irods_port,
+            zone=attempt.irods_zone
+        ) as session:
+            session.connection_timeout = 120
+
+            base_query = session.query(
+                Collection.name,
+                DataObject.name,
+                DataObject.checksum,
+                DataObject.size,
+                DataObject.create_time
+            ).filter(
+                DataObject.replica_number == 0
+            ).limit(1000)
+
+            folder_queue = deque([attempt.irods_root])
+
+            while len(folder_queue):
+                next_folder = folder_queue.popleft()
+                col = session.collections.get(next_folder)
+                for obj in col.data_objects:
+                    save_file(
+                        next_folder,
+                        obj.name,
+                        obj.size,
+                        obj.create_time,
+                        obj.checksum
+                    )
+                    
+                query = base_query.filter(Like(Collection.name, next_folder + '/%'))
+                try:
+                    for batch in query.get_batches():
+                        for row in batch:
+                            save_file(
+                                row[Collection.name],
+                                row[DataObject.name],
+                                row[DataObject.size],
+                                row[DataObject.create_time],
+                                row[DataObject.checksum]
+                            )
+                except NetworkException:
+                    if attempt.current_step < 2:
+                        attempt.current_step = 2
+                        attempt.save()
+                    print('Timeout on {}'.format(next_folder))
+                    for subcol in col.subcollections:
+                        folder_queue.append(subcol.path)
+        
+        build_file_database(attempt, directory, file_objects)
+    except Exception as e:
+        print('Database update failed due to error: {}'.format(e))
+        attempt.in_progress = False
+        attempt.failed = True
+        attempt.save()
+
+
+@shared_task
+def import_files_from_file(attempt_id, file_data):
+    attempt = ImportAttempt.objects.get(id=attempt_id)
+    file_objects = []
+
+    directory = ImportedDirectory(
+        name=attempt.file_name,
+        directory_type=file_data['type'],
+        date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
+        root_path=file_data['root'],
+        has_checksums=file_data['has_checksums']
+    )
+
+    try:
+        attempt.current_step = 3
+        attempt.save()
+
+        for file in file_data['files']:
+            file_obj = File(
+                name=os.path.basename(file['path']),
+                size=file['size'],
+                path=file['path'],
+                date_created=datetime.datetime.fromtimestamp(file['created']),
+                directory=directory,
+                directory_name=directory.name,
+                checksum=file['checksum']
+            )
+            if 'checksum' in file: file_obj.checksum = file['checksum']
+            file_objects.append(file_obj)
+
+        build_file_database(attempt, directory, file_objects)
+    except Exception as e:
+        print('Database update failed due to error: {}'.format(e))
+        attempt.in_progress = False
+        attempt.failed = True
+        attempt.save()
+
+
 @shared_task
 def import_files_from_cyverse(attempt_id, auth_token):
     attempt = ImportAttempt.objects.get(id=attempt_id)
@@ -79,124 +208,3 @@ def import_files_from_cyverse(attempt_id, auth_token):
         attempt.failed = True
         attempt.save()
 
-@shared_task
-def import_files_from_irods(attempt_id, password):
-    attempt = ImportAttempt.objects.get(id=attempt_id)
-    file_objects = []
-
-    directory = ImportedDirectory(
-        directory_type='iRODS',
-        date_scanned=attempt.date_imported,
-        root_path=attempt.root_path
-    )
-
-    def save_file(collection, name, size, date_created, checksum):
-        path = '{}/{}'.format(collection, name)
-        file_obj = File(
-            name=name,
-            path=path,
-            size=size,
-            date_created=date_created,
-            directory=directory,
-            checksum=checksum
-        )
-        file_objects.append(file_obj)
-
-    try:
-        attempt.current_step = 1
-        attempt.save()
-        print('Contacting server...')
-        with iRODSSession(
-            user=attempt.username,
-            password=password,
-            host=attempt.irods_host,
-            port=attempt.irods_port,
-            zone=attempt.irods_zone
-        ) as session:
-            session.connection_timeout = 60
-
-            base_query = session.query(
-                Collection.name,
-                DataObject.name,
-                DataObject.checksum,
-                DataObject.size,
-                DataObject.create_time
-            ).filter(
-                DataObject.replica_number == 0
-            ).limit(1000)
-
-            folder_queue = deque([attempt.root_path])
-
-            while len(folder_queue):
-                next_folder = folder_queue.popleft()
-                col = session.collections.get(next_folder)
-                for obj in col.data_objects:
-                    save_file(
-                        next_folder,
-                        obj.name,
-                        obj.size,
-                        obj.create_time,
-                        obj.checksum
-                    )
-                    
-                query = base_query.filter(Like(Collection.name, next_folder + '/%'))
-                try:
-                    for batch in query.get_batches():
-                        for row in batch:
-                            save_file(
-                                row[Collection.name],
-                                row[DataObject.name],
-                                row[DataObject.size],
-                                row[DataObject.create_time],
-                                row[DataObject.checksum]
-                            )
-                except NetworkException:
-                    if attempt.current_step < 2:
-                        attempt.current_step = 2
-                        attempt.save()
-                    print('Timeout on {}'.format(next_folder))
-                    for subcol in col.subcollections:
-                        folder_queue.append(subcol.path)
-        
-        build_file_database(attempt, directory, file_objects)
-    except Exception as e:
-        print('Database update failed due to error: {}'.format(e))
-        attempt.in_progress = False
-        attempt.failed = True
-        attempt.save()
-
-
-@shared_task
-def import_files_from_file(attempt_id, file_data):
-    attempt = ImportAttempt.objects.get(id=attempt_id)
-    file_objects = []
-
-    directory = ImportedDirectory(
-        directory_type=file_data['type'],
-        date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
-        root_path=attempt.root_path,
-        has_checksums=file_data['has_checksums']
-    )
-
-    try:
-        attempt.current_step = 2
-        attempt.save()
-
-        for file in file_data['files']:
-            file_obj = File(
-                name=os.path.basename(file['path']),
-                size=file['size'],
-                path=file['path'],
-                date_created=datetime.datetime.fromtimestamp(file['created']),
-                directory=directory,
-                checksum=file['checksum']
-            )
-            if 'checksum' in file: file_obj.checksum = file['checksum']
-            file_objects.append(file_obj)
-
-        build_file_database(attempt, directory, file_objects)
-    except Exception as e:
-        print('Database update failed due to error: {}'.format(e))
-        attempt.in_progress = False
-        attempt.failed = True
-        attempt.save()
