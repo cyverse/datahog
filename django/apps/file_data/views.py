@@ -108,11 +108,7 @@ class GetDuplicates(views.APIView):
     def get(self, request):
         dirs = request.GET.getlist('sources[]')
         if len(dirs):
-            if 'allow_different_names' in request.GET:
-                diff_names = request.GET['allow_different_names'] == 'true'
-            else:
-                diff_names = True
-
+            diff_names = request.GET.get('allow_different_names', 'true') == 'true'
             files = File.objects.filter(directory__id__in=dirs)
             
             if diff_names:

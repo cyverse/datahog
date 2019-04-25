@@ -26,6 +26,10 @@ export class DuplicatesTab extends React.Component {
         this.getDuplicates = this.getDuplicates.bind(this);
     }
 
+    componentWillUnmount() {
+        if (this.cancelToken) this.cancelToken.cancel();
+    }
+
     onLoad(response) {
         let include = new Set();
         for (let source of response.data) {
