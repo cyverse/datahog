@@ -62,10 +62,10 @@ def filter_files(file_query, filters):
 def filter_folders(folder_query, filters):
 
     dirs = filters.getlist('sources[]')
-    if len(dirs): folder_query = folder_query.filter(directory__id__in=dirs)
+    if len(dirs): folder_query = folder_query.filter(directory__id__in=dirs, parent__isnull=False)
 
     if 'source' in filters:
-        folder_query = folder_query.filter(directory__id=filters['source'])
+        folder_query = folder_query.filter(directory__id=filters['source'], parent__isnull=False)
     
     if 'sort' in filters:
         folder_query = folder_query.order_by(filters['sort'])
