@@ -41,7 +41,6 @@ export class BrowseTab extends React.Component {
         for (let source of response.data) {
             include.add(source.id);
         }
-        this.state.searchParams.sources = Array.from(include);
         this.setState({
             sources: response.data,
             include: include
@@ -94,17 +93,20 @@ export class BrowseTab extends React.Component {
             files: [],
             searchParams: params
         });
-        axios.get('/api/files/search', {
-            params: params
+        axios.get('/api/filedata/files', {
+            params: Object.assign({
+                sources: Array.from(this.state.include),
+                limit: 100
+            }, params)
         }).then(this.onSearchLoad)
         .catch(this.onError);
     }
 
     onSearchLoad(response) {
         this.setState({
-            files: this.state.files.concat(response.data),
+            files: this.state.files.concat(response.data.page),
             loading: false,
-            moreResults: response.data.length >= 100
+            moreResults: this.state.files.length + response.data.page.length < response.data.total
         });
     }
 
@@ -116,15 +118,16 @@ export class BrowseTab extends React.Component {
     handleScroll(event) {
         let hitBottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
         if (hitBottom && this.state.searching && !this.state.loading && this.state.moreResults) {
-            let params = this.state.searchParams;
-            params.offset = this.state.files.length;
             this.setState({
                 loading: true
             });
-            axios.get('/api/files/search', {
-                params: params
-            })
-            .then(this.onSearchLoad)
+            axios.get('/api/filedata/files', {
+                params: Object.assign({
+                    sources: Array.from(this.state.include),
+                    limit: 100,
+                    offset: this.state.files.length
+                }, this.state.searchParams)
+            }).then(this.onSearchLoad)
             .catch(this.onError);
         }
     }
