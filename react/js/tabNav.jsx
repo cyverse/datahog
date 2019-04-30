@@ -1,9 +1,9 @@
 import React from 'react';
 import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
-import { SummaryTab } from './summaryTab';
-import { DuplicatesTab } from './duplicatesTab';
-import { BrowseTab } from './browseTab';
-import { UpdateTab } from './updateTab';
+import { SummaryTab } from './summary/summaryTab';
+import { DuplicatesTab } from './duplicates/duplicatesTab';
+import { BrowseTab } from './browse/browseTab';
+import { SourceTab } from './sources/sourceTab';
 
 export const SearchContext = React.createContext({});
 
@@ -21,20 +21,20 @@ export class TabNav extends React.Component {
                             <NavLink to='/summary'>Summary</NavLink>
                         </li>
                         <li className='tab-item c-hand'>
-                            <NavLink to='/duplicates'>Duplicated Files</NavLink>
-                        </li>
-                        <li className='tab-item c-hand'>
                             <NavLink to='/browse'>Browse Files</NavLink>
                         </li>
                         <li className='tab-item c-hand'>
-                            <NavLink to='/import'>Import File Data</NavLink>
+                            <NavLink to='/duplicates'>Duplicated Files</NavLink>
+                        </li>
+                        <li className='tab-item c-hand'>
+                            <NavLink to='/sources'>Manage File Sources</NavLink>
                         </li>
                     </ul>
                     <Switch>
                         <Route path='/summary' component={SummaryTab} />
-                        <Route path='/duplicates' component={DuplicatesTab} />
                         <Route path='/browse' component={BrowseTab} />
-                        <Route path='/import' component={UpdateTab} />
+                        <Route path='/duplicates' component={DuplicatesTab} />
+                        <Route path='/sources' component={SourceTab} />
                     </Switch>
                 </React.Fragment>
             </HashRouter>

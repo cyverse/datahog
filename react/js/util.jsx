@@ -55,7 +55,7 @@ export class ClickToCopy extends React.Component {
 
     render() {
         return (
-            <a className="btn btn-link tooltip click-to-copy"
+            <a className="btn btn-link tooltip table-option"
                 data-tooltip={this.state.toolTipText}
                 onMouseEnter={this.resetText}
                 onClick={this.copyText}>
@@ -64,6 +64,7 @@ export class ClickToCopy extends React.Component {
         );
     }
 }
+
 
 export function LabeledInput(props) {
     let labelPos = props.value.length > 0 ? 0 : 20;
@@ -101,6 +102,75 @@ export class SelectButton extends React.Component {
                 className={this.props.target === this.props.value ? 'btn btn-sm' : 'btn btn-sm btn-link'}>
                 {this.props.children}
             </button>
+        )
+    }
+}
+
+export function trimPath(path, max) {
+    if (!path) path = '';
+    if (!max)  max = 30;
+    
+    if (path.length <= max) {
+        return path;
+    } else {
+        let sub = path.substring(path.length-max+1);
+        let slashPos = sub.indexOf('/');
+        if (slashPos === -1) return '…' + sub;
+        else                 return '…' + sub.substring(slashPos);
+    }
+}
+
+export function SortHeader(props) {
+    let sortDirection;
+    if (props.currentSort === props.sortBy) {
+        sortDirection = 1;
+    } else if (props.currentSort === '-' + props.sortBy) {
+        sortDirection = -1;
+    } else {
+        sortDirection = 0;
+    }
+    return (
+        <th className={props.className}>
+            <a className='btn btn-link'
+                onClick={props.onClick}
+                data-sort={sortDirection > 0 ? '-' + props.sortBy : props.sortBy}>
+                {props.title} &nbsp;
+                {sortDirection > 0 && <i className='fa fa-caret-up'></i>}
+                {sortDirection < 0 && <i className='fa fa-caret-down'></i>}
+            </a>
+        </th>
+    );
+}
+
+export class MultiSelect extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick(event) {
+        let id = event.target.dataset.id;
+        if (this.props.value.has(id)) {
+            this.props.value.delete(id);
+        } else {
+            this.props.value.add(id);
+        }
+        this.props.onChange(event);
+    }
+
+    render() {
+        return (
+            <div className="multi-select">
+                Include files from: &nbsp;
+                {this.props.choices.map((choice, index) => {
+                    let css = this.props.value.has(choice.id) ? 'chip active c-hand' : 'chip c-hand';
+                    return (
+                        <div className={css} data-id={choice.id} key={choice.id} onClick={this.handleClick}>
+                            {choice.name}
+                        </div>
+                    );
+                })}
+            </div>
         )
     }
 }

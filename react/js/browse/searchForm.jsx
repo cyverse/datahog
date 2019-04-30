@@ -1,6 +1,6 @@
 import React from 'react';
-import { SelectButton } from './util';
-import { SearchContext } from './context';
+import { SelectButton } from '../util';
+import { SearchContext } from '../context';
 
 export class SearchForm extends React.Component {
     constructor(props) {

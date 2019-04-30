@@ -11,47 +11,66 @@ class EchoBuffer:
 
 
 def filter_files(file_query, filters):
-    filtered_query = file_query.filter(directory=ImportedDirectory.objects.latest('date_viewed'))
+
+    dirs = filters.getlist('sources[]')
+    if len(dirs): file_query = file_query.filter(directory__id__in=dirs)
+
+    if 'source' in filters:
+        file_query = file_query.filter(directory__id=filters['source'])
 
     if 'name' in filters:
         if 'type' in filters and filters['type'] == 'regex':
-            filtered_query = filtered_query.filter(name__regex=filters['name'])
+            file_query = file_query.filter(name__regex=filters['name'])
         else:
-            filtered_query = filtered_query.filter(name__icontains=filters['name'])
+            file_query = file_query.filter(name__icontains=filters['name'])
 
     if 'created_after' in filters:
         try:
             parsed_date = datetime.datetime.strptime(filters['created_after'], r'%Y-%m-%d')
-            filtered_query = filtered_query.filter(date_created__gte=parsed_date)
+            file_query = file_query.filter(date_created__gte=parsed_date)
         except ValueError:
             pass
     
     if 'created_before' in filters and filters['created_before']:
         try:
             parsed_date = datetime.datetime.strptime(filters['created_before'], r'%Y-%m-%d')
-            filtered_query = filtered_query.filter(date_created__lt=parsed_date)
+            file_query = file_query.filter(date_created__lt=parsed_date)
         except ValueError:
             pass
     
     if 'larger_than' in filters:
         try:
             parsed_size = int(filters['larger_than'])
-            filtered_query = filtered_query.filter(size__gte=parsed_size)
+            file_query = file_query.filter(size__gte=parsed_size)
         except ValueError:
             pass
     
     if 'smaller_than' in filters:
         try:
             parsed_size = int(filters['smaller_than'])
-            filtered_query = filtered_query.filter(size__lt=parsed_size)
+            file_query = file_query.filter(size__lt=parsed_size)
         except ValueError:
             pass
         pass
     
     if 'sort' in filters:
-        filtered_query = filtered_query.order_by(filters['sort'])
+        file_query = file_query.order_by(filters['sort'])
     
-    return filtered_query
+    return file_query
+
+
+def filter_folders(folder_query, filters):
+
+    dirs = filters.getlist('sources[]')
+    if len(dirs): folder_query = folder_query.filter(directory__id__in=dirs, parent__isnull=False)
+
+    if 'source' in filters:
+        folder_query = folder_query.filter(directory__id=filters['source'], parent__isnull=False)
+    
+    if 'sort' in filters:
+        folder_query = folder_query.order_by(filters['sort'])
+    
+    return folder_query
 
 
 def create_size_timeline_data(directory):

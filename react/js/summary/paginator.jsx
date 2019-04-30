@@ -7,8 +7,8 @@ export class Paginator extends React.Component {
 
         this.state = {
             enabled: false,
-            prev: null,
-            next: null,
+            prev: false,
+            next: false,
             page: 0,
             pageSize: 0
         };
@@ -18,18 +18,22 @@ export class Paginator extends React.Component {
         this.onLoad = this.onLoad.bind(this);
         this.onError = this.onError.bind(this);
 
-        axios.get(this.props.get + '?limit=' + this.props.limit)
+        axios.get(this.props.get, {
+            params: Object.assign({
+                limit: this.props.pageSize
+            }, this.props.params)
+        })
         .then(this.onLoad)
         .catch(this.onError);
     }
 
     onLoad(response) {
-        this.props.onLoad(response.data.results, this.state.page);
+        this.props.onLoad(response.data.page, this.state.page);
         this.setState({
             enabled: true,
-            prev: response.data.previous,
-            next: response.data.next,
-            pageSize: response.data.results.length
+            prev: this.state.page > 0,
+            next: (this.state.page+1) * this.props.pageSize < response.data.total,
+            pageSize: response.data.page.length
         });
     }
 
@@ -37,8 +41,8 @@ export class Paginator extends React.Component {
         this.props.onError();
         this.setState({
             enabled: false,
-            prev: null,
-            next: null,
+            prev: false,
+            next: false,
             pageSize: 0
         });
     }
@@ -46,8 +50,12 @@ export class Paginator extends React.Component {
     nextPage() {
         this.props.onClick();
 
-        axios.get(this.props.get + '?limit=' + this.props.limit + 
-            '&offset=' + (this.state.page+1)*this.props.limit)
+        axios.get(this.props.get, {
+            params: Object.assign({
+                limit: this.props.pageSize,
+                offset: (this.state.page+1)*this.props.pageSize
+            }, this.props.params)
+        })
         .then(this.onLoad)
         .catch(this.onError);
 
@@ -60,8 +68,12 @@ export class Paginator extends React.Component {
     prevPage() {
         this.props.onClick();
 
-        axios.get(this.props.get + '?limit=' + this.props.limit + 
-            '&offset=' + (this.state.page-1)*this.props.limit)
+        axios.get(this.props.get, {
+            params: Object.assign({
+                limit: this.props.pageSize,
+                offset: (this.state.page-1)*this.props.pageSize
+            }, this.props.params)
+        })
         .then(this.onLoad)
         .catch(this.onError);
         
@@ -76,8 +88,8 @@ export class Paginator extends React.Component {
             <div className="paginator">
                 <div className="float-left text-gray">
                     {
-                        (this.state.page*this.props.limit + 1) + 
-                        '-' + (this.state.page*this.props.limit + this.state.pageSize)
+                        (this.state.page*this.props.pageSize + 1) + 
+                        '-' + (this.state.page*this.props.pageSize + this.state.pageSize)
                     }
                 </div>
                 <div className="btn-group float-right">

@@ -1,7 +1,7 @@
 from apps.file_data.models import *
 from django.db import transaction
 
-def build_file_database(attempt, directory, file_objects, file_checksums={}):
+def build_file_database(attempt, directory, file_objects):
     attempt.current_step = 3
     attempt.save()
 
@@ -10,8 +10,6 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
     total_size = 0
     folder_objects_by_path = {}
     file_types_by_extension = {}
-
-    dupe_groups = []
 
     for file_obj in file_objects:
         total_size += file_obj.size
@@ -38,7 +36,7 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
                 folder_objects_by_path[parent_path] = parent_obj
             # iterate up the hierarchy
             child_obj.parent = parent_obj
-            if parent_path == attempt.root_path:
+            if parent_path == directory.root_path:
                 break
             child_obj = parent_obj
             parent_path = parent_path[:last_slash]
@@ -63,25 +61,12 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
         file_obj.file_type = file_type
 
     # rename top folder to include parents
-    if attempt.root_path in folder_objects_by_path:
-        folder_objects_by_path[attempt.root_path].name = attempt.root_path
-
-    # find dupe groups with identical checksums
-    for checksum, file_list in file_checksums.items():
-        if len(file_list) >= 2:
-            dupe_group = DupeGroup(
-                checksum=checksum,
-                file_count=len(file_list),
-                file_size=file_list[0].size,
-                directory=directory
-            )
-            for file_obj in file_list:
-                file_obj.dupe_group = dupe_group
-            dupe_groups.append(dupe_group)
+    if directory.root_path in folder_objects_by_path:
+        folder_objects_by_path[directory.root_path].name = directory.name
 
     directory.folder_count = len(folder_objects_by_path.values())
     directory.file_count = len(file_objects)
-    directory.duplicate_count = len(dupe_groups)
+    directory.duplicate_count = 0 # TODO: new method to calculate this
     directory.total_size = total_size
 
     attempt.current_step = 4
@@ -91,7 +76,7 @@ def build_file_database(attempt, directory, file_objects, file_checksums={}):
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
-        DupeGroup.objects.bulk_create(dupe_groups)
+
         directory.save()
 
         attempt.in_progress = False

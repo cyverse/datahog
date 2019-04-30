@@ -1,5 +1,5 @@
 import React from 'react';
-import { Size, ClickToCopy } from './util';
+import { Size, ClickToCopy } from '../util';
 
 export function FileTable(props) {
     return (
@@ -19,7 +19,7 @@ export function FileTable(props) {
 export function FileRow(props) {
     return (
         <tr>
-            <td className="name-cell" style={props.depth ? {paddingLeft: 30*props.depth} : null}>
+            <td className="name-cell">
                 {props.file.name || props.file.extension}
             </td>
             { props.file.path && 

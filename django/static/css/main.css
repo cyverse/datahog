@@ -16,23 +16,34 @@ header img {
     vertical-align: middle;
 }
 
-.menu.directory-menu {
-    /* box-shadow: none; */
+article {
+    margin: 25px;
+    padding: 1px 25px 25px 25px;
+    background-color: #f3f5f9;
+}
+
+article h5 {
+    margin-top: 0;
+}
+
+p {
+    margin: inherit;
+}
+
+.source-menu-wrapper {
+    height: 70px;
+}
+
+.source-menu-wrapper .menu {
     position: absolute;
-    right: 0;
     display: inline-block;
     text-align: left;
-    width: 400px;
+    width: 445px;
 }
 
-.directory-menu .collapse-icon {
+.collapse-icon {
     float: right;
     margin-top: 8px;
-}
-
-.directory-menu .menu-item .delete-button {
-    float: right;
-    display: none;
 }
 
 .directory-menu .menu-item:hover .delete-button {
@@ -88,13 +99,21 @@ a:focus {
 }
 
 .file-table .size-cell {
-    width: 90px;
+    width: 95px;
     text-align: right;
 }
 
 .file-table .date-cell {
-    width: 90px;
+    width: 95px;
     text-align: right;
+}
+
+.modal-container {
+    max-height: inherit;
+}
+
+.import-modal .modal-body {
+    height: 500px;
 }
 
 .file-table .options-cell {
@@ -102,12 +121,12 @@ a:focus {
     text-align: right;
 }
 
-.file-table .click-to-copy {
+.file-table .table-option {
     font-size: 0.6rem;
     display: none;
 }
 
-.file-table tr:hover .click-to-copy {
+.file-table tr:hover .table-option {
     display: inline;
 }
 
@@ -125,6 +144,10 @@ a:focus {
 .vis-title {
     margin-top: 30px;
     margin-left: 75px;
+}
+
+#sizeTimeline, #typeChart {
+    margin: 10px 0;
 }
 
 nav#tabs {
@@ -168,4 +191,34 @@ nav#tabs {
 
 .empty {
     background: inherit;
+}
+
+
+
+.import-form h5 {
+    margin: 30px;
+}
+
+.import-form {
+    max-width: 600px;
+    margin: auto;
+}
+
+.import-form .tab-block {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+.import-form .submit-group {
+    margin-top: 30px;
+}
+
+.multi-select {
+    margin-top: -8px;
+}
+
+
+.timeline-subtitle {
+    font-size: 80%;
+    fill: #acb3c2;
 }

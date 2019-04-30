@@ -10,11 +10,13 @@ class ImportedDirectory(models.Model):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=32)
     date_scanned = models.DateTimeField(auto_now_add=True)
     date_viewed = models.DateTimeField(auto_now_add=True)
     root_path = models.CharField(max_length=512, blank=True)
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
+    has_checksums = models.BooleanField(default=False)
     duplicate_count = models.IntegerField(default=0)
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
@@ -45,9 +47,10 @@ class File(models.Model):
     parent = models.ForeignKey('Folder', on_delete=models.SET_NULL, blank=True, null=True)
     size = models.BigIntegerField(default=0)
     file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
-    dupe_group = models.ForeignKey('DupeGroup', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
+    checksum = models.CharField(max_length=32, blank=True, null=True)
     date_created = models.DateTimeField()
     directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
+    directory_name = models.CharField(max_length=32)
 
     is_folder = False
 
@@ -63,12 +66,3 @@ class FileType(models.Model):
 
     def __str__(self):
         return self.extension
-
-class DupeGroup(models.Model):
-    checksum = models.CharField(max_length=32, primary_key=True)
-    file_size = models.BigIntegerField(default=0)
-    file_count = models.IntegerField(default=0)
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.checksum[:10]

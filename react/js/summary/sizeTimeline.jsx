@@ -17,8 +17,8 @@ export class SizeTimeline extends React.Component {
             return;
         }
         // set up padding
-        let svgWidth = 450, svgHeight = 270;
-        let svgPadding = {top: 50, bottom: 20, left: 50, right: 30};
+        let svgWidth = 450, svgHeight = 290;
+        let svgPadding = {top: 50, bottom: 40, left: 50, right: 30};
         
         let svg = d3.select('#' + this.props.id + '>svg')
             .attr("width", svgWidth)
@@ -106,6 +106,13 @@ export class SizeTimeline extends React.Component {
             .attr("text-anchor", "middle")
             .attr("x", width/2)
             .text("Total Space Occupied");
+
+        graph.append("text")
+            .attr("y", 230)
+            .attr("text-anchor", "middle")
+            .attr("x", width/2)
+            .attr("class", "timeline-subtitle")
+            .text("Estimation based on file creation time");
     }
 
     render() {
