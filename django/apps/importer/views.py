@@ -7,12 +7,13 @@ from subprocess import call
 from rest_framework.response import Response
 from rest_framework import views
 
-from .models import ImportAttempt
-from .serializers import ImportAttemptSerializer
+from .models import *
+from .serializers import *
 from .tasks import *
+from apps.file_data.models import ImportedDirectory
 
 
-class GetLastAttempt(views.APIView):
+class GetImportContext(views.APIView):
     def get(self, request):
         try:
             last_attempt = ImportAttempt.objects.latest('date_imported')
@@ -29,6 +30,22 @@ class GetLastAttempt(views.APIView):
             last_attempt.save()
         
         serializer = ImportAttemptSerializer(last_attempt)
+        num_sources = ImportedDirectory.objects.count()
+        
+        return Response({
+            'last_attempt': serializer.data,
+            'num_sources': num_sources
+        })
+
+
+class GetLastTask(views.APIView):
+    def get(self, request):
+        try:
+            last_task = AsyncTask.objects.latest('timestamp')
+        except AsyncTask.DoesNotExist:
+            last_task = AsyncTask.objects.create()
+        
+        serializer = AsyncTaskSerializer(last_task)
         return Response(serializer.data)
 
 
@@ -69,7 +86,6 @@ class ImportFromIrods(views.APIView):
         last_attempt = ImportAttempt.objects.latest('date_imported')
 
         new_attempt = ImportAttempt.objects.create(
-            in_progress=True,
             irods_user=user,
             irods_host=host,
             irods_port=port,
@@ -87,7 +103,13 @@ class ImportFromIrods(views.APIView):
             s3_name=last_attempt.s3_name,
         )
 
-        import_files_from_irods.delay(new_attempt.id, password=password)
+        new_task = AsyncTask.objects.create(
+            in_progress=True,
+            status_message='Starting iRODS import process...',
+            status_subtitle='This may take several minutes.'
+        )
+
+        import_files_from_irods.delay(new_task.id, new_attempt.id, password=password)
 
         serializer = ImportAttemptSerializer(new_attempt)
         return Response(serializer.data, status=200)
@@ -95,19 +117,20 @@ class ImportFromIrods(views.APIView):
 
 class ImportFromCyverse(views.APIView):
     def post(self, request):
-        required_fields = ('cyverse_user', 'password', 'cyverse_name')
+        required_fields = ('user', 'password', 'root', 'name')
         for field in required_fields:
             if field not in request.data:
                 return Response('Missing required field: {}'.format(field), status=400)
 
-        username = request.data['user']
+        user = request.data['user']
         password = request.data['password']
-        folder = request.data['folder']
+        root = request.data['root']
+        name = request.data['name']
         
         try:
             response = requests.get(
                 'https://de.cyverse.org/terrain/token',
-                auth=(username, password)
+                auth=(user, password)
             )
         except Exception as e:
             return Response('Unable to connect to the CyVerse.', status=500)
@@ -118,10 +141,26 @@ class ImportFromCyverse(views.APIView):
 
         auth_token = 'Bearer {}'.format(auth_info['access_token'])
         
+        last_attempt = ImportAttempt.objects.latest('date_imported')
+
         new_attempt = ImportAttempt.objects.create(
             in_progress=True,
-            username=username,
-            root_path=folder,
+            
+            irods_user=last_attempt.irods_user,
+            irods_host=last_attempt.irods_host,
+            irods_port=last_attempt.irods_port,
+            irods_zone=last_attempt.irods_zone,
+            irods_root=last_attempt.irods_root,
+            irods_name=last_attempt.irods_name,
+
+            cyverse_user=user,
+            cyverse_root=root,
+            cyverse_name=name,
+            
+            s3_key=last_attempt.s3_key,
+            s3_bucket=last_attempt.s3_bucket,
+            s3_root=last_attempt.s3_root,
+            s3_name=last_attempt.s3_name,
         )
         import_files_from_cyverse.delay(new_attempt.id, auth_token=auth_token)
 
@@ -173,3 +212,63 @@ class ImportFromFile(views.APIView):
         serializer = ImportAttemptSerializer(new_attempt)
         return Response(serializer.data, status=200)
 
+
+class ImportFromS3(views.APIView):
+    def post(self, request):
+        required_fields = ('key', 'secret', 'bucket', 'name')
+        for field in required_fields:
+            if field not in request.data:
+                return Response('Missing required field: {}'.format(field), status=400)
+
+        key = request.data['key']
+        secret = request.data['secret']
+        bucket = request.data['bucket']
+        name = request.data['name']
+        root = request.data['root']
+    
+        client = boto3.client('s3',
+            aws_access_key_id=key,
+            aws_secret_access_key=secret
+        )
+
+        try:
+            client.list_buckets()
+        except:
+            return Response('Invalid AWS credentials.')
+        
+        try:
+            client.head_bucket(Bucket=bucket)
+        except:
+            return Response('Unable to access the requested bucket.')
+
+        if len(root):
+            try:
+                client.head_object(Bucket=bucket, Key=root)
+            except:
+                return Response('Unable to find the requested folder.')
+
+        last_attempt = ImportAttempt.objects.latest('date_imported')
+        new_attempt = ImportAttempt.objects.create(
+            in_progress=True,
+
+            irods_user=last_attempt.irods_user,
+            irods_host=last_attempt.irods_host,
+            irods_port=last_attempt.irods_port,
+            irods_zone=last_attempt.irods_zone,
+            irods_root=last_attempt.irods_root,
+            irods_name=last_attempt.irods_name,
+
+            cyverse_user=last_attempt.cyverse_user,
+            cyverse_root=last_attempt.cyverse_root,
+            cyverse_name=last_attempt.cyverse_name,
+            
+            s3_key=key,
+            s3_bucket=bucket,
+            s3_root=root,
+            s3_name=name,
+        )
+
+        import_files_from_s3.delay(new_attempt.id, secret_key=secret)
+
+        serializer = ImportAttemptSerializer(new_attempt)
+        return Response(serializer.data, status=200)

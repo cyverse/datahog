@@ -4,6 +4,7 @@ import datetime
 import os
 from collections import deque
 
+import boto3
 from irods.session import iRODSSession
 from irods.models import DataObject, Collection
 from irods.column import Between
@@ -150,9 +151,10 @@ def import_files_from_cyverse(attempt_id, auth_token):
     file_objects = []
 
     directory = ImportedDirectory(
+        name=attempt.cyverse_name,
         directory_type='CyVerse',
         date_scanned=attempt.date_imported,
-        root_path=attempt.root_path,
+        root_path=attempt.cyverse_root,
         has_checksums=False
     )
 
@@ -168,7 +170,7 @@ def import_files_from_cyverse(attempt_id, auth_token):
                         {
                             "type": "path", 
                             "args": {
-                                "prefix": attempt.root_path
+                                "prefix": attempt.cyverse_root
                             }
                         }
                     ]
@@ -188,7 +190,8 @@ def import_files_from_cyverse(attempt_id, auth_token):
                         path=hit['_source']['path'],
                         size=hit['_source']['fileSize'],
                         date_created=datetime.datetime.fromtimestamp(hit['_source']['dateCreated']/1000),
-                        directory=directory
+                        directory=directory,
+                        directory_name=directory.name
                     )
                     file_objects.append(file_obj)
 
@@ -208,3 +211,56 @@ def import_files_from_cyverse(attempt_id, auth_token):
         attempt.failed = True
         attempt.save()
 
+
+def import_files_from_s3(attempt_id, secret_key):
+    attempt = ImportAttempt.objects.get(id=attempt_id)
+    file_objects = []
+
+    directory = ImportedDirectory(        
+        name=attempt.s3_name,
+        directory_type='S3',
+        date_scanned=attempt.date_imported,
+        root_path=attempt.s3_root
+    )
+
+    try:
+        attempt.current_step = 1
+        attempt.save()
+
+        client = boto3.client('s3',
+            aws_access_key_id=attempt.s3_key,
+            aws_secret_access_key=secret_key
+        )
+
+        paginator = client.get_paginator('list_objects_v2')
+
+        pages = paginator.paginate(
+            Prefix=attempt.s3_root,
+            Bucket='datahog-dev',
+            PaginationConfig={
+                'PageSize': 100
+            }
+        )
+        for page in pages:
+            for result in page['Contents']:
+                last_slash = result['Key'].rfind('/')
+                file_name = result['Key'][last_slash+1:]
+                if not len(file_name): continue
+
+                file_obj = File(
+                    name=result['Key'],
+                    path=result['Key'],
+                    checksum=result['ETag'],
+                    date_created=result['LastModified'],
+                    size=result['Size'],
+                    directory=directory,
+                    directory_name=directory.name
+                )
+                file_objects.append(file_obj)
+        
+        build_file_database(attempt, directory, file_objects)
+    except Exception as e:
+        print('Database update failed due to error: {}'.format(e))
+        attempt.in_progress = False
+        attempt.failed = True
+        attempt.save()

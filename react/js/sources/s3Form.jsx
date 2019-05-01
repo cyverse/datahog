@@ -33,10 +33,11 @@ export class S3Form extends React.Component {
             error: ''
         });
         axios.post('/api/import/awslogin', {
-            access: this.state.access,
+            key: this.state.access,
             secret: this.state.secret,
             bucket: this.state.bucket,
-            folder: this.state.folder
+            folder: this.state.folder,
+            name: this.state.name
         })
         .then(function(response) {
             this.setState({
@@ -60,7 +61,7 @@ export class S3Form extends React.Component {
             !this.state.access.length || 
             !this.state.secret.length ||
             !this.state.bucket.length ||
-            !this.state.folder.length
+            !this.state.name.length
         );
         return (
             <form className="form-horizontal" onSubmit={this.submitForm}>
