@@ -4,8 +4,7 @@ import { SummaryTab } from './summary/summaryTab';
 import { DuplicatesTab } from './duplicates/duplicatesTab';
 import { BrowseTab } from './browse/browseTab';
 import { SourceTab } from './sources/sourceTab';
-
-export const SearchContext = React.createContext({});
+import { ImportForm } from './sources/importForm';
 
 export class TabNav extends React.Component {
     constructor(props) {
@@ -35,6 +34,7 @@ export class TabNav extends React.Component {
                         <Route path='/browse' component={BrowseTab} />
                         <Route path='/duplicates' component={DuplicatesTab} />
                         <Route path='/sources' component={SourceTab} />
+                        <Route path='/import' component={ImportForm} />
                     </Switch>
                 </React.Fragment>
             </HashRouter>

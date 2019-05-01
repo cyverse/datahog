@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { ImportWrapper } from './importWrapper';
+import { TaskWrapper } from './taskWrapper';
 
-ReactDOM.render(<ImportWrapper />, document.getElementById('app'));
+ReactDOM.render(<TaskWrapper />, document.getElementById('app'));
