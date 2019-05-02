@@ -1,9 +1,10 @@
 from apps.file_data.models import *
 from django.db import transaction
 
-def build_file_database(attempt, directory, file_objects):
-    attempt.current_step = 3
-    attempt.save()
+def build_file_database(task, directory, file_objects):
+    task.status_message = 'Analyzing files...'
+    task.save()
+    print('Building file tree...')
 
     file_count = 0
     folder_count = 0
@@ -69,8 +70,8 @@ def build_file_database(attempt, directory, file_objects):
     directory.duplicate_count = 0 # TODO: new method to calculate this
     directory.total_size = total_size
 
-    attempt.current_step = 4
-    attempt.save()
+    task.status_message = 'Building file database...'
+    task.save()
     print('Filling database...')
     with transaction.atomic(using='file_data'):
         File.objects.bulk_create(file_objects)
@@ -79,8 +80,7 @@ def build_file_database(attempt, directory, file_objects):
 
         directory.save()
 
-        attempt.in_progress = False
-        attempt.failed = False
-        attempt.save()
+        task.in_progress = False
+        task.save()
 
     print('Database update successful.')

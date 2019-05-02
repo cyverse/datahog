@@ -35,10 +35,8 @@ export class FileForm extends React.Component {
         .then(function(response) {
             this.setState({
                 waiting: false
-            });
-            if (this.props.onSubmit) {
-                this.props.onSubmit();
-            }
+            })
+            this.props.onSubmit(response.data);
         }.bind(this))
         .catch(function(error) {
             this.setState({
@@ -100,7 +98,6 @@ export class FileForm extends React.Component {
                             }
                         </div>
                     </div>
-                    
                 </form>
                 <article>
                     <h5 className="text-center">Scan a local directory</h5>

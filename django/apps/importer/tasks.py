@@ -11,42 +11,63 @@ from irods.column import Between
 from irods.column import Like
 from irods.exception import NetworkException
 from celery import shared_task
+from django.db import transaction
 
-from .models import ImportAttempt
+from .models import *
 from .helpers import build_file_database
 from apps.file_data.models import *
 
 
 @shared_task
-def import_files_from_irods(attempt_id, password):
-    attempt = ImportAttempt.objects.get(id=attempt_id)
+def delete_source(task_id, source_id):
+    task = AsyncTask.objects.get(id=task_id)
+    try:
+        print('Deleting source...')
+        source = ImportedDirectory.objects.get(id=source_id)
+        with transaction.atomic(using='file_data'):
+            source.delete()
+            task.in_progress = False
+            task.save()
+        
+    except Exception as e:
+        print('Task failed with error: {}'.format(e))
+        task.in_progress = False
+        task.failed = True
+        task.status_message = 'Delete failed.'
+        task.status_subtitle = str(e)
+        task.save()
+
+
+@shared_task
+def import_files_from_irods(task_id, password):
+    task = AsyncTask.objects.get(id=task_id)
+    attempt = task.import_attempt
     file_objects = []
 
-    directory = ImportedDirectory(
-        name=attempt.irods_name,
-        directory_type='iRODS',
-        date_scanned=attempt.date_imported,
-        root_path=attempt.irods_root
-    )
-
-    def save_file(collection, name, size, date_created, checksum):
-        path = '{}/{}'.format(collection, name)
-        file_obj = File(
-            name=name,
-            path=path,
-            size=size,
-            date_created=date_created,
-            directory=directory,
-            directory_name=directory.name,
-            checksum=checksum
-        )
-        file_objects.append(file_obj)
-
     try:
+        directory = ImportedDirectory(
+            name=attempt.irods_name,
+            directory_type='iRODS',
+            date_scanned=attempt.date_imported,
+            root_path=attempt.irods_root
+        )
 
-        attempt.current_step = 1
-        attempt.save()
-        print('Contacting server...')
+        def save_file(collection, name, size, date_created, checksum):
+            path = '{}/{}'.format(collection, name)
+            file_obj = File(
+                name=name,
+                path=path,
+                size=size,
+                date_created=date_created,
+                directory=directory,
+                directory_name=directory.name,
+                checksum=checksum
+            )
+            file_objects.append(file_obj)
+
+        task.status_message = 'Downloading file data...'
+        task.save()
+        print('Contacting iRODS...')
         with iRODSSession(
             user=attempt.irods_user,
             password=password,
@@ -92,37 +113,38 @@ def import_files_from_irods(attempt_id, password):
                                 row[DataObject.checksum]
                             )
                 except NetworkException:
-                    if attempt.current_step < 2:
-                        attempt.current_step = 2
-                        attempt.save()
+                    task.status_subtitle = 'This folder is very large. The import process may take much longer than usual.'
+                    task.save()
                     print('Timeout on {}'.format(next_folder))
                     for subcol in col.subcollections:
                         folder_queue.append(subcol.path)
         
-        build_file_database(attempt, directory, file_objects)
+        build_file_database(task, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
-        attempt.in_progress = False
-        attempt.failed = True
-        attempt.save()
+        task.in_progress = False
+        task.failed = True
+        task.status_message = 'Import failed.'
+        task.status_subtitle = str(e)
+        task.save()
 
 
 @shared_task
-def import_files_from_file(attempt_id, file_data):
-    attempt = ImportAttempt.objects.get(id=attempt_id)
+def import_files_from_file(task_id, file_data):
+    task = AsyncTask.objects.get(id=task_id)
     file_objects = []
 
-    directory = ImportedDirectory(
-        name=attempt.file_name,
-        directory_type=file_data['type'],
-        date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
-        root_path=file_data['root'],
-        has_checksums=file_data['has_checksums']
-    )
-
     try:
-        attempt.current_step = 3
-        attempt.save()
+        directory = ImportedDirectory(
+            name=task.import_attempt.file_name,
+            directory_type=file_data['type'],
+            date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
+            root_path=file_data['root'],
+            has_checksums=file_data['has_checksums']
+        )
+
+        task.status_message = 'Reading file data...'
+        task.save()
 
         for file in file_data['files']:
             file_obj = File(
@@ -137,30 +159,33 @@ def import_files_from_file(attempt_id, file_data):
             if 'checksum' in file: file_obj.checksum = file['checksum']
             file_objects.append(file_obj)
 
-        build_file_database(attempt, directory, file_objects)
+        build_file_database(task, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
-        attempt.in_progress = False
-        attempt.failed = True
-        attempt.save()
+        task.in_progress = False
+        task.failed = True
+        task.status_message = 'Import failed.'
+        task.status_subtitle = str(e)
+        task.save()
 
 
 @shared_task
-def import_files_from_cyverse(attempt_id, auth_token):
-    attempt = ImportAttempt.objects.get(id=attempt_id)
+def import_files_from_cyverse(task_id, auth_token):
+    task = AsyncTask.objects.get(id=task_id)
+    attempt = task.import_attempt
     file_objects = []
 
-    directory = ImportedDirectory(
-        name=attempt.cyverse_name,
-        directory_type='CyVerse',
-        date_scanned=attempt.date_imported,
-        root_path=attempt.cyverse_root,
-        has_checksums=False
-    )
-
     try:
-        attempt.current_step = 1
-        attempt.save()
+        directory = ImportedDirectory(
+            name=attempt.cyverse_name,
+            directory_type='CyVerse',
+            date_scanned=attempt.date_imported,
+            root_path=attempt.cyverse_root,
+            has_checksums=False
+        )
+
+        task.status_message = 'Downloading file data...'
+        task.save()
 
         response = requests.post("https://de.cyverse.org/terrain/secured/filesystem/search",
             headers={"authorization": auth_token},
@@ -204,28 +229,32 @@ def import_files_from_cyverse(attempt_id, auth_token):
             )
             page = json.loads(response.text)
 
-        build_file_database(attempt, directory, file_objects)
+        build_file_database(task, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
-        attempt.in_progress = False
-        attempt.failed = True
-        attempt.save()
+        task.in_progress = False
+        task.failed = True
+        task.status_message = 'Import failed.'
+        task.status_subtitle = str(e)
+        task.save()
 
 
-def import_files_from_s3(attempt_id, secret_key):
-    attempt = ImportAttempt.objects.get(id=attempt_id)
+@shared_task
+def import_files_from_s3(task_id, secret_key):
+    task = AsyncTask.objects.get(id=task_id)
+    attempt = task.import_attempt
     file_objects = []
 
-    directory = ImportedDirectory(        
-        name=attempt.s3_name,
-        directory_type='S3',
-        date_scanned=attempt.date_imported,
-        root_path=attempt.s3_root
-    )
-
     try:
-        attempt.current_step = 1
-        attempt.save()
+        directory = ImportedDirectory(        
+            name=attempt.s3_name,
+            directory_type='S3',
+            date_scanned=attempt.date_imported,
+            root_path=attempt.s3_root
+        )
+
+        task.status_message = 'Downloading file data...'
+        task.save()
 
         client = boto3.client('s3',
             aws_access_key_id=attempt.s3_key,
@@ -258,9 +287,11 @@ def import_files_from_s3(attempt_id, secret_key):
                 )
                 file_objects.append(file_obj)
         
-        build_file_database(attempt, directory, file_objects)
+        build_file_database(task, directory, file_objects)
     except Exception as e:
         print('Database update failed due to error: {}'.format(e))
-        attempt.in_progress = False
-        attempt.failed = True
-        attempt.save()
+        task.in_progress = False
+        task.failed = True
+        task.status_message = 'Import failed.'
+        task.status_subtitle = str(e)
+        task.save()
