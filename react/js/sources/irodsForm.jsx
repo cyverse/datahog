@@ -140,7 +140,7 @@ export class IrodsForm extends React.Component {
                     </div>
                 </div>
                 <div className="form-group submit-group">
-                    <div className="col-3">
+                    <div className="col-4">
                         <input type="submit" 
                             className="btn btn-primary"
                             value="Import from iRODS"

@@ -34,7 +34,8 @@ export class CyverseForm extends React.Component {
         axios.post('/api/import/cyverselogin', {
             user: this.state.user,
             password: this.state.password,
-            folder: this.state.folder
+            root: this.state.folder,
+            name: this.state.name
         })
         .then(function(response) {
             this.setState({
@@ -105,13 +106,13 @@ export class CyverseForm extends React.Component {
                     </div>
                 </div>
                 <div className="form-group" style={{marginTop: '30px'}}>
-                    <div className="col-3">
+                    <div className="col-4">
                         <input type="submit" 
                             className="btn btn-primary"
                             value="Import from CyVerse"
                             disabled={submitDisabled} />
                     </div>
-                    <div className="col-9">
+                    <div className="col-8">
                         { this.state.waiting ?
                             <span className="text-primary">
                                 <i className="loading">load</i> Connecting to CyVerse...
