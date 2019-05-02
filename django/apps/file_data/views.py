@@ -172,25 +172,11 @@ class ViewDirectory(views.APIView):
         return Response(directories_serialized.data)
 
 
-class DeleteDirectory(views.APIView):
-    def delete(self, request):
-        try:
-            directory = ImportedDirectory.objects.get(id=request.data['id'])
-            directory.delete()
-        except:
-            directory = None
-        
-        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
-        directories_serialized = ImportedDirectorySerializer(directories, many=True)
-        return Response(directories_serialized.data)
-
-
 class GetBackupFile(views.APIView):
     def get(self, request):
         
         source_id = request.GET.get('source', None)
-        
-        directory = ImportedDirectory.objects.latest('date_viewed')
+        directory = ImportedDirectory.objects.get(id=source_id)
         files = []
 
         for file in File.objects.filter(directory__id=source_id).all():

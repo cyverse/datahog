@@ -49,6 +49,23 @@ class GetLastTask(views.APIView):
         return Response(serializer.data)
 
 
+class DeleteDirectory(views.APIView):
+    def delete(self, request):
+        try:
+            source = ImportedDirectory.objects.get(id=request.data['source'])
+        except:
+            return Response('Source not found.', status=400)
+
+        new_task = AsyncTask.objects.create(
+            in_progress=True,
+            status_message='Deleting source...'
+        )
+        
+        delete_source.delay(new_task.id, source_id=source.id)
+        serializer = AsyncTaskSerializer(new_task)
+        return Response(serializer.data)
+
+
 class ImportFromIrods(views.APIView):
     def post(self, request):
         required_fields = ('user', 'password', 'host', 'port', 'zone', 'root', 'name')
@@ -105,13 +122,14 @@ class ImportFromIrods(views.APIView):
 
         new_task = AsyncTask.objects.create(
             in_progress=True,
-            status_message='Starting iRODS import process...',
-            status_subtitle='This may take several minutes.'
+            status_message='Starting import process...',
+            status_subtitle='This may take several minutes.',
+            import_attempt=new_attempt
         )
 
-        import_files_from_irods.delay(new_task.id, new_attempt.id, password=password)
+        import_files_from_irods.delay(new_task.id, password=password)
 
-        serializer = ImportAttemptSerializer(new_attempt)
+        serializer = AsyncTaskSerializer(new_task)
         return Response(serializer.data, status=200)
 
 
@@ -144,8 +162,6 @@ class ImportFromCyverse(views.APIView):
         last_attempt = ImportAttempt.objects.latest('date_imported')
 
         new_attempt = ImportAttempt.objects.create(
-            in_progress=True,
-            
             irods_user=last_attempt.irods_user,
             irods_host=last_attempt.irods_host,
             irods_port=last_attempt.irods_port,
@@ -162,9 +178,17 @@ class ImportFromCyverse(views.APIView):
             s3_root=last_attempt.s3_root,
             s3_name=last_attempt.s3_name,
         )
+
+        new_task = AsyncTask.objects.create(
+            in_progress=True,
+            status_message='Starting import process...',
+            status_subtitle='This may take several minutes.',
+            import_attempt=new_attempt
+        )
+
         import_files_from_cyverse.delay(new_attempt.id, auth_token=auth_token)
 
-        serializer = ImportAttemptSerializer(new_attempt)
+        serializer = AsyncTaskSerializer(new_task)
         return Response(serializer.data, status=200)
 
 
@@ -187,7 +211,6 @@ class ImportFromFile(views.APIView):
         last_attempt = ImportAttempt.objects.latest('date_imported')
 
         new_attempt = ImportAttempt.objects.create(
-            in_progress=True,
             file_name=name,
 
             irods_user=last_attempt.irods_user,
@@ -207,9 +230,16 @@ class ImportFromFile(views.APIView):
             s3_name=last_attempt.s3_name,
         )
 
-        import_files_from_file.delay(new_attempt.id, file_data)
+        new_task = AsyncTask.objects.create(
+            in_progress=True,
+            status_message='Starting import process...',
+            status_subtitle='This may take several minutes.',
+            import_attempt=new_attempt
+        )
 
-        serializer = ImportAttemptSerializer(new_attempt)
+        import_files_from_file.delay(new_task.id, file_data)
+
+        serializer = AsyncTaskSerializer(new_task)
         return Response(serializer.data, status=200)
 
 
@@ -249,8 +279,6 @@ class ImportFromS3(views.APIView):
 
         last_attempt = ImportAttempt.objects.latest('date_imported')
         new_attempt = ImportAttempt.objects.create(
-            in_progress=True,
-
             irods_user=last_attempt.irods_user,
             irods_host=last_attempt.irods_host,
             irods_port=last_attempt.irods_port,

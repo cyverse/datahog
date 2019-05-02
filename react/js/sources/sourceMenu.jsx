@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { ImportModal } from './importForm';
-import { trimPath } from '../util';
+import { ImportModal } from './modals';
 
 export class SourceMenu extends React.Component {
     constructor(props) {

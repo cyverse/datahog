@@ -6,23 +6,6 @@ import { S3Form } from './s3Form';
 import { TaskContext, ImportContext } from '../context';
 
 
-export function ImportModal(props) {
-    return (
-        <div className={props.active ? 'modal active' : 'modal'}>
-            <a className="modal-overlay" onClick={props.onToggle}></a>
-            <div className="modal-container import-modal">
-                <div className="modal-body">
-                    <ImportForm />
-                </div>
-                <div className="modal-footer">
-                    <button className="btn btn-link" onClick={props.onToggle}>Cancel</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-
 export class ImportForm extends React.Component {
     constructor(props) {
         super(props);
