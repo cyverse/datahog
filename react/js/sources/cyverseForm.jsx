@@ -41,9 +41,7 @@ export class CyverseForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.onSubmit) {
-                this.props.onSubmit();
-            }
+            this.props.onSubmit(response.data);
         }.bind(this))
         .catch(function(error) {
             this.setState({

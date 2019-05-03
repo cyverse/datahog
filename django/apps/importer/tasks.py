@@ -138,7 +138,7 @@ def import_files_from_file(task_id, file_data):
         directory = ImportedDirectory(
             name=task.import_attempt.file_name,
             directory_type=file_data['type'],
-            date_scanned=datetime.datetime.fromtimestamp(file_data['date_scanned']),
+            date_scanned=datetime.datetime.utcfromtimestamp(file_data['date_scanned']),
             root_path=file_data['root'],
             has_checksums=file_data['has_checksums']
         )
@@ -151,7 +151,7 @@ def import_files_from_file(task_id, file_data):
                 name=os.path.basename(file['path']),
                 size=file['size'],
                 path=file['path'],
-                date_created=datetime.datetime.fromtimestamp(file['created']),
+                date_created=datetime.datetime.utcfromtimestamp(file['created']),
                 directory=directory,
                 directory_name=directory.name,
                 checksum=file['checksum']
@@ -164,8 +164,8 @@ def import_files_from_file(task_id, file_data):
         print('Database update failed due to error: {}'.format(e))
         task.in_progress = False
         task.failed = True
-        task.status_message = 'Import failed.'
-        task.status_subtitle = str(e)
+        task.status_message = 'Import failed'
+        task.status_subtitle = 'Error: {}'.format(e)
         task.save()
 
 
@@ -214,7 +214,7 @@ def import_files_from_cyverse(task_id, auth_token):
                         name=hit['_source']['label'],
                         path=hit['_source']['path'],
                         size=hit['_source']['fileSize'],
-                        date_created=datetime.datetime.fromtimestamp(hit['_source']['dateCreated']/1000),
+                        date_created=datetime.datetime.utcfromtimestamp(hit['_source']['dateCreated']/1000),
                         directory=directory,
                         directory_name=directory.name
                     )
@@ -246,11 +246,18 @@ def import_files_from_s3(task_id, secret_key):
     file_objects = []
 
     try:
+        ''[1]
+
+        root_path = attempt.s3_root
+        if len(root_path):
+            if root_path[0] != '/': root_path = f'/{root_path}'
+            if root_path[len(root_path)-1] == '/': root_path = root_path[:len(root_path)-1]
+
         directory = ImportedDirectory(        
             name=attempt.s3_name,
             directory_type='S3',
             date_scanned=attempt.date_imported,
-            root_path=attempt.s3_root
+            root_path=root_path
         )
 
         task.status_message = 'Downloading file data...'
@@ -275,12 +282,13 @@ def import_files_from_s3(task_id, secret_key):
                 last_slash = result['Key'].rfind('/')
                 file_name = result['Key'][last_slash+1:]
                 if not len(file_name): continue
+                file_path = f'/{result["Key"]}'
 
                 file_obj = File(
-                    name=result['Key'],
-                    path=result['Key'],
+                    name=file_name,
+                    path=file_path,
                     checksum=result['ETag'],
-                    date_created=result['LastModified'],
+                    date_created=result['LastModified'].replace(tzinfo=None),
                     size=result['Size'],
                     directory=directory,
                     directory_name=directory.name

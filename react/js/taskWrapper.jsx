@@ -67,6 +67,7 @@ export class TaskWrapper extends React.Component {
     }
 
     dismissModal() {
+        this.state.lastTask.failed = false;
         this.setState({
             modalViewed: true
         });
@@ -108,11 +109,16 @@ export class TaskWrapper extends React.Component {
                 <div className={this.state.lastTask.failed && !this.state.modalViewed ? 'modal active' : 'modal'}>
                     <a className="modal-overlay" onClick={this.dismissModal}></a>
                     <div className="modal-container">
+                        <div className="modal-header">
+                            <div className="modal-title h5">
+                                {this.state.lastTask.status_message}
+                            </div>
+                        </div>
                         <div className="modal-body">
-                            
+                            {this.state.lastTask.status_subtitle}
                         </div>
                         <div className="modal-footer">
-                            <button className="btn btn-link" onClick={this.dismissModal}>Cancel</button>
+                            <button className="btn btn-primary" onClick={this.dismissModal}>Close</button>
                         </div>
                     </div>
                 </div>

@@ -36,16 +36,14 @@ export class S3Form extends React.Component {
             key: this.state.access,
             secret: this.state.secret,
             bucket: this.state.bucket,
-            folder: this.state.folder,
+            root: this.state.folder,
             name: this.state.name
         })
         .then(function(response) {
             this.setState({
                 waiting: false
             });
-            if (this.props.onSubmit) {
-                this.props.onSubmit();
-            }
+            this.props.onSubmit(response.data);
         }.bind(this))
         .catch(function(error) {
             this.setState({

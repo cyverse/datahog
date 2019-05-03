@@ -78,8 +78,11 @@ class ImportFromIrods(views.APIView):
         host = request.data['host']
         port = request.data['port']
         zone = request.data['zone']
-        root = request.data['root']
         name = request.data['name']
+        root = request.data['root']
+
+        if root[0] != '/': root = f'/{root}'
+        if root[len(root)-1] == '/': root = root[:len(root)-1]
         
         with irods.session.iRODSSession(
             user=user,
@@ -142,8 +145,11 @@ class ImportFromCyverse(views.APIView):
 
         user = request.data['user']
         password = request.data['password']
-        root = request.data['root']
         name = request.data['name']
+        root = request.data['root']
+
+        if root[0] != '/': root = f'/{root}'
+        if root[len(root)-1] == '/': root = root[:len(root)-1]
         
         try:
             response = requests.get(
@@ -186,7 +192,7 @@ class ImportFromCyverse(views.APIView):
             import_attempt=new_attempt
         )
 
-        import_files_from_cyverse.delay(new_attempt.id, auth_token=auth_token)
+        import_files_from_cyverse.delay(new_task.id, auth_token=auth_token)
 
         serializer = AsyncTaskSerializer(new_task)
         return Response(serializer.data, status=200)
@@ -254,7 +260,7 @@ class ImportFromS3(views.APIView):
         secret = request.data['secret']
         bucket = request.data['bucket']
         name = request.data['name']
-        root = request.data['root']
+        root = request.data.get('root', '')
     
         client = boto3.client('s3',
             aws_access_key_id=key,
@@ -264,19 +270,22 @@ class ImportFromS3(views.APIView):
         try:
             client.list_buckets()
         except:
-            return Response('Invalid AWS credentials.')
+            return Response('Invalid AWS credentials.', status=400)
         
         try:
             client.head_bucket(Bucket=bucket)
         except:
-            return Response('Unable to access the requested bucket.')
+            return Response('Unable to access the requested bucket.', status=400)
 
         if len(root):
+            # reformat root for AWS style
+            if root[len(root)-1] != '/': root = f'{root}/'
+            if root[0] == '/': root = root[1:]
             try:
                 client.head_object(Bucket=bucket, Key=root)
             except:
-                return Response('Unable to find the requested folder.')
-
+                return Response('Unable to find the requested folder.', status=400)
+        
         last_attempt = ImportAttempt.objects.latest('date_imported')
         new_attempt = ImportAttempt.objects.create(
             irods_user=last_attempt.irods_user,
@@ -296,7 +305,14 @@ class ImportFromS3(views.APIView):
             s3_name=name,
         )
 
-        import_files_from_s3.delay(new_attempt.id, secret_key=secret)
+        new_task = AsyncTask.objects.create(
+            in_progress=True,
+            status_message='Starting import process...',
+            status_subtitle='This may take several minutes.',
+            import_attempt=new_attempt
+        )
 
-        serializer = ImportAttemptSerializer(new_attempt)
+        import_files_from_s3.delay(new_task.id, secret_key=secret)
+
+        serializer = AsyncTaskSerializer(new_task)
         return Response(serializer.data, status=200)

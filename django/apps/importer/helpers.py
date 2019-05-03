@@ -21,24 +21,30 @@ def build_file_database(task, directory, file_objects):
         child_obj = file_obj
 
         # update all parent folders
-        while len(parent_path) > 0:
+        while parent_path != directory.root_path:
             last_slash = parent_path.rfind('/')
             if parent_path in folder_objects_by_path:
                 parent_obj = folder_objects_by_path[parent_path]
                 parent_obj.total_size += file_obj.size
             else:
                 # if the parent folder doesn't exist yet, create it
+                if parent_path == directory.root_path:
+                    if len(parent_path): folder_path = parent_path
+                    else:                folder_path = '/'
+                    folder_name = directory.name
+                else:
+                    folder_name = parent_path[last_slash+1:]
+                    folder_path = parent_path
+                
                 parent_obj = Folder(
-                    path=parent_path,
-                    name=parent_path[last_slash+1:],
+                    path=folder_path,
+                    name=folder_name,
                     total_size=file_obj.size,
                     directory=directory
                 )
                 folder_objects_by_path[parent_path] = parent_obj
             # iterate up the hierarchy
             child_obj.parent = parent_obj
-            if parent_path == directory.root_path:
-                break
             child_obj = parent_obj
             parent_path = parent_path[:last_slash]
 
@@ -62,8 +68,8 @@ def build_file_database(task, directory, file_objects):
         file_obj.file_type = file_type
 
     # rename top folder to include parents
-    if directory.root_path in folder_objects_by_path:
-        folder_objects_by_path[directory.root_path].name = directory.name
+    # if directory.root_path in folder_objects_by_path:
+    #     folder_objects_by_path[directory.root_path].name = directory.name
 
     directory.folder_count = len(folder_objects_by_path.values())
     directory.file_count = len(file_objects)

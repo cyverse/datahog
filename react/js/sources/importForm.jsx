@@ -18,11 +18,6 @@ export class ImportForm extends React.Component {
     render() {
         return (
             <div className="import-form">
-                { this.context.lastTask && this.context.lastTask.failed && 
-                    <div className="toast toast-error">
-                        Your last import could not be completed. The folder you requested may be too large.
-                    </div>
-                }
                 <h5 className="text-center">Import file data from...</h5>
                 <ul className="tab tab-block source-tabs">
                     <li className='tab-item c-hand source-tab'>

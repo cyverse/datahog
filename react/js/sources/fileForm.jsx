@@ -35,7 +35,7 @@ export class FileForm extends React.Component {
         .then(function(response) {
             this.setState({
                 waiting: false
-            })
+            });
             this.props.onSubmit(response.data);
         }.bind(this))
         .catch(function(error) {
