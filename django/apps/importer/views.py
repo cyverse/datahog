@@ -1,9 +1,12 @@
+from io import StringIO
 import irods
 import requests
 import json
 import os
 import pickle
-from subprocess import call
+
+from django.core import management
+from django.http import StreamingHttpResponse
 from rest_framework.response import Response
 from rest_framework import views
 
@@ -47,6 +50,23 @@ class GetLastTask(views.APIView):
         
         serializer = AsyncTaskSerializer(last_task)
         return Response(serializer.data)
+
+
+class GetDBDump(views.APIView):
+    def get(self, request):
+        buffer = StringIO()
+        management.call_command('dumpdata', '--database=file_data', stdout=buffer)
+        buffer.seek(0)
+        chunk = buffer.read(1024)
+
+        def db_chunks():
+            while len(chunk):
+                yield chunk
+                chunk = buffer.read(1024)
+
+        response = StreamingHttpResponse(db_chunks(), content_type='text/json')
+        response['Content-Disposition'] = 'attachment; filename="datahog_db.csv"'
+        return response
 
 
 class DeleteDirectory(views.APIView):

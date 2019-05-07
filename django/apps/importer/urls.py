@@ -4,6 +4,8 @@ from .views import *
 
 urlpatterns = [
     path('api/import/task', GetLastTask.as_view()),
+    path('api/import/dumpdata', GetDBDump.as_view()),
+    # path('api/import/task/<slug:folder_id>', PutTask.as_view()),
     path('api/import/context', GetImportContext.as_view()),
     path('api/import/deletesource', DeleteDirectory.as_view()),
     path('api/import/irodslogin', ImportFromIrods.as_view()),
