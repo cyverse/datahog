@@ -57,15 +57,15 @@ class GetDBDump(views.APIView):
         buffer = StringIO()
         management.call_command('dumpdata', '--database=file_data', stdout=buffer)
         buffer.seek(0)
-        chunk = buffer.read(1024)
 
         def db_chunks():
+            chunk = buffer.read(1024)
             while len(chunk):
                 yield chunk
                 chunk = buffer.read(1024)
 
         response = StreamingHttpResponse(db_chunks(), content_type='text/json')
-        response['Content-Disposition'] = 'attachment; filename="datahog_db.csv"'
+        response['Content-Disposition'] = 'attachment; filename="datahog_db.json"'
         return response
 
 
