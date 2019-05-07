@@ -73,7 +73,7 @@ export class SourceTab extends React.Component {
                                 <button className="btn btn-primary" onClick={this.toggleImportModal}>
                                     <i className="fa fa-fw fa-plus"></i> Import New Source
                                 </button>
-                                <button className="btn btn-link float-right">
+                                <button className="btn btn-link float-right" onClick={this.toggleBackupModal}>
                                     <i className="fa fa-fw fa-download"></i> Full Database Backup/Restore
                                 </button>
                                 </div>

@@ -92,6 +92,26 @@ DeleteModal.contextType = TaskContext;
 export class BackupModal extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            backupClicked: false,
+            error: false,
+            waiting: false,
+            file: null
+        }
+
+        this.fileChanged = this.fileChanged.bind(this);
+        this.submitFile = this.submitFile.bind(this);
+    }
+
+    fileChanged(event) {
+        this.setState({
+            file: event.target.files.length ? event.target.files[0] : null
+        });
+    }
+
+    submitFile() {
+        
     }
 
     render() {
@@ -99,11 +119,46 @@ export class BackupModal extends React.Component {
             <div className={this.props.active ? 'modal active' : 'modal'}>
                 <a className="modal-overlay" onClick={this.props.onToggle}></a>
                 <div className="modal-container">
+                    <div className="modal-header">
+                        <div className="modal-title h5">Backup/Restore Database</div>
+                    </div>
+                    <div className="modal-body">
+                        <button className="btn btn-primary" onClick={this.deleteSource} disabled={this.state.waiting}>Download database backup</button>
+                    </div>
+                    <div className="modal-body">
+                        <form className="form-horizontal" onSubmit={this.submitFile}>
+                            <div className="form-group">
+                                <div className="col-6">
+                                    <input type="file" name="file" className="form-input" onChange={this.fileChanged} accept=".json"/>
+                                </div>
+                                <div className="col-3 text-center">
+                                    <input type="submit" 
+                                            className="btn btn-primary"
+                                            value="Restore"
+                                            disabled={!this.state.file}/>
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <div className="col-6">
+                                    { this.state.waiting ?
+                                        <span className="text-primary">
+                                            <i className="loading">load</i> Uploading file...
+                                        </span> :
+                                        <span className="text-error">
+                                            {this.state.error}
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div className="modal-footer">
-                        <button className="btn btn-link" onClick={this.props.onToggle}>Cancel</button>
+                        <button className="btn btn-link" onClick={this.props.onToggle}>Close</button>
                     </div>
                 </div>
             </div>
         );
     }
 }
+
+BackupModal.contextType = TaskContext;
