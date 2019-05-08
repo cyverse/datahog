@@ -11,7 +11,7 @@ class ImportedDirectory(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=32)
-    date_scanned = models.DateTimeField(auto_now_add=True)
+    date_scanned = models.DateTimeField()
     date_viewed = models.DateTimeField(auto_now_add=True)
     root_path = models.CharField(max_length=512, blank=True)
     folder_count = models.IntegerField(default=0)
