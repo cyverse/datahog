@@ -69,6 +69,27 @@ class GetDBDump(views.APIView):
         return response
 
 
+class RestoreDB(views.APIView):
+    def post(self, request):
+        if 'file' not in request.FILES:
+            return Response('File not found.', status=400)
+        file = request.FILES['file']
+
+        data = file.read()
+        print(data)
+
+        new_task = AsyncTask.objects.create(
+            in_progress=True,
+            status_message='Restoring database...',
+            status_subtitle=''
+        )
+
+        load_data.delay(new_task.id, data)
+
+        serializer = AsyncTaskSerializer(new_task)
+        return Response(serializer.data, status=200)
+
+
 class DeleteDirectory(views.APIView):
     def delete(self, request):
         try:

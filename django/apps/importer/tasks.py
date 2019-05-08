@@ -12,6 +12,7 @@ from irods.column import Like
 from irods.exception import NetworkException
 from celery import shared_task
 from django.db import transaction
+from django.core import management
 
 from .models import *
 from .helpers import build_file_database
@@ -34,8 +35,29 @@ def delete_source(task_id, source_id):
         task.in_progress = False
         task.failed = True
         task.status_message = 'Delete failed.'
-        task.status_subtitle = str(e)
+        task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+
+
+@shared_task
+def load_data(task_id, data):
+    task = AsyncTask.objects.get(id=task_id)
+
+    try:
+        with transaction.atomic(using='file_data'):
+            sources = ImportedDirectory.objects.all().delete()
+            management.call_command('loaddata', '--database=file_data', stdin=data)
+            task.in_progress = False
+            task.save()
+        
+    except Exception as e:
+        print('Task failed with error: {}'.format(e))
+        task.in_progress = False
+        task.failed = True
+        task.status_message = 'Restore failed.'
+        task.status_subtitle = 'Error: {}'.format(e)
+        task.save()
+
 
 
 @shared_task
@@ -125,7 +147,7 @@ def import_files_from_irods(task_id, password):
         task.in_progress = False
         task.failed = True
         task.status_message = 'Import failed.'
-        task.status_subtitle = str(e)
+        task.status_subtitle = 'Error: {}'.format(e)
         task.save()
 
 
@@ -235,7 +257,7 @@ def import_files_from_cyverse(task_id, auth_token):
         task.in_progress = False
         task.failed = True
         task.status_message = 'Import failed.'
-        task.status_subtitle = str(e)
+        task.status_subtitle = 'Error: {}'.format(e)
         task.save()
 
 
@@ -301,5 +323,5 @@ def import_files_from_s3(task_id, secret_key):
         task.in_progress = False
         task.failed = True
         task.status_message = 'Import failed.'
-        task.status_subtitle = str(e)
+        task.status_subtitle = 'Error: {}'.format(e)
         task.save()
