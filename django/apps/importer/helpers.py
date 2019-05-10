@@ -9,8 +9,16 @@ def build_file_database(task, directory, file_objects):
     file_count = 0
     folder_count = 0
     total_size = 0
-    folder_objects_by_path = {}
     file_types_by_extension = {}
+    folder_objects_by_path = {}
+
+    # create root folder
+    folder_objects_by_path[directory.root_path] = Folder(
+        path=directory.root_path,
+        name=directory.name,
+        total_size=0,
+        directory=directory
+    )
 
     for file_obj in file_objects:
         total_size += file_obj.size
@@ -18,23 +26,19 @@ def build_file_database(task, directory, file_objects):
         # find parent folder's path
         last_slash = file_obj.path.rfind('/')
         parent_path = file_obj.path[:last_slash]
+        if not len(parent_path): parent_path = '/'
         child_obj = file_obj
 
         # update all parent folders
-        while parent_path != directory.root_path:
+        while True:
             last_slash = parent_path.rfind('/')
             if parent_path in folder_objects_by_path:
                 parent_obj = folder_objects_by_path[parent_path]
                 parent_obj.total_size += file_obj.size
             else:
-                # if the parent folder doesn't exist yet, create it
-                if parent_path == directory.root_path:
-                    if len(parent_path): folder_path = parent_path
-                    else:                folder_path = '/'
-                    folder_name = directory.name
-                else:
-                    folder_name = parent_path[last_slash+1:]
-                    folder_path = parent_path
+                # if the parent folder doesn't exist, create it
+                folder_name = parent_path[last_slash+1:]
+                folder_path = parent_path
                 
                 parent_obj = Folder(
                     path=folder_path,
@@ -43,10 +47,14 @@ def build_file_database(task, directory, file_objects):
                     directory=directory
                 )
                 folder_objects_by_path[parent_path] = parent_obj
-            # iterate up the hierarchy
+
             child_obj.parent = parent_obj
+            if parent_path == directory.root_path: break
+
+            # iterate up the hierarchy
             child_obj = parent_obj
             parent_path = parent_path[:last_slash]
+            if not len(parent_path): parent_path = '/'
 
         # find file type
         last_dot = file_obj.name.rfind('.')
