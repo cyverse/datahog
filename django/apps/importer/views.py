@@ -75,17 +75,13 @@ class RestoreDB(views.APIView):
             return Response('File not found.', status=400)
         file = request.FILES['file']
 
-        data = file.read()
-        print(data)
-
         new_task = AsyncTask.objects.create(
             in_progress=True,
             status_message='Restoring database...',
-            status_subtitle=''
+            fixture=file
         )
 
-        load_data.delay(new_task.id, data)
-
+        load_data.delay(new_task.id)
         serializer = AsyncTaskSerializer(new_task)
         return Response(serializer.data, status=200)
 

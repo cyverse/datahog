@@ -2,13 +2,13 @@ import requests
 import json
 import datetime
 import os
+from io import StringIO
 from collections import deque
 
 import boto3
 from irods.session import iRODSSession
 from irods.models import DataObject, Collection
-from irods.column import Between
-from irods.column import Like
+from irods.column import Between, Like
 from irods.exception import NetworkException
 from celery import shared_task
 from django.db import transaction
@@ -40,13 +40,15 @@ def delete_source(task_id, source_id):
 
 
 @shared_task
-def load_data(task_id, data):
+def load_data(task_id):
     task = AsyncTask.objects.get(id=task_id)
-
     try:
         with transaction.atomic(using='file_data'):
             sources = ImportedDirectory.objects.all().delete()
-            management.call_command('loaddata', '--database=file_data', stdin=data)
+            print('Deleting old data...')
+            management.call_command('flush', '--database=file_data', interactive=False)
+            print('Loading new data...')
+            management.call_command('loaddata', task.fixture.name, '--database=file_data', '--format=json')
             task.in_progress = False
             task.save()
         
@@ -268,12 +270,12 @@ def import_files_from_s3(task_id, secret_key):
     file_objects = []
 
     try:
-        ''[1]
-
         root_path = attempt.s3_root
         if len(root_path):
             if root_path[0] != '/': root_path = f'/{root_path}'
             if root_path[len(root_path)-1] == '/': root_path = root_path[:len(root_path)-1]
+        else:
+            root_path = '/'
 
         directory = ImportedDirectory(        
             name=attempt.s3_name,
