@@ -32,7 +32,6 @@ export class DeleteModal extends React.Component {
         this.deleteSource = this.deleteSource.bind(this);
         this.onSuccess = this.onSuccess.bind(this);
         this.onError = this.onError.bind(this);
-
     }
 
     onSuccess(response) {
@@ -95,13 +94,29 @@ export class BackupModal extends React.Component {
 
         this.state = {
             backupClicked: false,
-            error: false,
+            error: '',
             waiting: false,
             file: null
         }
 
         this.fileChanged = this.fileChanged.bind(this);
         this.submitFile = this.submitFile.bind(this);
+        this.onSuccess = this.onSuccess.bind(this);
+        this.onError = this.onError.bind(this);
+    }
+
+    onSuccess(response) {
+        this.setState({
+            waiting: false
+        });
+        this.context.taskStarted(response.data);
+    }
+
+    onError(error) {
+        this.setState({
+            waiting: false,
+            error: error.response.data
+        });
     }
 
     fileChanged(event) {
@@ -110,8 +125,26 @@ export class BackupModal extends React.Component {
         });
     }
 
-    submitFile() {
-        
+    componentDidUpdate() {
+        this.state.backupClicked = false;
+    }
+
+    submitFile(event) {
+        event.preventDefault();
+        this.setState({
+            waiting: true,
+            error: ''
+        });
+        let formData = new FormData();
+        formData.append('file', this.state.file);
+        let config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        };
+        axios.post('/api/import/loaddata', formData, config)
+        .then(this.onSuccess)
+        .catch(this.onError);
     }
 
     render() {
@@ -123,7 +156,7 @@ export class BackupModal extends React.Component {
                         <div className="modal-title h5">Backup/Restore Database</div>
                     </div>
                     <div className="modal-body">
-                        <button className="btn btn-primary" onClick={this.deleteSource} disabled={this.state.waiting}>Download database backup</button>
+                        <a className="btn btn-primary" href="/api/import/dumpdata" download disabled={this.state.backupClicked} onClick={()=>this.setState({backupClicked: true})}>Download database backup</a>
                     </div>
                     <div className="modal-body">
                         <form className="form-horizontal" onSubmit={this.submitFile}>
