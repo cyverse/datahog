@@ -107,20 +107,47 @@ class GetTopLevelFiles(views.APIView):
 class GetDuplicates(views.APIView):
     def get(self, request):
         dirs = request.GET.getlist('sources[]')
-        if len(dirs):
-            diff_names = request.GET.get('allow_different_names', 'true') == 'true'
-            files = File.objects.filter(directory__id__in=dirs)
-            
-            if diff_names:
-                dupe_groups = files.values('checksum').annotate(Count('id')).filter(id__count__gt=1)
-            else:
-                dupe_groups = files.values('checksum', 'name').annotate(Count('id')).filter(id__count__gt=1)
-
-            duped_files = files.filter(checksum__in=[group['checksum'] for group in dupe_groups]).order_by('checksum', 'name')
-            files_serialized = FileSerializer(duped_files, many=True)
-            return Response(files_serialized.data)
+        if not len(dirs): return Response([])
+        
+        diff_names = request.GET.get('allow_different_names', 'true') == 'true'
+        files = File.objects.filter(directory__id__in=dirs)
+        
+        if diff_names:
+            dupe_groups = files.values('checksum').annotate(Count('id')).filter(id__count__gt=1)
         else:
-            return Response([])
+            dupe_groups = files.values('checksum', 'name').annotate(Count('id')).filter(id__count__gt=1)
+
+        sort = request.GET.get('sort', None)
+        if sort == 'dupe_count':
+            dupe_groups = dupe_groups.order_by('id__count')
+        elif sort == '-dupe_count':
+            print('yes')
+            dupe_groups = dupe_groups.order_by('-id__count')
+        elif sort == 'total_size':
+            pass
+        elif sort == '-total_size':
+            pass
+        elif sort == 'file_size':
+            dupe_groups = dupe_groups.order_by('size')
+        elif sort == '-file_size':
+            dupe_groups = dupe_groups.order_by('-size')
+
+        if 'limit' in request.GET:
+            total = dupe_groups.count()
+            limit = int(request.GET['limit'])
+            offset = int(request.GET.get('offset', 0))
+            dupe_groups = dupe_groups.all()[offset:offset+limit]
+        
+        duped_files = files.filter(checksum__in=[group['checksum'] for group in dupe_groups]).order_by('checksum', 'name')
+        files_serialized = FileSerializer(duped_files, many=True)
+        
+        if 'limit' in request.GET:
+            return Response({
+                'page': files_serialized.data,
+                'total': total
+            })
+        else:
+            return Response(files_serialized.data)
 
 
 class GetSearchCSV(views.APIView):

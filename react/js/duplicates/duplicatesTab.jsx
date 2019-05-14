@@ -13,16 +13,20 @@ export class DuplicatesTab extends React.Component {
         this.state = {
             sources: [],
             include: new Set(),
-            allowDifferentNames: true,
             dupeGroups: [],
-            searchLoading: false
+            allowDifferentNames: true,
+            searchLoading: false,
+            moreResults: false,
+            sort: ''
         };
 
         this.cancelToken = null;
+
         this.onLoad = this.onLoad.bind(this);
         this.onSearchLoad = this.onSearchLoad.bind(this);
         this.onSearchError = this.onSearchError.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
         this.getDuplicates = this.getDuplicates.bind(this);
     }
 
@@ -43,12 +47,12 @@ export class DuplicatesTab extends React.Component {
     }
 
     onSearchLoad(response) {
-        let files = response.data;
+        let files = response.data.page;
         let dupeGroups = [];
         if (files.length) {
             let currentChecksum = files[0].checksum;
             let currentDupeGroup = [];
-            for (let file of response.data) {
+            for (let file of files) {
                 if (file.checksum === currentChecksum) {
                     currentDupeGroup.push(file);
                 } else {
@@ -60,8 +64,9 @@ export class DuplicatesTab extends React.Component {
             dupeGroups.push(currentDupeGroup);
         }
         this.setState({
-            dupeGroups: dupeGroups,
-            searchLoading: false
+            dupeGroups: this.state.dupeGroups.concat(dupeGroups),
+            searchLoading: false,
+            moreResults: this.state.dupeGroups.length + dupeGroups.length < response.data.total
         });
     }
 
@@ -74,18 +79,22 @@ export class DuplicatesTab extends React.Component {
         }
     }
 
-    getDuplicates() {
+    getDuplicates(sortBy) {
+        if (!sortBy) sortBy = this.state.sort;
         if (this.cancelToken) this.cancelToken.cancel();
         this.cancelToken = axios.CancelToken.source();
         this.setState({
             searchLoading: true,
             error: false,
+            sort: sortBy,
             dupeGroups: []
         });
         axios.get('/api/filedata/duplicates', {
             params: {
                 sources: Array.from(this.state.include),
-                allow_different_names: this.state.allowDifferentNames
+                allow_different_names: this.state.allowDifferentNames,
+                limit: 10,
+                sort: sortBy
             },
             cancelToken: this.cancelToken.token
         }).then(this.onSearchLoad)
@@ -97,6 +106,25 @@ export class DuplicatesTab extends React.Component {
             this.state.allowDifferentNames = event.target.checked;
         }
         this.getDuplicates();
+    }
+
+    handleScroll(event) {
+        let hitBottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+        if (hitBottom && !this.state.searchLoading && this.state.moreResults) {
+            this.setState({
+                searchLoading: true
+            });
+            axios.get('/api/filedata/duplicates', {
+                params: {
+                    sources: Array.from(this.state.include),
+                    allow_different_names: this.state.allowDifferentNames,
+                    limit: 10,
+                    offset: this.state.dupeGroups.length,
+                    sort: this.state.sort
+                }
+            }).then(this.onSearchLoad)
+            .catch(this.onError);
+        }
     }
 
     render() {
@@ -124,7 +152,10 @@ export class DuplicatesTab extends React.Component {
                                     </div>
                                 </div>
                                 <div className="panel-body" onScroll={this.handleScroll}>
-                                    <DuplicateTable dupeGroups={this.state.dupeGroups}/>
+                                    <DuplicateTable dupeGroups={this.state.dupeGroups}
+                                        searchOnSort={this.state.moreResults}
+                                        searchCallback={this.getDuplicates}
+                                        sort={this.state.sort}/>
                                     {this.state.searchLoading && 
                                         <div className="loading loading-lg"></div>
                                     }

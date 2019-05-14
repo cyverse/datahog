@@ -13,18 +13,22 @@ export class DuplicateTable extends React.Component {
 
     resort(event) {
         let sortBy = event.target.dataset.sort;
-        if (sortBy === '-total_size') {
-            this.props.dupeGroups.sort((a, b) => b[0].size*b.length - a[0].size*a.length);
-        } else if (sortBy === 'total_size') {
-            this.props.dupeGroups.sort((a, b) => a[0].size*a.length - b[0].size*b.length);
-        } else if (sortBy === '-file_size') {
-            this.props.dupeGroups.sort((a, b) => b[0].size - a[0].size);
-        } else if (sortBy === 'file_size') {
-            this.props.dupeGroups.sort((a, b) => a[0].size - b[0].size);
-        } else if (sortBy === '-file_count') {
-            this.props.dupeGroups.sort((a, b) => b.length - a.length);
-        } else if (sortBy === 'file_count') {
-            this.props.dupeGroups.sort((a, b) => a.length - b.length);
+        if (this.props.searchOnSort) {
+            this.props.searchCallback(sortBy);
+        } else {
+            if (sortBy === '-total_size') {
+                this.props.dupeGroups.sort((a, b) => b[0].size*b.length - a[0].size*a.length);
+            } else if (sortBy === 'total_size') {
+                this.props.dupeGroups.sort((a, b) => a[0].size*a.length - b[0].size*b.length);
+            } else if (sortBy === '-file_size') {
+                this.props.dupeGroups.sort((a, b) => b[0].size - a[0].size);
+            } else if (sortBy === 'file_size') {
+                this.props.dupeGroups.sort((a, b) => a[0].size - b[0].size);
+            } else if (sortBy === '-dupe_count') {
+                this.props.dupeGroups.sort((a, b) => b.length - a.length);
+            } else if (sortBy === 'dupe_count') {
+                this.props.dupeGroups.sort((a, b) => a.length - b.length);
+            }
         }
         this.setState({
             sort: sortBy
@@ -36,7 +40,7 @@ export class DuplicateTable extends React.Component {
             <table className='table file-table table-hover'>
                 <thead>
                     <tr>
-                        <SortHeader title='Duplications' sortBy='file_count' currentSort={this.state.sort} onClick={this.resort}/>
+                        <SortHeader title='Duplications' sortBy='dupe_count' currentSort={this.state.sort} onClick={this.resort}/>
                         <th className='options-cell'></th>
                         <SortHeader className='size-cell' title='File Size' sortBy='file_size' currentSort={this.state.sort} onClick={this.resort}/>
                         <SortHeader className='size-cell' title='Total Size' sortBy='total_size' currentSort={this.state.sort} onClick={this.resort}/>
