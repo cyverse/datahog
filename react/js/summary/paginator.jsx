@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import axios from '../axios';
 
 export class Paginator extends React.Component {
     constructor(props) {
@@ -17,14 +17,20 @@ export class Paginator extends React.Component {
         this.nextPage = this.nextPage.bind(this);
         this.onLoad = this.onLoad.bind(this);
         this.onError = this.onError.bind(this);
-
+        
+        this.cancelToken = this.cancelToken = axios.CancelToken.source();
         axios.get(this.props.get, {
             params: Object.assign({
                 limit: this.props.pageSize
-            }, this.props.params)
+            }, this.props.params),
+            cancelToken: this.cancelToken.token
         })
         .then(this.onLoad)
         .catch(this.onError);
+    }
+
+    componentWillUnmount() {
+        if (this.cancelToken) this.cancelToken.cancel();
     }
 
     onLoad(response) {
@@ -50,11 +56,15 @@ export class Paginator extends React.Component {
     nextPage() {
         this.props.onClick();
 
+        if (this.cancelToken) this.cancelToken.cancel();
+        this.cancelToken = axios.CancelToken.source();
+
         axios.get(this.props.get, {
             params: Object.assign({
                 limit: this.props.pageSize,
                 offset: (this.state.page+1)*this.props.pageSize
-            }, this.props.params)
+            }, this.props.params),
+            cancelToken: this.cancelToken.token
         })
         .then(this.onLoad)
         .catch(this.onError);
@@ -68,11 +78,15 @@ export class Paginator extends React.Component {
     prevPage() {
         this.props.onClick();
 
+        if (this.cancelToken) this.cancelToken.cancel();
+        this.cancelToken = axios.CancelToken.source();
+
         axios.get(this.props.get, {
             params: Object.assign({
                 limit: this.props.pageSize,
                 offset: (this.state.page-1)*this.props.pageSize
-            }, this.props.params)
+            }, this.props.params),
+            cancelToken: this.cancelToken.token
         })
         .then(this.onLoad)
         .catch(this.onError);
