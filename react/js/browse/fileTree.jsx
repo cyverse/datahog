@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import axios from '../axios';
 import { interpolateGreens } from 'd3';
 
 import { Size, ClickToCopy, SortHeader } from '../util';
@@ -17,8 +17,8 @@ export class FileTree extends React.Component {
 
     resort(event) {
         let sortBy = event.target.dataset.sort;
+        this.props.searchParams.sort = sortBy;
         if (this.props.searchOnSort) {
-            this.props.searchParams.sort = sortBy;
             this.props.searchCallback(this.props.searchParams);
         } else {
             recursiveSort(this.props.files, sortBy);
@@ -29,6 +29,10 @@ export class FileTree extends React.Component {
     }
 
     render() {
+        let maxSize = this.props.files.reduce((max, file) => {
+            if (file.is_folder) return Math.max(max, file.total_size);
+            else                return Math.max(max, file.size);
+        }, 0);
         return (
             <table className='table file-table table-hover'>
                 <thead>
@@ -41,11 +45,13 @@ export class FileTree extends React.Component {
                 </thead>
                 <tbody>
                     {this.props.files.map((file, index) => {
+                        let percentage = this.props.searching ? 0 :
+                            ((file.is_folder ? file.total_size : file.size) / maxSize)*100;
                         return (
                             <FileTreeNode
                                 key={file.id}
                                 file={file}
-                                percentage={file.is_folder ? 100 : 0}
+                                percentage={percentage}
                                 depth={0}
                                 sort={this.state.sort}
                             />

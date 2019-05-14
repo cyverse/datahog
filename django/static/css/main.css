@@ -99,8 +99,9 @@ a:focus {
 }
 
 .file-table .size-cell {
-    width: 95px;
+    width: 105px;
     text-align: right;
+    padding-right: 10px;
 }
 
 .file-table .date-cell {

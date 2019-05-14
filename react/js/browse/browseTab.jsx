@@ -176,6 +176,7 @@ export class BrowseTab extends React.Component {
                                 </div>
                                 <div className="panel-body" onScroll={this.handleScroll}>
                                     <FileTree files={this.state.files}
+                                        searching={this.state.searching}
                                         searchOnSort={this.state.moreResults}
                                         searchCallback={this.searchFiles}
                                         searchParams={this.state.searchParams}/>
