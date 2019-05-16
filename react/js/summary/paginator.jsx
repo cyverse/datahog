@@ -18,7 +18,7 @@ export class Paginator extends React.Component {
         this.onLoad = this.onLoad.bind(this);
         this.onError = this.onError.bind(this);
         
-        this.cancelToken = this.cancelToken = axios.CancelToken.source();
+        this.cancelToken = axios.CancelToken.source();
         axios.get(this.props.get, {
             params: Object.assign({
                 limit: this.props.pageSize
