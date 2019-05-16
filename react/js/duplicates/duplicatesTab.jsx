@@ -28,6 +28,7 @@ export class DuplicatesTab extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleScroll = this.handleScroll.bind(this);
         this.getDuplicates = this.getDuplicates.bind(this);
+        this.onResort = this.onResort.bind(this);
     }
 
     componentWillUnmount() {
@@ -79,14 +80,12 @@ export class DuplicatesTab extends React.Component {
         }
     }
 
-    getDuplicates(sortBy) {
-        if (!sortBy) sortBy = this.state.sort;
+    getDuplicates() {
         if (this.cancelToken) this.cancelToken.cancel();
         this.cancelToken = axios.CancelToken.source();
         this.setState({
             searchLoading: true,
             error: false,
-            sort: sortBy,
             dupeGroups: []
         });
         axios.get('/api/filedata/duplicates', {
@@ -94,11 +93,20 @@ export class DuplicatesTab extends React.Component {
                 sources: Array.from(this.state.include),
                 allow_different_names: this.state.allowDifferentNames,
                 limit: 10,
-                sort: sortBy
+                sort: this.state.sort
             },
             cancelToken: this.cancelToken.token
         }).then(this.onSearchLoad)
         .catch(this.onSearchError);
+    }
+
+    onResort(sortBy) {
+        this.setState({
+            sort: sortBy
+        });
+        if (this.state.moreResults) {
+            this.getDuplicates();
+        }
     }
 
     handleChange(event) {
@@ -154,7 +162,7 @@ export class DuplicatesTab extends React.Component {
                                 <div className="panel-body" onScroll={this.handleScroll}>
                                     <DuplicateTable dupeGroups={this.state.dupeGroups}
                                         searchOnSort={this.state.moreResults}
-                                        searchCallback={this.getDuplicates}
+                                        onResort={this.onResort}
                                         sort={this.state.sort}/>
                                     {this.state.searchLoading && 
                                         <div className="loading loading-lg"></div>
