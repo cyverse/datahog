@@ -4,6 +4,7 @@ import axios from '../axios';
 import { DuplicateTable } from './duplicateTable';
 import { LoadingWrapper } from '../loadingWrapper';
 import { MultiSelect } from '../util';
+import { SourceContext } from '../context';
 
 export class DuplicatesTab extends React.Component {
 
@@ -64,6 +65,21 @@ export class DuplicatesTab extends React.Component {
             }
             dupeGroups.push(currentDupeGroup);
         }
+
+        if (this.state.sort === '-total_size') {
+            dupeGroups.sort((a, b) => b[0].size*b.length - a[0].size*a.length);
+        } else if (this.state.sort === 'total_size') {
+            dupeGroups.sort((a, b) => a[0].size*a.length - b[0].size*b.length);
+        } else if (this.state.sort === '-size') {
+            dupeGroups.sort((a, b) => b[0].size - a[0].size);
+        } else if (this.state.sort === 'size') {
+            dupeGroups.sort((a, b) => a[0].size - b[0].size);
+        } else if (this.state.sort === '-dupe_count') {
+            dupeGroups.sort((a, b) => b.length - a.length);
+        } else if (this.state.sort === 'dupe_count') {
+            dupeGroups.sort((a, b) => a.length - b.length);
+        }
+
         this.setState({
             dupeGroups: this.state.dupeGroups.concat(dupeGroups),
             searchLoading: false,
@@ -80,20 +96,22 @@ export class DuplicatesTab extends React.Component {
         }
     }
 
-    getDuplicates() {
+    getDuplicates(sortBy) {
+        if (!sortBy) sortBy = this.state.sort;
         if (this.cancelToken) this.cancelToken.cancel();
         this.cancelToken = axios.CancelToken.source();
         this.setState({
             searchLoading: true,
             error: false,
-            dupeGroups: []
+            dupeGroups: [],
+            sort: sortBy
         });
         axios.get('/api/filedata/duplicates', {
             params: {
                 sources: Array.from(this.state.include),
                 allow_different_names: this.state.allowDifferentNames,
                 limit: 10,
-                sort: this.state.sort
+                sort: sortBy
             },
             cancelToken: this.cancelToken.token
         }).then(this.onSearchLoad)
@@ -101,11 +119,12 @@ export class DuplicatesTab extends React.Component {
     }
 
     onResort(sortBy) {
-        this.setState({
-            sort: sortBy
-        });
         if (this.state.moreResults) {
-            this.getDuplicates();
+            this.getDuplicates(sortBy);
+        } else {
+            this.setState({
+                sort: sortBy
+            });
         }
     }
 
