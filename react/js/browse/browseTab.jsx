@@ -5,6 +5,7 @@ import { FileTree } from './fileTree'
 import { LoadingWrapper } from '../loadingWrapper';
 import { SearchForm } from './searchForm';
 import { MultiSelect } from '../util';
+import { SourceContext } from '../context';
 
 export class BrowseTab extends React.Component {
 
@@ -21,7 +22,7 @@ export class BrowseTab extends React.Component {
             searchParams: {}
         };
 
-        // this.cancelToken = null;
+        this.cancelToken = null;
         this.searchForm = React.createRef();
 
         this.onLoad = this.onLoad.bind(this);
@@ -36,10 +37,19 @@ export class BrowseTab extends React.Component {
         this.sourcesChanged = this.sourcesChanged.bind(this);
     }
 
+    componentWillUnmount() {
+        this.context.include = this.state.include;
+    }
+
     onLoad(response) {
-        let include = new Set();
-        for (let source of response.data) {
-            include.add(source.id);
+        let include;
+        if (this.context.include) {
+            include = this.context.include;
+        } else {
+            include = new Set();
+            for (let source of response.data) {
+                include.add(source.id);
+            }
         }
         this.setState({
             sources: response.data,
@@ -192,3 +202,5 @@ export class BrowseTab extends React.Component {
         );
     }
 }
+
+BrowseTab.contextType = SourceContext;

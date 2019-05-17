@@ -4,6 +4,10 @@ export const SearchContext = React.createContext({
     state: null
 });
 
+export const SourceContext = React.createContext({
+    include: null
+});
+
 export const TaskContext = React.createContext({
     lastTask: null,
     taskStarted: null

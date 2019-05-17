@@ -34,12 +34,18 @@ export class DuplicatesTab extends React.Component {
 
     componentWillUnmount() {
         if (this.cancelToken) this.cancelToken.cancel();
+        this.context.include = this.state.include;
     }
 
     onLoad(response) {
-        let include = new Set();
-        for (let source of response.data) {
-            include.add(source.id);
+        let include;
+        if (this.context.include) {
+            include = this.context.include;
+        } else {
+            include = new Set();
+            for (let source of response.data) {
+                include.add(source.id);
+            }
         }
         this.setState({
             sources: response.data,
@@ -195,3 +201,5 @@ export class DuplicatesTab extends React.Component {
         );
     }
 }
+
+DuplicatesTab.contextType = SourceContext;
