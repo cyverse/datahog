@@ -41,7 +41,7 @@ class GetImportContext(views.APIView):
         })
 
 
-class GetLastTask(views.APIView):
+class LastTask(views.APIView):
     def get(self, request):
         try:
             last_task = AsyncTask.objects.latest('timestamp')
@@ -50,6 +50,18 @@ class GetLastTask(views.APIView):
         
         serializer = AsyncTaskSerializer(last_task)
         return Response(serializer.data)
+    
+    def patch(self, request):
+        try:
+            last_task = AsyncTask.objects.latest('timestamp')
+        except AsyncTask.DoesNotExist:
+            return Response('No such task exists.', status=400)
+
+        if 'failed' in request.data:
+            last_task.failed = request.data['failed']
+        
+        last_task.save()
+        return Response('Task edited successfully.')
 
 
 class GetDBDump(views.APIView):

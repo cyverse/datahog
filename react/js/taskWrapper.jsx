@@ -11,8 +11,7 @@ export class TaskWrapper extends React.Component {
         this.state = {
             loading: true,
             error: false,
-            lastTask: null,
-            modalViewed: false
+            lastTask: null
         };
 
         this.onLoad = this.onLoad.bind(this);
@@ -68,9 +67,8 @@ export class TaskWrapper extends React.Component {
 
     dismissModal() {
         this.state.lastTask.failed = false;
-        this.setState({
-            modalViewed: true
-        });
+        axios.patch('/api/import/task', this.state.lastTask);
+        this.setState({});
     }
 
     render() {
@@ -106,7 +104,7 @@ export class TaskWrapper extends React.Component {
         return (
             <React.Fragment>
                 <ContextWrapper lastTask={this.state.lastTask} taskStarted={this.taskStarted} />
-                <div className={this.state.lastTask.failed && !this.state.modalViewed ? 'modal active' : 'modal'}>
+                <div className={this.state.lastTask.failed ? 'modal active' : 'modal'}>
                     <a className="modal-overlay" onClick={this.dismissModal}></a>
                     <div className="modal-container">
                         <div className="modal-header">
