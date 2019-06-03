@@ -7,6 +7,7 @@ class AsyncTask(models.Model):
     status_message = models.CharField(max_length=128, blank=True)
     status_subtitle = models.CharField(max_length=128, blank=True)
     failed = models.BooleanField(default=False)
+    warning = models.BooleanField(default=False)
 
     import_attempt = models.ForeignKey('ImportAttempt', on_delete=models.CASCADE, null=True, blank=True)
     fixture = models.FileField(upload_to='fixtures/', null=True, blank=True)
