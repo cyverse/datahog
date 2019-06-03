@@ -1,5 +1,16 @@
-from apps.file_data.models import *
+from io import StringIO
 from django.db import transaction
+from django.core import management
+from django.core.files.base import ContentFile
+from apps.file_data.models import *
+
+
+def create_db_backup(task):
+    buffer = StringIO()
+    management.call_command('dumpdata', '--database=file_data', stdout=buffer)
+    buffer.seek(0)
+    task.fixture.save('db.json', ContentFile(buffer.read()))
+
 
 def build_file_database(task, directory, file_objects):
     task.status_message = 'Analyzing files...'
@@ -91,10 +102,5 @@ def build_file_database(task, directory, file_objects):
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
-
         directory.save()
 
-        task.in_progress = False
-        task.save()
-
-    print('Database update successful.')

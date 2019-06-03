@@ -2,7 +2,6 @@ import requests
 import json
 import datetime
 import os
-from io import StringIO
 from collections import deque
 
 import boto3
@@ -15,7 +14,7 @@ from django.db import transaction
 from django.core import management
 
 from .models import *
-from .helpers import build_file_database
+from .helpers import *
 from apps.file_data.models import *
 
 
@@ -27,16 +26,20 @@ def delete_source(task_id, source_id):
         source = ImportedDirectory.objects.get(id=source_id)
         with transaction.atomic(using='file_data'):
             source.delete()
-            task.in_progress = False
-            task.save()
         
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False
         task.failed = True
-        task.status_message = 'Delete failed.'
+        task.warning = True
+        task.status_message = 'Unable to remove file source.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+    
+    print('Updating database fixture...')
+    create_db_backup(task)
+    task.in_progress = False
+    task.save()
 
 
 @shared_task
@@ -44,22 +47,23 @@ def load_data(task_id):
     task = AsyncTask.objects.get(id=task_id)
     try:
         with transaction.atomic(using='file_data'):
-            sources = ImportedDirectory.objects.all().delete()
+            # sources = ImportedDirectory.objects.all().delete()
             print('Deleting old data...')
             management.call_command('flush', '--database=file_data', interactive=False)
             print('Loading new data...')
             management.call_command('loaddata', task.fixture.name, '--database=file_data', '--format=json')
-            task.in_progress = False
-            task.save()
         
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False
         task.failed = True
-        task.status_message = 'Restore failed.'
+        task.warning = True
+        task.status_message = 'Database restoration failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
-
+    
+    task.in_progress = False
+    task.save()
 
 
 @shared_task
@@ -145,12 +149,18 @@ def import_files_from_irods(task_id, password):
         
         build_file_database(task, directory, file_objects)
     except Exception as e:
-        print('Database update failed due to error: {}'.format(e))
+        print('Task failed with error: {}'.format(e))
         task.in_progress = False
         task.failed = True
+        task.warning = True
         task.status_message = 'Import failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+    
+    print('Updating database fixture...')
+    create_db_backup(task)
+    task.in_progress = False
+    task.save()
 
 
 @shared_task
@@ -185,12 +195,18 @@ def import_files_from_file(task_id, file_data):
 
         build_file_database(task, directory, file_objects)
     except Exception as e:
-        print('Database update failed due to error: {}'.format(e))
+        print('Task failed with error: {}'.format(e))
         task.in_progress = False
         task.failed = True
+        task.warning = True
         task.status_message = 'Import failed'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+    
+    print('Updating database fixture...')
+    create_db_backup(task)
+    task.in_progress = False
+    task.save()
 
 
 @shared_task
@@ -213,7 +229,7 @@ def import_files_from_cyverse(task_id, auth_token):
 
         response = requests.post("https://de.cyverse.org/terrain/secured/filesystem/search",
             headers={"authorization": auth_token},
-            data=json.dumps({
+            json={
                 "query": {
                     "all": [
                         {
@@ -226,8 +242,9 @@ def import_files_from_cyverse(task_id, auth_token):
                 },
                 "size": 10000,
                 "scroll": "1m"
-            })
+            }
         )
+        
         page = json.loads(response.text)
         
         scroll_token = page['scroll_id']
@@ -246,21 +263,27 @@ def import_files_from_cyverse(task_id, auth_token):
 
             response = requests.post('https://de.cyverse.org/terrain/secured/filesystem/search',
                 headers={'authorization': auth_token},
-                data=json.dumps({
+                json={
                     "scroll_id": scroll_token,
                     "scroll": "1m"
-                })
+                }
             )
             page = json.loads(response.text)
 
         build_file_database(task, directory, file_objects)
     except Exception as e:
-        print('Database update failed due to error: {}'.format(e))
+        print('Task failed with error: {}'.format(e))
         task.in_progress = False
         task.failed = True
+        task.warning = True
         task.status_message = 'Import failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+    
+    print('Updating database fixture...')
+    create_db_backup(task)
+    task.in_progress = False
+    task.save()
 
 
 @shared_task
@@ -311,7 +334,7 @@ def import_files_from_s3(task_id, secret_key):
                 file_obj = File(
                     name=file_name,
                     path=file_path,
-                    checksum=result['ETag'],
+                    checksum=result['ETag'][:32],
                     date_created=result['LastModified'].replace(tzinfo=None),
                     size=result['Size'],
                     directory=directory,
@@ -321,9 +344,15 @@ def import_files_from_s3(task_id, secret_key):
         
         build_file_database(task, directory, file_objects)
     except Exception as e:
-        print('Database update failed due to error: {}'.format(e))
+        print('Task failed with error: {}'.format(e))
         task.in_progress = False
         task.failed = True
+        task.warning = True
         task.status_message = 'Import failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+
+    print('Updating database fixture...')
+    create_db_backup(task)
+    task.in_progress = False
+    task.save()

@@ -13,6 +13,7 @@ from rest_framework import views
 from .models import *
 from .serializers import *
 from .tasks import *
+from .helpers import create_db_backup
 from apps.file_data.models import ImportedDirectory
 
 
@@ -57,8 +58,8 @@ class LastTask(views.APIView):
         except AsyncTask.DoesNotExist:
             return Response('No such task exists.', status=400)
 
-        if 'failed' in request.data:
-            last_task.failed = request.data['failed']
+        if 'warning' in request.data:
+            last_task.warning = request.data['warning']
         
         last_task.save()
         return Response('Task edited successfully.')
@@ -66,17 +67,25 @@ class LastTask(views.APIView):
 
 class GetDBDump(views.APIView):
     def get(self, request):
-        buffer = StringIO()
-        management.call_command('dumpdata', '--database=file_data', stdout=buffer)
-        buffer.seek(0)
+        
+        try:
+            last_task = AsyncTask.objects.filter(failed=False).latest('timestamp')
+        except AsyncTask.DoesNotExist:
+            last_task = AsyncTask.objects.create()
 
-        def db_chunks():
-            chunk = buffer.read(1024)
+        if last_task.fixture is None:
+            create_db_backup(last_task)
+        
+        db_file = last_task.fixture
+        db_file.open(mode='r')
+
+        def file_chunks():
+            chunk = db_file.read(1024)
             while len(chunk):
                 yield chunk
-                chunk = buffer.read(1024)
+                chunk = db_file.read(1024)
 
-        response = StreamingHttpResponse(db_chunks(), content_type='text/json')
+        response = StreamingHttpResponse(file_chunks(), content_type='text/json')
         response['Content-Disposition'] = 'attachment; filename="datahog_db.json"'
         return response
 
