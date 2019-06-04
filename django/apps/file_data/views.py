@@ -8,7 +8,7 @@ from django.http import StreamingHttpResponse
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
-from django.db.models import Count, F, ExpressionWrapper, IntegerField
+from django.db.models import Count, F, ExpressionWrapper, IntegerField, Q
 
 from .models import *
 from .serializers import *
@@ -108,16 +108,19 @@ class GetDuplicates(views.APIView):
     def get(self, request):
         dirs = request.GET.getlist('sources[]')
         if not len(dirs): return Response([])
-        
-        diff_names = request.GET.get('allow_different_names', 'true') == 'true'
-        files = File.objects.filter(directory__id__in=dirs)
-        
-        if diff_names:
-            dupe_groups = files.values('checksum', 'size')
-        else:
-            dupe_groups = files.values('checksum', 'size', 'name')
 
-        dupe_groups = dupe_groups.annotate(
+        # client can specify which fields are used to detect duplicates
+        method = request.GET.get('method', 'checksum')
+        duped_fields = method.split('+')
+
+        # find groups of alike values and calculate total size
+        files = File.objects.filter(directory__id__in=dirs)
+        if 'checksum' in duped_fields:
+            files = files.filter(checksum__isnull=False)
+        
+        dupe_groups = files.values(
+            'size', *duped_fields
+        ).annotate(
             dupe_count=Count('id')
         ).annotate(
             total_size=ExpressionWrapper(
@@ -127,17 +130,25 @@ class GetDuplicates(views.APIView):
         ).filter(
             dupe_count__gt=1
         )
-        
+
+        # sort values        
         sort = request.GET.get('sort', None)
         if sort in ('dupe_count', '-dupe_count', 'total_size', '-total_size', 'size', '-size'):
             dupe_groups = dupe_groups.order_by(sort)
 
+        # paginate values
         limit = int(request.GET.get('limit', 10))
         total = dupe_groups.count()
         offset = int(request.GET.get('offset', 0))
         dupe_groups = dupe_groups[offset:offset+limit]
-        
-        duped_files = files.filter(checksum__in=[group['checksum'] for group in dupe_groups]).order_by('checksum', 'name')
+
+        # find files matching the current page of value groups
+        filter_query = Q()
+        for dg in dupe_groups:
+            fields = {field: dg[field] for field in duped_fields if field in dg}
+            filter_query = filter_query | Q(**fields)
+
+        duped_files = files.filter(filter_query).order_by(*duped_fields, 'name')
         files_serialized = FileSerializer(duped_files, many=True)
         
         return Response({

@@ -15,10 +15,10 @@ export class DuplicatesTab extends React.Component {
             sources: [],
             include: new Set(),
             dupeGroups: [],
-            allowDifferentNames: true,
+            dupeType: 'checksum',
             searchLoading: false,
             moreResults: false,
-            sort: ''
+            sort: '-dupe_count'
         };
 
         this.cancelToken = null;
@@ -39,13 +39,14 @@ export class DuplicatesTab extends React.Component {
 
     onLoad(response) {
         let include;
-        if (this.context.include) {
+        if (this.context.include && response.data.length > 1) {
             include = this.context.include;
         } else {
             include = new Set();
             for (let source of response.data) {
                 include.add(source.id);
             }
+            this.context.include = include;
         }
         this.setState({
             sources: response.data,
@@ -57,15 +58,29 @@ export class DuplicatesTab extends React.Component {
     onSearchLoad(response) {
         let files = response.data.page;
         let dupeGroups = [];
+        let dupeValues = this.state.dupeType.split('+');
+
         if (files.length) {
-            let currentChecksum = files[0].checksum;
+            let currentValues = {};
+            for (let value of dupeValues) {
+                currentValues[value] = files[0][value];
+            }
             let currentDupeGroup = [];
             for (let file of files) {
-                if (file.checksum === currentChecksum) {
+                let matching = true;
+                for (let value of dupeValues) {
+                    if (file[value] !== currentValues[value]) {
+                        matching = false;
+                        break;
+                    }
+                }
+                if (matching) {
                     currentDupeGroup.push(file);
                 } else {
                     dupeGroups.push(currentDupeGroup);
-                    currentChecksum = file.checksum;
+                    for (let value of dupeValues) {
+                        currentValues[value] = file[value];
+                    }
                     currentDupeGroup = [file];
                 }
             }
@@ -115,7 +130,7 @@ export class DuplicatesTab extends React.Component {
         axios.get('/api/filedata/duplicates', {
             params: {
                 sources: Array.from(this.state.include),
-                allow_different_names: this.state.allowDifferentNames,
+                method: this.state.dupeType,
                 limit: 10,
                 sort: sortBy
             },
@@ -135,8 +150,8 @@ export class DuplicatesTab extends React.Component {
     }
 
     handleChange(event) {
-        if (event.target.type === 'checkbox') {
-            this.state.allowDifferentNames = event.target.checked;
+        if (event.target.type === 'select-one') {
+            this.state.dupeType = event.target.value;
         }
         this.getDuplicates();
     }
@@ -150,7 +165,7 @@ export class DuplicatesTab extends React.Component {
             axios.get('/api/filedata/duplicates', {
                 params: {
                     sources: Array.from(this.state.include),
-                    allow_different_names: this.state.allowDifferentNames,
+                    method: this.state.dupeType,
                     limit: 10,
                     offset: this.state.dupeGroups.length,
                     sort: this.state.sort
@@ -159,8 +174,14 @@ export class DuplicatesTab extends React.Component {
             .catch(this.onError);
         }
     }
-
     render() {
+        let missingChecksums = false;
+        for (let source of this.state.include) {
+            if (!source.has_checksums) {
+                missingChecksums = true;
+                break;
+            }
+        }
         return (
             <LoadingWrapper get="/api/filedata/sources" callback={this.onLoad}>
                 <div className="container">
@@ -176,12 +197,13 @@ export class DuplicatesTab extends React.Component {
                                         </div>
                                     }
                                     <div className="form-group">
-                                        <label className="form-switch">
-                                            <input type="checkbox"
-                                                checked={this.state.allowDifferentNames}
-                                                onChange={this.handleChange}/>
-                                            <i className="form-icon"></i> Include differently-named duplicates
-                                        </label>
+                                        Look for identical: &nbsp; 
+                                        <select value={this.state.dupeType} className="form-select select-sm col-4" onChange={this.handleChange}>
+                                            <option value="checksum">Checksums</option>
+                                            <option value="checksum+name">Checksums and names</option>
+                                            <option value="size">File sizes</option>
+                                            <option value="size+name">File sizes and names</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="panel-body" onScroll={this.handleScroll}>
@@ -193,6 +215,14 @@ export class DuplicatesTab extends React.Component {
                                         <div className="loading loading-lg"></div>
                                     }
                                 </div>
+                                { missingChecksums &&
+                                    <div className="panel-footer">
+                                        <div className="toast">
+                                            Some of your files are missing checksum information, so this list may be incomplete!<br/>
+                                            You might be able to discover more duplicates by looking for identical file sizes.
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>

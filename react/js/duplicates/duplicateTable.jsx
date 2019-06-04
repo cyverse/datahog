@@ -42,7 +42,7 @@ export class DuplicateTable extends React.Component {
                 <tbody>
                     {this.props.dupeGroups.map((group, index) => {
                         return (
-                            <DupeGroupRow key={group[0].checksum} group={group} />
+                            <DupeGroupRow key={index} group={group} />
                         )
                     })}
                 </tbody>
