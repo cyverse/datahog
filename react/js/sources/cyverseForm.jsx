@@ -121,6 +121,12 @@ export class CyverseForm extends React.Component {
                         }
                     </div>
                 </div>
+                <article>
+                    <p>
+                        <strong>Info:</strong> The CyVerse file API is still under development.
+                        iRODS is currently the recommended import method for DE files.
+                    </p>
+                </article>
             </form>
         );
     }

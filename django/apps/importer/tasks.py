@@ -77,7 +77,8 @@ def import_files_from_irods(task_id, password):
             name=attempt.irods_name,
             directory_type='iRODS',
             date_scanned=attempt.date_imported,
-            root_path=attempt.irods_root
+            root_path=attempt.irods_root,
+            has_checksums=True
         )
 
         def save_file(collection, name, size, date_created, checksum):
@@ -306,6 +307,7 @@ def import_files_from_s3(task_id, secret_key):
             date_scanned=attempt.date_imported,
             root_path=root_path
         )
+        has_checksums = True
 
         task.status_message = 'Downloading file data...'
         task.save()
@@ -331,6 +333,9 @@ def import_files_from_s3(task_id, secret_key):
                 if not len(file_name): continue
                 file_path = f'/{result["Key"]}'
 
+                if len(result['Etag']) > 32:
+                    has_checksums = False
+                
                 file_obj = File(
                     name=file_name,
                     path=file_path,
@@ -341,6 +346,8 @@ def import_files_from_s3(task_id, secret_key):
                     directory_name=directory.name
                 )
                 file_objects.append(file_obj)
+        
+        directory.has_checksums = has_checksums
         
         build_file_database(task, directory, file_objects)
     except Exception as e:
