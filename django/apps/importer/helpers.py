@@ -14,7 +14,6 @@ def create_db_backup(task):
 
     for task in AsyncTask.objects.filter(fixture__isnull=False).exclude(id=task.id):
         if task.fixture.name:
-            print('name', task.fixture.name)
             task.fixture.storage.delete(task.fixture.name)
             task.fixture.delete()
 
