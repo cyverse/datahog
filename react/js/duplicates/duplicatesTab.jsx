@@ -39,14 +39,10 @@ export class DuplicatesTab extends React.Component {
 
     onLoad(response) {
         let include;
-        if (this.context.include && response.data.length > 1) {
+        if (this.context.include) {
             include = this.context.include;
         } else {
-            include = new Set();
-            for (let source of response.data) {
-                include.add(source.id);
-            }
-            this.context.include = include;
+            include = new Set(response.data.map(source => source.id));
         }
         this.setState({
             sources: response.data,
@@ -176,10 +172,12 @@ export class DuplicatesTab extends React.Component {
     }
     render() {
         let missingChecksums = false;
-        for (let source of this.state.include) {
-            if (!source.has_checksums) {
-                missingChecksums = true;
-                break;
+        if (!(this.state.searchLoading && !this.state.dupeGroups.length) && this.state.dupeType.startsWith('checksum')) {
+            for (let source of this.state.sources) {
+                if (this.state.include.has(source.id) && !source.has_checksums) {
+                    missingChecksums = true;
+                    break;
+                }
             }
         }
         return (
@@ -215,15 +213,14 @@ export class DuplicatesTab extends React.Component {
                                         <div className="loading loading-lg"></div>
                                     }
                                 </div>
-                                { missingChecksums &&
-                                    <div className="panel-footer">
-                                        <div className="toast">
-                                            Some of your files are missing checksum information, so this list may be incomplete!<br/>
-                                            You might be able to discover more duplicates by looking for identical file sizes.
-                                        </div>
-                                    </div>
-                                }
+                                
                             </div>
+                            { missingChecksums && 
+                                <div className="toast">
+                                    Some of your files are missing checksum information, so this list may be incomplete.<br/>
+                                    You might be able to discover more duplicates by looking for identical file sizes.
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

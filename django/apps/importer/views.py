@@ -15,6 +15,7 @@ from .serializers import *
 from .tasks import *
 from .helpers import create_db_backup
 from apps.file_data.models import ImportedDirectory
+from apps.file_data.serializers import ImportedDirectorySerializer
 
 
 class GetImportContext(views.APIView):
@@ -33,12 +34,14 @@ class GetImportContext(views.APIView):
             
             last_attempt.save()
         
-        serializer = ImportAttemptSerializer(last_attempt)
-        num_sources = ImportedDirectory.objects.count()
+        attempt_serializer = ImportAttemptSerializer(last_attempt)
+
+        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
+        directory_serializer = ImportedDirectorySerializer(directories, many=True)
         
         return Response({
-            'last_attempt': serializer.data,
-            'num_sources': num_sources
+            'last_attempt': attempt_serializer.data,
+            'sources': directory_serializer.data
         })
 
 
@@ -116,7 +119,8 @@ class DeleteDirectory(views.APIView):
 
         new_task = AsyncTask.objects.create(
             in_progress=True,
-            status_message='Deleting source...'
+            status_message='Deleting source...',
+            status_subtitle='This may take several minutes.'
         )
         
         delete_source.delay(new_task.id, source_id=source.id)

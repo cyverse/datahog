@@ -46,10 +46,7 @@ export class BrowseTab extends React.Component {
         if (this.context.include) {
             include = this.context.include;
         } else {
-            include = new Set();
-            for (let source of response.data) {
-                include.add(source.id);
-            }
+            include = new Set(response.data.map(source => source.id));
         }
         this.setState({
             sources: response.data,

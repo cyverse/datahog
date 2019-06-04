@@ -3,7 +3,9 @@ import React from 'react';
 import { TabNav } from './tabNav';
 import { ImportForm } from './sources/importForm';
 import { LoadingWrapper } from './loadingWrapper';
-import { TaskContext, ImportContext } from './context';
+import { TaskContext, ImportContext, SourceContext } from './context';
+
+// Provides values for TaskContext, ImportContext, and SourceContext
 
 export class ContextWrapper extends React.Component {
     constructor(props) {
@@ -11,7 +13,7 @@ export class ContextWrapper extends React.Component {
         
         this.state = {
             lastAttempt: null,
-            numSources: 0
+            sources: 0
         };
 
         this.onLoad = this.onLoad.bind(this);
@@ -20,7 +22,7 @@ export class ContextWrapper extends React.Component {
     onLoad(response) {
         this.setState({
             lastAttempt: response.data.last_attempt,
-            numSources: response.data.num_sources
+            sources: response.data.sources
         });
     }
 
@@ -40,11 +42,15 @@ export class ContextWrapper extends React.Component {
                     { this.state.lastAttempt &&
                         <ImportContext.Provider value={{
                             lastAttempt: this.state.lastAttempt
-                        }}> 
-                            { this.state.numSources ?
-                                <TabNav/> :
-                                <ImportForm />
-                            }
+                        }}>
+                            <SourceContext.Provider value={{
+                                include: new Set(this.state.sources.map(source => source.id))
+                            }}>
+                                { this.state.sources.length ?
+                                    <TabNav/> :
+                                    <ImportForm />
+                                }
+                            </SourceContext.Provider>
                         </ImportContext.Provider>
                     }
                 </LoadingWrapper>
