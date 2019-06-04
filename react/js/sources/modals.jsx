@@ -153,11 +153,13 @@ export class BackupModal extends React.Component {
                 <a className="modal-overlay" onClick={this.props.onToggle}></a>
                 <div className="modal-container">
                     <div className="modal-header">
-                        <div className="modal-title h5">Backup/Restore Database</div>
+                        <div className="modal-title h5">{!this.props.hideDownload && 'Backup/'}Restore Database</div>
                     </div>
-                    <div className="modal-body">
-                        <a className="btn btn-primary" href="/api/import/dumpdata" download disabled={this.state.backupClicked} onClick={()=>this.setState({backupClicked: true})}>Download database backup</a>
-                    </div>
+                    { !this.props.hideDownload &&
+                        <div className="modal-body">
+                            <a className="btn btn-primary" href="/api/import/dumpdata" download>Download database backup</a>
+                        </div>
+                    }
                     <div className="modal-body">
                         <form className="form-horizontal" onSubmit={this.submitFile}>
                             <div className="form-group">

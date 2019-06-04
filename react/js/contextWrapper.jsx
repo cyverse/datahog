@@ -4,8 +4,10 @@ import { TabNav } from './tabNav';
 import { ImportForm } from './sources/importForm';
 import { LoadingWrapper } from './loadingWrapper';
 import { TaskContext, ImportContext, SourceContext } from './context';
+import { BackupModal } from './sources/modals';
 
-// Provides values for TaskContext, ImportContext, and SourceContext
+// Provides values for TaskContext, ImportContext, and SourceContext.
+// Hides the navigation menu if there are no imported file sources.
 
 export class ContextWrapper extends React.Component {
     constructor(props) {
@@ -13,10 +15,18 @@ export class ContextWrapper extends React.Component {
         
         this.state = {
             lastAttempt: null,
-            sources: 0
+            sources: 0,
+            restoreModal: false
         };
 
         this.onLoad = this.onLoad.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+    }
+
+    toggleModal() {
+        this.setState({
+            restoreModal: !this.state.restoreModal
+        });
     }
 
     onLoad(response) {
@@ -43,14 +53,21 @@ export class ContextWrapper extends React.Component {
                         <ImportContext.Provider value={{
                             lastAttempt: this.state.lastAttempt
                         }}>
-                            <SourceContext.Provider value={{
-                                include: new Set(this.state.sources.map(source => source.id))
-                            }}>
-                                { this.state.sources.length ?
-                                    <TabNav/> :
+                            
+                            { this.state.sources.length ?
+                                <SourceContext.Provider value={{
+                                    include: new Set(this.state.sources.map(source => source.id))
+                                }}>
+                                    <TabNav/>
+                                </SourceContext.Provider> :
+                                <React.Fragment>
                                     <ImportForm />
-                                }
-                            </SourceContext.Provider>
+                                    <div className="text-center">
+                                        <button className="btn btn-link" onClick={this.toggleModal}><i className="fa fa-database"></i> Restore database</button>
+                                    </div>
+                                    <BackupModal active={this.state.restoreModal} onToggle={this.toggleModal} hideDownload={true}/>
+                                </React.Fragment>
+                            }
                         </ImportContext.Provider>
                     }
                 </LoadingWrapper>
