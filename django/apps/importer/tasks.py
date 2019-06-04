@@ -35,6 +35,7 @@ def delete_source(task_id, source_id):
         task.status_message = 'Unable to remove file source.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+        return
     
     print('Updating database fixture...')
     create_db_backup(task)
@@ -61,6 +62,7 @@ def load_data(task_id):
         task.status_message = 'Database restoration failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+        return
     
     task.in_progress = False
     task.save()
@@ -157,6 +159,7 @@ def import_files_from_irods(task_id, password):
         task.status_message = 'Import failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+        return
     
     print('Updating database fixture...')
     create_db_backup(task)
@@ -203,6 +206,7 @@ def import_files_from_file(task_id, file_data):
         task.status_message = 'Import failed'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+        return
     
     print('Updating database fixture...')
     create_db_backup(task)
@@ -280,6 +284,7 @@ def import_files_from_cyverse(task_id, auth_token):
         task.status_message = 'Import failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+        return
     
     print('Updating database fixture...')
     create_db_backup(task)
@@ -358,6 +363,7 @@ def import_files_from_s3(task_id, secret_key):
         task.status_message = 'Import failed.'
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
+        return
 
     print('Updating database fixture...')
     create_db_backup(task)

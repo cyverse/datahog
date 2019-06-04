@@ -3,6 +3,7 @@ from django.db import transaction
 from django.core import management
 from django.core.files.base import ContentFile
 from apps.file_data.models import *
+from .models import AsyncTask
 
 
 def create_db_backup(task):
@@ -10,6 +11,12 @@ def create_db_backup(task):
     management.call_command('dumpdata', '--database=file_data', stdout=buffer)
     buffer.seek(0)
     task.fixture.save('db.json', ContentFile(buffer.read()))
+
+    for task in AsyncTask.objects.filter(fixture__isnull=False).exclude(id=task.id):
+        if task.fixture.name:
+            print('name', task.fixture.name)
+            task.fixture.storage.delete(task.fixture.name)
+            task.fixture.delete()
 
 
 def build_file_database(task, directory, file_objects):
@@ -92,7 +99,6 @@ def build_file_database(task, directory, file_objects):
 
     directory.folder_count = len(folder_objects_by_path.values())
     directory.file_count = len(file_objects)
-    directory.duplicate_count = 0 # TODO: new method to calculate this
     directory.total_size = total_size
 
     task.status_message = 'Building file database...'
