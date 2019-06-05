@@ -301,7 +301,7 @@ def import_files_from_s3(task_id, secret_key):
     try:
         root_path = attempt.s3_root
         if len(root_path):
-            if root_path[0] != '/': root_path = f'/{root_path}'
+            if root_path[0] != '/': root_path = '/{}'.format(root_path)
             if root_path[len(root_path)-1] == '/': root_path = root_path[:len(root_path)-1]
         else:
             root_path = '/'
@@ -336,15 +336,16 @@ def import_files_from_s3(task_id, secret_key):
                 last_slash = result['Key'].rfind('/')
                 file_name = result['Key'][last_slash+1:]
                 if not len(file_name): continue
-                file_path = f'/{result["Key"]}'
+                file_path = '/{}'.format(result['Key'])
 
-                if len(result['Etag']) > 32:
+                checksum = result['ETag'].strip('"')
+                if len(checksum) > 32:
                     has_checksums = False
                 
                 file_obj = File(
                     name=file_name,
                     path=file_path,
-                    checksum=result['ETag'][:32],
+                    checksum=checksum[:32],
                     date_created=result['LastModified'].replace(tzinfo=None),
                     size=result['Size'],
                     directory=directory,

@@ -143,7 +143,7 @@ class ImportFromIrods(views.APIView):
         name = request.data['name']
         root = request.data['root']
 
-        if root[0] != '/': root = f'/{root}'
+        if root[0] != '/': root = '/{}'.format(root)
         if root[len(root)-1] == '/': root = root[:len(root)-1]
         
         with irods.session.iRODSSession(
@@ -210,7 +210,7 @@ class ImportFromCyverse(views.APIView):
         name = request.data['name']
         root = request.data['root']
 
-        if root[0] != '/': root = f'/{root}'
+        if root[0] != '/': root = '/{}'.format(root)
         if root[len(root)-1] == '/': root = root[:len(root)-1]
         
         try:
@@ -341,7 +341,7 @@ class ImportFromS3(views.APIView):
 
         if len(root):
             # reformat root for AWS style
-            if root[len(root)-1] != '/': root = f'{root}/'
+            if root[len(root)-1] != '/': root = '{}/'.format(root)
             if root[0] == '/': root = root[1:]
             try:
                 client.head_object(Bucket=bucket, Key=root)
