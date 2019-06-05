@@ -82,8 +82,8 @@ class GetChildrenOfFolder(views.APIView):
         except Folder.DoesNotExist:
             return Response('That folder does not exist!', status=404)
         
-        child_folders = Folder.objects.filter(parent=parent_folder)
-        child_files   = File.objects.filter(parent=parent_folder)
+        child_folders = Folder.objects.filter(parent=parent_folder).order_by('name')
+        child_files   = File.objects.filter(parent=parent_folder).order_by('name')
 
         folder_serializer = FolderSerializer(child_folders.all(), many=True)
         file_serializer   = FileSerializer(child_files.all(), many=True)
