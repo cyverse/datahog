@@ -4,6 +4,7 @@ import axios from '../axios';
 import { DuplicateTable } from './duplicateTable';
 import { LoadingWrapper } from '../loadingWrapper';
 import { MultiSelect } from '../util';
+import { SourceContext } from '../context';
 
 export class DuplicatesTab extends React.Component {
 
@@ -13,27 +14,35 @@ export class DuplicatesTab extends React.Component {
         this.state = {
             sources: [],
             include: new Set(),
-            allowDifferentNames: true,
             dupeGroups: [],
-            searchLoading: false
+            dupeType: 'checksum',
+            searchLoading: false,
+            moreResults: false,
+            sort: '-dupe_count'
         };
 
         this.cancelToken = null;
+
         this.onLoad = this.onLoad.bind(this);
         this.onSearchLoad = this.onSearchLoad.bind(this);
         this.onSearchError = this.onSearchError.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
         this.getDuplicates = this.getDuplicates.bind(this);
+        this.onResort = this.onResort.bind(this);
     }
 
     componentWillUnmount() {
         if (this.cancelToken) this.cancelToken.cancel();
+        this.context.include = this.state.include;
     }
 
     onLoad(response) {
-        let include = new Set();
-        for (let source of response.data) {
-            include.add(source.id);
+        let include;
+        if (this.context.include) {
+            include = this.context.include;
+        } else {
+            include = new Set(response.data.map(source => source.id));
         }
         this.setState({
             sources: response.data,
@@ -43,25 +52,55 @@ export class DuplicatesTab extends React.Component {
     }
 
     onSearchLoad(response) {
-        let files = response.data;
+        let files = response.data.page;
         let dupeGroups = [];
+        let dupeValues = this.state.dupeType.split('+');
+
         if (files.length) {
-            let currentChecksum = files[0].checksum;
+            let currentValues = {};
+            for (let value of dupeValues) {
+                currentValues[value] = files[0][value];
+            }
             let currentDupeGroup = [];
-            for (let file of response.data) {
-                if (file.checksum === currentChecksum) {
+            for (let file of files) {
+                let matching = true;
+                for (let value of dupeValues) {
+                    if (file[value] !== currentValues[value]) {
+                        matching = false;
+                        break;
+                    }
+                }
+                if (matching) {
                     currentDupeGroup.push(file);
                 } else {
                     dupeGroups.push(currentDupeGroup);
-                    currentChecksum = file.checksum;
+                    for (let value of dupeValues) {
+                        currentValues[value] = file[value];
+                    }
                     currentDupeGroup = [file];
                 }
             }
             dupeGroups.push(currentDupeGroup);
         }
+
+        if (this.state.sort === '-total_size') {
+            dupeGroups.sort((a, b) => b[0].size*b.length - a[0].size*a.length);
+        } else if (this.state.sort === 'total_size') {
+            dupeGroups.sort((a, b) => a[0].size*a.length - b[0].size*b.length);
+        } else if (this.state.sort === '-size') {
+            dupeGroups.sort((a, b) => b[0].size - a[0].size);
+        } else if (this.state.sort === 'size') {
+            dupeGroups.sort((a, b) => a[0].size - b[0].size);
+        } else if (this.state.sort === '-dupe_count') {
+            dupeGroups.sort((a, b) => b.length - a.length);
+        } else if (this.state.sort === 'dupe_count') {
+            dupeGroups.sort((a, b) => a.length - b.length);
+        }
+
         this.setState({
-            dupeGroups: dupeGroups,
-            searchLoading: false
+            dupeGroups: this.state.dupeGroups.concat(dupeGroups),
+            searchLoading: false,
+            moreResults: this.state.dupeGroups.length + dupeGroups.length < response.data.total
         });
     }
 
@@ -74,32 +113,73 @@ export class DuplicatesTab extends React.Component {
         }
     }
 
-    getDuplicates() {
+    getDuplicates(sortBy) {
+        if (!sortBy) sortBy = this.state.sort;
         if (this.cancelToken) this.cancelToken.cancel();
         this.cancelToken = axios.CancelToken.source();
         this.setState({
             searchLoading: true,
             error: false,
-            dupeGroups: []
+            dupeGroups: [],
+            sort: sortBy
         });
         axios.get('/api/filedata/duplicates', {
             params: {
                 sources: Array.from(this.state.include),
-                allow_different_names: this.state.allowDifferentNames
+                method: this.state.dupeType,
+                limit: 10,
+                sort: sortBy
             },
             cancelToken: this.cancelToken.token
         }).then(this.onSearchLoad)
         .catch(this.onSearchError);
     }
 
+    onResort(sortBy) {
+        if (this.state.moreResults) {
+            this.getDuplicates(sortBy);
+        } else {
+            this.setState({
+                sort: sortBy
+            });
+        }
+    }
+
     handleChange(event) {
-        if (event.target.type === 'checkbox') {
-            this.state.allowDifferentNames = event.target.checked;
+        if (event.target.type === 'select-one') {
+            this.state.dupeType = event.target.value;
         }
         this.getDuplicates();
     }
 
+    handleScroll(event) {
+        let hitBottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+        if (hitBottom && !this.state.searchLoading && this.state.moreResults) {
+            this.setState({
+                searchLoading: true
+            });
+            axios.get('/api/filedata/duplicates', {
+                params: {
+                    sources: Array.from(this.state.include),
+                    method: this.state.dupeType,
+                    limit: 10,
+                    offset: this.state.dupeGroups.length,
+                    sort: this.state.sort
+                }
+            }).then(this.onSearchLoad)
+            .catch(this.onError);
+        }
+    }
     render() {
+        let missingChecksums = false;
+        if (!(this.state.searchLoading && !this.state.dupeGroups.length) && this.state.dupeType.startsWith('checksum')) {
+            for (let source of this.state.sources) {
+                if (this.state.include.has(source.id) && !source.has_checksums) {
+                    missingChecksums = true;
+                    break;
+                }
+            }
+        }
         return (
             <LoadingWrapper get="/api/filedata/sources" callback={this.onLoad}>
                 <div className="container">
@@ -115,21 +195,32 @@ export class DuplicatesTab extends React.Component {
                                         </div>
                                     }
                                     <div className="form-group">
-                                        <label className="form-switch">
-                                            <input type="checkbox"
-                                                checked={this.state.allowDifferentNames}
-                                                onChange={this.handleChange}/>
-                                            <i className="form-icon"></i> Include differently-named duplicates
-                                        </label>
+                                        Look for identical: &nbsp; 
+                                        <select value={this.state.dupeType} className="form-select select-sm col-4" onChange={this.handleChange}>
+                                            <option value="checksum">Checksums</option>
+                                            <option value="checksum+name">Checksums and names</option>
+                                            <option value="size">File sizes</option>
+                                            <option value="size+name">File sizes and names</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="panel-body" onScroll={this.handleScroll}>
-                                    <DuplicateTable dupeGroups={this.state.dupeGroups}/>
+                                    <DuplicateTable dupeGroups={this.state.dupeGroups}
+                                        searchOnSort={this.state.moreResults}
+                                        onResort={this.onResort}
+                                        sort={this.state.sort}/>
                                     {this.state.searchLoading && 
                                         <div className="loading loading-lg"></div>
                                     }
                                 </div>
+                                
                             </div>
+                            { missingChecksums && 
+                                <div className="toast">
+                                    Some of your files are missing checksum information, so this list may be incomplete.<br/>
+                                    You might be able to discover more duplicates by looking for identical file sizes.
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -137,3 +228,5 @@ export class DuplicatesTab extends React.Component {
         );
     }
 }
+
+DuplicatesTab.contextType = SourceContext;

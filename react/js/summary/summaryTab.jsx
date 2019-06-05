@@ -61,19 +61,27 @@ export class SummaryTab extends React.Component {
                                 <div className="card fixed-height">
                                     <div className="card-body">
                                         <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
-                                        <div style={{marginTop: '20px'}}>
-                                            <p>
-                                                <i className="fa fa-fw fa-file"></i>
-                                                {selectedSource.file_count} files <br/>
-                                            </p>
-                                            <p>
-                                                <i className="fa fa-fw fa-folder-open"></i>
-                                                {selectedSource.folder_count} folders <br/>
-                                            </p>
-                                            <p>
-                                                <i className="fa fa-fw fa-area-chart"></i>
-                                                <Size bytes={selectedSource.total_size} />
-                                            </p>
+                                        <div  className="container">
+                                            <div className="columns" style={{marginTop: '10px'}}>
+                                                <p className="column">
+                                                    <i className="fa fa-fw fa-file"></i>
+                                                    {selectedSource.file_count} files <br/>
+                                                </p>
+                                                <p className="column">
+                                                    <i className="fa fa-fw fa-area-chart"></i>
+                                                    <Size bytes={selectedSource.total_size} />
+                                                </p>
+                                            </div>
+                                            <div className="columns" style={{marginTop: '7px'}}>
+                                                <p className="column">
+                                                    <i className="fa fa-fw fa-folder-open"></i>
+                                                    {selectedSource.folder_count} folders <br/>
+                                                </p>
+                                                <p className="column">
+                                                    <i className="fa fa-fw fa-calendar"></i>
+                                                    Scanned {selectedSource.date_scanned}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                     <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/>

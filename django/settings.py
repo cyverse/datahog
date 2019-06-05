@@ -133,4 +133,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'protected')
+MEDIA_ROOT = os.path.join(BASE_DIR)
+
+FIXTURE_DIRS = [
+    os.path.join(BASE_DIR, 'fixtures')
+]

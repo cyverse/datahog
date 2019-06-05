@@ -2,8 +2,8 @@ import React from 'react';
 import axios from '../axios';
 
 import { LoadingWrapper } from '../loadingWrapper';
-import { trimPath } from '../util';
-import { ImportModal } from './importForm';
+import { ImportModal, DeleteModal, BackupModal } from './modals';
+import { TaskContext } from '../context';
 
 export class SourceTab extends React.Component {
 
@@ -15,14 +15,15 @@ export class SourceTab extends React.Component {
             loading: true,
             error: false,
             toDelete: null,
-            importing: false
+            importing: false,
+            backup: false
         };
 
         this.onLoad = this.onLoad.bind(this);
         this.onError = this.onError.bind(this);
         this.toggleDeleteModal = this.toggleDeleteModal.bind(this);
         this.toggleImportModal = this.toggleImportModal.bind(this);
-        this.deleteSource = this.deleteSource.bind(this);
+        this.toggleBackupModal = this.toggleBackupModal.bind(this);
     }
 
     onLoad(response) {
@@ -52,12 +53,9 @@ export class SourceTab extends React.Component {
         });
     }
 
-    deleteSource() {
-        axios.delete('api/filedata/deletesource', { data: this.state.toDelete })
-        .then(this.onLoad)
-        .catch(this.onError);
+    toggleBackupModal() {
         this.setState({
-            toDelete: null
+            backup: !this.state.backup
         });
     }
 
@@ -75,7 +73,7 @@ export class SourceTab extends React.Component {
                                 <button className="btn btn-primary" onClick={this.toggleImportModal}>
                                     <i className="fa fa-fw fa-plus"></i> Import New Source
                                 </button>
-                                <button className="btn btn-link float-right">
+                                <button className="btn btn-link float-right" onClick={this.toggleBackupModal}>
                                     <i className="fa fa-fw fa-download"></i> Full Database Backup/Restore
                                 </button>
                                 </div>
@@ -84,27 +82,14 @@ export class SourceTab extends React.Component {
                     </div>
                 </div>
                 <ImportModal active={this.state.importing} onToggle={this.toggleImportModal}/>
-                <div className={this.state.toDelete ? 'modal active' : 'modal'} id="modal-id">
-                    <a className="modal-overlay" onClick={this.toggleDeleteModal}></a>
-                    <div className="modal-container">
-                        <div className="modal-header">
-                            <div className="modal-title h5">Are you sure?</div>
-                        </div>
-                        <div className="modal-body">
-                            <div className="content">
-                                If you remove this source, it will need to be re-imported in order to be viewed again.
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-primary" onClick={this.deleteSource}>Remove</button>
-                            <button className="btn btn-link" onClick={this.toggleDeleteModal}>Cancel</button>
-                        </div>
-                    </div>
-                </div>
+                <DeleteModal active={this.state.toDelete} onToggle={this.toggleDeleteModal} source={this.state.toDelete}/>
+                <BackupModal active={this.state.backup} onToggle={this.toggleBackupModal} />
             </LoadingWrapper>
         );
     }
 }
+
+SourceTab.contextType = TaskContext;
 
 
 export function SourceTable(props) {

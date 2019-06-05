@@ -47,9 +47,7 @@ export class IrodsForm extends React.Component {
             this.setState({
                 waiting: false
             });
-            if (this.props.onSubmit) {
-                this.props.onSubmit();
-            }
+            this.props.onSubmit(response.data);
         }.bind(this))
         .catch(function(error) {
             this.setState({
@@ -140,7 +138,7 @@ export class IrodsForm extends React.Component {
                     </div>
                 </div>
                 <div className="form-group submit-group">
-                    <div className="col-3">
+                    <div className="col-4">
                         <input type="submit" 
                             className="btn btn-primary"
                             value="Import from iRODS"

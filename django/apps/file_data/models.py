@@ -11,20 +11,19 @@ class ImportedDirectory(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=32)
-    date_scanned = models.DateTimeField(auto_now_add=True)
+    date_scanned = models.DateTimeField()
     date_viewed = models.DateTimeField(auto_now_add=True)
     root_path = models.CharField(max_length=512, blank=True)
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
-    has_checksums = models.BooleanField(default=False)
-    duplicate_count = models.IntegerField(default=0)
+    has_checksums = models.BooleanField(default=True)
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
     type_chart_data = models.TextField(blank=True, null=True)
     directory_type = models.CharField(max_length=16, choices=DIRECTORY_TYPE_CHOICES, default='Local folder')
 
     def __str__(self):
-        return self.root_path
+        return self.name
 
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

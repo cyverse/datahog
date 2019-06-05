@@ -8,7 +8,7 @@ from django.http import StreamingHttpResponse
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from rest_framework import views, pagination, generics, filters
-from django.db.models import Count
+from django.db.models import Count, F, ExpressionWrapper, IntegerField, Q
 
 from .models import *
 from .serializers import *
@@ -82,8 +82,8 @@ class GetChildrenOfFolder(views.APIView):
         except Folder.DoesNotExist:
             return Response('That folder does not exist!', status=404)
         
-        child_folders = Folder.objects.filter(parent=parent_folder)
-        child_files   = File.objects.filter(parent=parent_folder)
+        child_folders = Folder.objects.filter(parent=parent_folder).order_by('name')
+        child_files   = File.objects.filter(parent=parent_folder).order_by('name')
 
         folder_serializer = FolderSerializer(child_folders.all(), many=True)
         file_serializer   = FileSerializer(child_files.all(), many=True)
@@ -107,20 +107,54 @@ class GetTopLevelFiles(views.APIView):
 class GetDuplicates(views.APIView):
     def get(self, request):
         dirs = request.GET.getlist('sources[]')
-        if len(dirs):
-            diff_names = request.GET.get('allow_different_names', 'true') == 'true'
-            files = File.objects.filter(directory__id__in=dirs)
-            
-            if diff_names:
-                dupe_groups = files.values('checksum').annotate(Count('id')).filter(id__count__gt=1)
-            else:
-                dupe_groups = files.values('checksum', 'name').annotate(Count('id')).filter(id__count__gt=1)
+        if not len(dirs): return Response([])
 
-            duped_files = files.filter(checksum__in=[group['checksum'] for group in dupe_groups]).order_by('checksum', 'name')
-            files_serialized = FileSerializer(duped_files, many=True)
-            return Response(files_serialized.data)
-        else:
-            return Response([])
+        # client can specify which fields are used to detect duplicates
+        method = request.GET.get('method', 'checksum')
+        duped_fields = method.split('+')
+
+        # find groups of alike values and calculate total size
+        files = File.objects.filter(directory__id__in=dirs)
+        if 'checksum' in duped_fields:
+            files = files.filter(checksum__isnull=False)
+        
+        dupe_groups = files.values(
+            'size', *duped_fields
+        ).annotate(
+            dupe_count=Count('id')
+        ).annotate(
+            total_size=ExpressionWrapper(
+                F('dupe_count') * F('size'),
+                output_field=IntegerField()
+            )
+        ).filter(
+            dupe_count__gt=1
+        )
+
+        # sort values        
+        sort = request.GET.get('sort', None)
+        if sort in ('dupe_count', '-dupe_count', 'total_size', '-total_size', 'size', '-size'):
+            dupe_groups = dupe_groups.order_by(sort)
+
+        # paginate values
+        limit = int(request.GET.get('limit', 10))
+        total = dupe_groups.count()
+        offset = int(request.GET.get('offset', 0))
+        dupe_groups = dupe_groups[offset:offset+limit]
+
+        # find files matching the current page of value groups
+        filter_query = Q()
+        for dg in dupe_groups:
+            fields = {field: dg[field] for field in duped_fields if field in dg}
+            filter_query = filter_query | Q(**fields)
+
+        duped_files = files.filter(filter_query).order_by(*duped_fields, 'name')
+        files_serialized = FileSerializer(duped_files, many=True)
+        
+        return Response({
+            'page': files_serialized.data,
+            'total': total
+        })
 
 
 class GetSearchCSV(views.APIView):
@@ -172,25 +206,11 @@ class ViewDirectory(views.APIView):
         return Response(directories_serialized.data)
 
 
-class DeleteDirectory(views.APIView):
-    def delete(self, request):
-        try:
-            directory = ImportedDirectory.objects.get(id=request.data['id'])
-            directory.delete()
-        except:
-            directory = None
-        
-        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
-        directories_serialized = ImportedDirectorySerializer(directories, many=True)
-        return Response(directories_serialized.data)
-
-
 class GetBackupFile(views.APIView):
     def get(self, request):
         
         source_id = request.GET.get('source', None)
-        
-        directory = ImportedDirectory.objects.latest('date_viewed')
+        directory = ImportedDirectory.objects.get(id=source_id)
         files = []
 
         for file in File.objects.filter(directory__id=source_id).all():

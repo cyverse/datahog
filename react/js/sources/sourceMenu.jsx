@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { ImportModal } from './importForm';
-import { trimPath } from '../util';
+import { ImportModal } from './modals';
 
 export class SourceMenu extends React.Component {
     constructor(props) {
@@ -79,7 +78,7 @@ export class SourceMenu extends React.Component {
                                     <a onClick={this.toggleModal}>
                                         <span className="text-right">
                                             <i className="fa fa-sm fa-fw fa-plus"></i>
-                                            Import new directory
+                                            Import new file source
                                         </span>
                                     </a>
                                 </li>

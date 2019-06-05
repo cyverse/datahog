@@ -1,12 +1,21 @@
 from django.db import models
 
 
-class ImportAttempt(models.Model):
-    
-    date_imported = models.DateTimeField(auto_now_add=True)
+class AsyncTask(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
     in_progress = models.BooleanField(default=False)
-    current_step = models.IntegerField(default=0)
+    status_message = models.CharField(max_length=128, blank=True)
+    status_subtitle = models.CharField(max_length=128, blank=True)
     failed = models.BooleanField(default=False)
+    warning = models.BooleanField(default=False)
+
+    import_attempt = models.ForeignKey('ImportAttempt', on_delete=models.CASCADE, null=True, blank=True)
+    fixture = models.FileField(upload_to='fixtures/', null=True, blank=True)
+
+
+class ImportAttempt(models.Model):
+
+    date_imported = models.DateTimeField(auto_now_add=True)
 
     irods_user = models.CharField(max_length=64, blank=True)
     irods_host = models.CharField(max_length=64, blank=True, default='data.cyverse.org')

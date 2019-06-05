@@ -18,7 +18,7 @@ header img {
 
 article {
     margin: 25px;
-    padding: 1px 25px 25px 25px;
+    padding: 1px 25px;
     background-color: #f3f5f9;
 }
 
@@ -99,8 +99,9 @@ a:focus {
 }
 
 .file-table .size-cell {
-    width: 95px;
+    width: 105px;
     text-align: right;
+    padding-right: 10px;
 }
 
 .file-table .date-cell {
@@ -146,7 +147,7 @@ a:focus {
     margin-left: 75px;
 }
 
-#sizeTimeline, #typeChart {
+#sizeTimeline {
     margin: 10px 0;
 }
 
