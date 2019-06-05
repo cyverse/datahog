@@ -1,5 +1,6 @@
 amqp==2.3.2
 billiard==3.5.0.4
+boto3==1.9.129
 celery==4.2.1
 Django==2.1.1
 djangorestframework==3.8.2
