@@ -23,7 +23,7 @@ class ImportedDirectory(models.Model):
     directory_type = models.CharField(max_length=16, choices=DIRECTORY_TYPE_CHOICES, default='Local folder')
 
     def __str__(self):
-        return self.root_path
+        return self.name
 
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
