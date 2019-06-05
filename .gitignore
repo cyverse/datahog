@@ -14,3 +14,4 @@ react/package-lock.json
 react/npm-debug.log
 
 django/protected/thumbnails
+django/fixtures
