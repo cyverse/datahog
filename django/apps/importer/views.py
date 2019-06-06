@@ -102,6 +102,7 @@ class RestoreDB(views.APIView):
         new_task = AsyncTask.objects.create(
             in_progress=True,
             status_message='Restoring database...',
+            status_subtitle='This may take several minutes.',
             fixture=file
         )
 
