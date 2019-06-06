@@ -48,7 +48,6 @@ def load_data(task_id):
     task = AsyncTask.objects.get(id=task_id)
     try:
         with transaction.atomic(using='file_data'):
-            # sources = ImportedDirectory.objects.all().delete()
             print('Deleting old data...')
             management.call_command('flush', '--database=file_data', interactive=False)
             print('Loading new data...')
