@@ -1,5 +1,5 @@
-iRODS File Dashboard
-====================
+DataHog
+=======
 
 Running the Docker Image
 ------------------------
@@ -9,10 +9,10 @@ Running the Docker Image
 Running Locally
 ---------------
 1. Install SQLite 3
-2. Install Python 3.6.6 in a virtual environment
+2. Install Python 3.6.6
 3. Install the pip packages in `django/requirements.txt`
 4. Install Node.JS 8.12.0
 5. Install the npm packages using `npm install` inside the `react` directory.
-6. Run `npm run js` to build the JS files, and `npm run css` to build the CSS files.
-7. Run `python manage.py makemigrations` and `python manage.py migrate` to populate your database
-8. Run `python manage.py runserver` run the server
+6. Run `npm run js` to build the JS files.
+7. Run `python manage.py makemigrations` and `python manage.py migrate` inside the `django` directory to populate your database.
+8. Run `python manage.py runserver` run the server.
