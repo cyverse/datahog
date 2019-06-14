@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Converts size in bytes to a concise, readable format.
+ */
 export function Size(props) {
     let bytes = props.bytes;
     let coefficient, units;
@@ -23,6 +26,9 @@ export function Size(props) {
     return <span>{formattedSize}</span>;
 }
 
+/**
+ * Copies a specific piece of text data to the clipboard when clicked.
+ */
 export class ClickToCopy extends React.Component {
     constructor(props) {
         super(props);
@@ -65,7 +71,9 @@ export class ClickToCopy extends React.Component {
     }
 }
 
-
+/**
+ * A form input with a flexible label.
+ */
 export function LabeledInput(props) {
     let labelPos = props.value.length > 0 ? 0 : 20;
     return (
@@ -86,6 +94,9 @@ export function LabeledInput(props) {
     );
 }
 
+/**
+ * A selectable button within a text input.
+ */
 export class SelectButton extends React.Component {
     constructor(props) {
         super(props);
@@ -106,6 +117,9 @@ export class SelectButton extends React.Component {
     }
 }
 
+/**
+ * Converts a long path into a short one.
+ */
 export function trimPath(path, max) {
     if (!path) path = '';
     if (!max)  max = 30;
@@ -120,6 +134,9 @@ export function trimPath(path, max) {
     }
 }
 
+/**
+ * The header for a sortable table column.
+ */
 export function SortHeader(props) {
     let sortDirection;
     if (props.currentSort === props.sortBy) {
@@ -142,6 +159,9 @@ export function SortHeader(props) {
     );
 }
 
+/**
+ * A set of options that can be toggled in any combination.
+ */
 export class MultiSelect extends React.Component {
     constructor(props) {
         super(props);

@@ -6,6 +6,11 @@ import { LoadingWrapper } from '../loadingWrapper';
 import { MultiSelect } from '../util';
 import { SourceContext } from '../context';
 
+/**
+ * The app's "Duplicated Files" tab.
+ * Handles requests, responses, and options for duplicates.
+ * Uses SourceContext to remember which sources are currently enabled.
+ */
 export class DuplicatesTab extends React.Component {
 
     constructor(props) {

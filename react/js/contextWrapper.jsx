@@ -6,9 +6,11 @@ import { LoadingWrapper } from './loadingWrapper';
 import { TaskContext, ImportContext, SourceContext } from './context';
 import { BackupModal } from './sources/modals';
 
-// Provides values for TaskContext, ImportContext, and SourceContext.
-// Hides the navigation menu if there are no imported file sources.
-
+/**
+ * Provides values for TaskContext, ImportContext, and SourceContext.
+ * Renders the TabNav if there is at least one imported file source.
+ * Otherwise, shows the ImportForm.
+ */
 export class ContextWrapper extends React.Component {
     constructor(props) {
         super(props);

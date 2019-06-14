@@ -1,6 +1,9 @@
 import React from 'react';
 import { Size, SortHeader, ClickToCopy } from '../util';
 
+/**
+ * A sortable table of DupeGroupRows.
+ */
 export class DuplicateTable extends React.Component {
 
     constructor(props) {
@@ -51,7 +54,9 @@ export class DuplicateTable extends React.Component {
     }
 }
 
-
+/**
+ * A collapsible row representing a group of duplicate files.
+ */
 export class DupeGroupRow extends React.Component {
     constructor(props) {
         super(props);
@@ -94,7 +99,9 @@ export class DupeGroupRow extends React.Component {
     }
 }
 
-
+/**
+ * A child of a DupeGroupRow, representing a single file instance.
+ */
 export function DuplicateFileRow(props) {
     return (
         <tr>
