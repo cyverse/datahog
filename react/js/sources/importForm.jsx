@@ -5,7 +5,9 @@ import { FileForm } from './fileForm';
 import { S3Form } from './s3Form';
 import { TaskContext, ImportContext } from '../context';
 
-
+/**
+ * Tabs containing forms for all import methods.
+ */
 export class ImportForm extends React.Component {
     constructor(props) {
         super(props);

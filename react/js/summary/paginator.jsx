@@ -1,6 +1,10 @@
 import React from 'react';
 import axios from '../axios';
 
+/**
+ * A set of "next/previous" buttons for pagination.
+ * Handles GET requests and tracking the current offset.
+ */
 export class Paginator extends React.Component {
     constructor(props) {
         super(props);

@@ -2,6 +2,9 @@ import React from 'react';
 import { Paginator } from './paginator';
 import { FileTable } from './fileTable';
 
+/**
+ * A panel component that includes a paginated table.
+ */
 export class PaginatedPanel extends React.Component {
     constructor(props) {
         super(props);

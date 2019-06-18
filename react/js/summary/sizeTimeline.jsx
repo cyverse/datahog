@@ -1,6 +1,9 @@
 import React from 'react';
 import * as d3 from 'd3';
 
+/**
+ * A D3 visualization for "space occupied over time" data.
+ */
 export class SizeTimeline extends React.Component {
 
     constructor(props) {

@@ -5,6 +5,11 @@ import { LoadingWrapper } from '../loadingWrapper';
 import { ImportModal, DeleteModal, BackupModal } from './modals';
 import { TaskContext } from '../context';
 
+
+/**
+ * The app's "Manage File Sources" tab.
+ * Includes a SourceTable and modals to manage them.
+ */
 export class SourceTab extends React.Component {
 
     constructor(props) {
@@ -92,6 +97,9 @@ export class SourceTab extends React.Component {
 SourceTab.contextType = TaskContext;
 
 
+/**
+ * A table to list file sources.
+ */
 export function SourceTable(props) {
     return (
         <table className='table file-table table-hover'>
@@ -114,6 +122,9 @@ export function SourceTable(props) {
     );
 }
 
+/**
+ * A row of a SourceTable, representing a single file source.
+ */
 export class SourceRow extends React.Component {
     constructor(props) {
         super(props);

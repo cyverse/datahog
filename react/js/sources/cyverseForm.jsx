@@ -2,6 +2,9 @@ import React from 'react';
 import axios from '../axios';
 import { LabeledInput } from '../util';
 
+/**
+ * A form to enter information for a CyVerse import.
+ */
 export class CyverseForm extends React.Component {
     constructor(props) {
         super(props);

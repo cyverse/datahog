@@ -3,6 +3,9 @@ import axios from '../axios';
 
 import { LabeledInput } from '../util';
 
+/**
+ * A form to upload a file to import from.
+ */
 export class FileForm extends React.Component {
     constructor(props) {
         super(props);

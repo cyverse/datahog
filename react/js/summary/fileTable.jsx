@@ -1,6 +1,9 @@
 import React from 'react';
 import { Size, ClickToCopy } from '../util';
 
+/**
+ * A table for a list of files or folders.
+ */
 export function FileTable(props) {
     return (
         <table className='table file-table table-hover'>
@@ -16,6 +19,9 @@ export function FileTable(props) {
     );
 }
 
+/**
+ * A single row in a FileTable, representing a single file or folder.
+ */
 export function FileRow(props) {
     return (
         <tr>
