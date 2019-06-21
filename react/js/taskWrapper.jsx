@@ -3,6 +3,10 @@ import React from 'react';
 
 import { ContextWrapper } from './contextWrapper';
 
+/**
+ * Displays a loading screen if a task is in progress.
+ * Otherwise, renders the ContextWrapper.
+ */
 export class TaskWrapper extends React.Component {
 
     constructor(props) {

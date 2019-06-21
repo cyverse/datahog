@@ -1,6 +1,10 @@
 import axios from './axios';
 import React from 'react';
 
+/**
+ * Performs a GET request for a child component.
+ * Renders a spinner instead of the child while it waits.
+ */
 export class LoadingWrapper extends React.Component {
 
     constructor(props) {

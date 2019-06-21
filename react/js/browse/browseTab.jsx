@@ -7,6 +7,11 @@ import { SearchForm } from './searchForm';
 import { MultiSelect } from '../util';
 import { SourceContext } from '../context';
 
+/**
+ * The app's "Browse Files" tab.
+ * Fetches top-level files and search results.
+ * Uses SourceContext to remember which sources are currently enabled.
+ */
 export class BrowseTab extends React.Component {
 
     constructor(props) {

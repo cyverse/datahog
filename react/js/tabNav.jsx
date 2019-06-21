@@ -6,6 +6,9 @@ import { BrowseTab } from './browse/browseTab';
 import { SourceTab } from './sources/sourceTab';
 import { ImportForm } from './sources/importForm';
 
+/**
+ * A navigation menu for the app's 4 main pages.
+ */
 export class TabNav extends React.Component {
     constructor(props) {
         super(props);

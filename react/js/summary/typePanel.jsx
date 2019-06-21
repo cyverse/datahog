@@ -8,6 +8,10 @@ const PIE_COLORS = [
 ];
 const HOVER_COLOR = '#7e7ddb'
 
+/**
+ * A paginated panel containing a pie chart of file types, and a paginated list of largest file types.
+ * Hovering over a file type in the table highlights its slice in the chart.
+ */
 export class TypePanel extends React.Component {
     constructor(props) {
         super(props);
@@ -106,6 +110,9 @@ export class TypePanel extends React.Component {
     }
 }
 
+/**
+ * A table for a list of file types.
+ */
 export function TypeTable(props) {
     return (
         <table className='table file-table table-hover'>
@@ -126,6 +133,9 @@ export function TypeTable(props) {
     );
 }
 
+/**
+ * A single row in a TypeTable, representing a single file type.
+ */
 export class TypeRow extends React.Component {
     constructor(props) {
         super(props);

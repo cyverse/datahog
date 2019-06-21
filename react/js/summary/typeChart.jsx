@@ -1,6 +1,10 @@
 import React from 'react';
 import * as d3 from 'd3';
 
+/**
+ * A D3 visualization for "file type chart" data.
+ * The top 5 types are given unique colors, all others are grouped together.
+ */
 export class TypeChart extends React.Component {
 
     constructor(props) {

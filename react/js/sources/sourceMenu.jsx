@@ -2,6 +2,9 @@ import React from 'react';
 
 import { ImportModal } from './modals';
 
+/**
+ * A collapsible menu to change the active file source in the "summary" tab.
+ */
 export class SourceMenu extends React.Component {
     constructor(props) {
         super(props);

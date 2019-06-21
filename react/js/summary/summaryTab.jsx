@@ -1,14 +1,24 @@
 import React from 'react';
 import axios from '../axios';
-import { FileTable } from './fileTable';
 import { PaginatedPanel } from './paginatedPanel';
-import { Link } from 'react-router-dom';
 import { SizeTimeline } from './sizeTimeline';
 import { Size } from '../util';
 import { TypePanel } from './typePanel';
 import { LoadingWrapper } from '../loadingWrapper';
 import { SourceMenu } from '../sources/sourceMenu';
 
+/**
+ * The app's "Summary" tab.
+ * Includes a SourceMenu to select a file source, which re-renders the tab.
+ * Includes panels with:
+ * - Basic file source statistics
+ * - A SizeTimeline
+ * - A TypeChart
+ * - The largest files
+ * - The largest folders
+ * - The newest files
+ * - The oldest files
+ */
 export class SummaryTab extends React.Component {
 
     constructor(props) {

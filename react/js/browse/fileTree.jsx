@@ -4,6 +4,9 @@ import { interpolateGreens } from 'd3';
 
 import { Size, ClickToCopy, SortHeader } from '../util';
 
+/**
+ * A sortable table of FileTreeNodes.
+ */
 export class FileTree extends React.Component {
     constructor(props) {
         super(props);
@@ -120,6 +123,10 @@ function recursiveSort(files, sortBy) {
     }
 }
 
+/**
+ * A table row representing a single file or collapsible folder.
+ * Folders fetch their children on-the-fly the first time they're opened.
+ */
 export class FileTreeNode extends React.Component {
     constructor(props) {
         super(props);

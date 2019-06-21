@@ -2,6 +2,10 @@ import React from 'react';
 import { SelectButton } from '../util';
 import { SearchContext } from '../context';
 
+/**
+ * A form to create a search payload for the BrowseTab.
+ * Uses SearchContext to save its state between mounts.
+ */
 export class SearchForm extends React.Component {
     constructor(props) {
         super(props);
@@ -133,6 +137,9 @@ export class SearchForm extends React.Component {
 SearchForm.contextType = SearchContext;
 
 
+/**
+ * Form inputs to define a single search filter.
+ */
 export class FilterForm extends React.Component {
     constructor(props) {
         super(props);

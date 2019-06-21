@@ -4,6 +4,9 @@ import axios from '../axios';
 import { ImportForm } from './importForm';
 import { TaskContext } from '../context';
 
+/**
+ * A modal containing the ImportForm.
+ */
 export function ImportModal(props) {
     return (
         <div className={props.active ? 'modal active' : 'modal'}>
@@ -20,6 +23,9 @@ export function ImportModal(props) {
     );
 }
 
+/**
+ * A modal to confirm and remove a file source.
+ */
 export class DeleteModal extends React.Component {
     constructor(props) {
         super(props);
@@ -88,6 +94,9 @@ export class DeleteModal extends React.Component {
 
 DeleteModal.contextType = TaskContext;
 
+/**
+ * A modal to download the latest database backup or restore from an existing one.
+ */
 export class BackupModal extends React.Component {
     constructor(props) {
         super(props);
