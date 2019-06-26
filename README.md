@@ -28,12 +28,14 @@ If you want to set up DataHog locally for development, follow these steps:
 
 1. Install SQLite 3
 2. Install Python 3.6.6
-3. Install the pip packages in `django/requirements.txt`
-4. Install Node.JS 8.12.0
-5. Install the npm packages using `npm install` inside the `react` directory.
-6. Run `npm run js` to build the JS files (the build will auto-refresh if you keep it running).
-7. Run `python manage.py migrate` inside the `django` directory to populate your database.
-8. Run `python manage.py runserver` run the server.
+3. Install [RabbitMQ](https://www.rabbitmq.com/download.html)
+4. Install the pip packages in `django/requirements.txt`
+5. Run `python manage.py migrate` inside the `django` directory to populate your database.
+6. Run `python manage.py runserver` to start the server.
+7. In another terminal, run `celery -A celery_app worker` to start a task worker process.
+8. Install Node.JS 8.12.0
+9. Install the npm packages using `npm install` inside the `react` directory.
+10. Run `npm run js` to build the JS files (the build will auto-refresh if you keep it running).
 
 Usage Guide
 -----------
