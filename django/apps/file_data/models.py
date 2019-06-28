@@ -17,6 +17,7 @@ class ImportedDirectory(models.Model):
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
     has_checksums = models.BooleanField(default=True)
+    has_users = models.BooleanField(default=False)
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
     type_chart_data = models.TextField(blank=True, null=True)
@@ -47,9 +48,13 @@ class File(models.Model):
     size = models.BigIntegerField(default=0)
     file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
     checksum = models.CharField(max_length=32, blank=True, null=True)
-    date_created = models.DateTimeField()
+    date_created = models.DateTimeField(blank=True, null=True)
+    date_modified = models.DateTimeField()
+    date_accessed = models.DateTimeField(blank=True, null=True)
     directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
     directory_name = models.CharField(max_length=32)
+    owner = models.CharField(max_length=32, blank=True, null=True)
+    group = models.CharField(max_length=32, blank=True, null=True)
 
     is_folder = False
 

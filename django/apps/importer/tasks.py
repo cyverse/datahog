@@ -177,7 +177,8 @@ def import_files_from_file(task_id, file_data):
             directory_type=file_data['type'],
             date_scanned=datetime.datetime.utcfromtimestamp(file_data['date_scanned']),
             root_path=file_data['root'],
-            has_checksums=file_data['has_checksums']
+            has_checksums=file_data['has_checksums'],
+            has_users=file_data.get('has_users', False)
         )
 
         task.status_message = 'Reading file data...'
@@ -188,10 +189,14 @@ def import_files_from_file(task_id, file_data):
                 name=os.path.basename(file['path']),
                 size=file['size'],
                 path=file['path'],
-                date_created=datetime.datetime.utcfromtimestamp(file['created']),
+                date_created=datetime.datetime.utcfromtimestamp(file.get('created', None)),
+                date_modified=datetime.datetime.utcfromtimestamp(file.get('modified', None)),
+                date_accessed=datetime.datetime.utcfromtimestamp(file.get('accessed', None)),
                 directory=directory,
                 directory_name=directory.name,
-                checksum=file['checksum']
+                checksum=file['checksum'],
+                owner=file.get('owner', None),
+                group=file.get('group', None)
             )
             if 'checksum' in file: file_obj.checksum = file['checksum']
             file_objects.append(file_obj)
