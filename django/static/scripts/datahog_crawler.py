@@ -5,6 +5,9 @@ import getopt
 import pickle
 import datetime
 
+from pwd import getpwuid
+from grp import getgrgid
+
 help_msg = '''
 Usage:
 
@@ -24,6 +27,7 @@ root_path = os.path.abspath(sys.argv[1])
 output_path = '{}.datahog'.format(os.path.basename(root_path))
 gen_checksums = True
 has_checksums = gen_checksums
+has_users = True
 files = []
 problem_files = []
 
@@ -47,11 +51,22 @@ for dirpath, dirnames, filenames in os.walk(root_path):
         path = '{}/{}'.format(dirpath, fname)
         
         try:
-            created = os.path.getctime(path)
-            size = os.path.getsize(path)
+            status = os.stat(path)
+            size = status.st_size
+            created = status.st_ctime
+            modified = status.st_mtime
+            accessed = status.st_atime
         except:
             problem_files.append(path)
             continue
+
+        try:
+            owner = getpwuid(status.st_uid).pw_name
+            group = getgrgid(status.st_gid).gr_name
+        except:
+            owner = None
+            group = None
+            has_users = False
         
         if gen_checksums:
             try:
@@ -66,9 +81,13 @@ for dirpath, dirnames, filenames in os.walk(root_path):
         
         files.append({
             'path': path,
-            'checksum': checksum,
+            'size': size,
+            'owner': owner,
+            'group': group,
             'created': created,
-            'size': size
+            'modified': modified,
+            'accessed': accessed,
+            'checksum': checksum
         })
 
     sys.stdout.write('\rScanned {} files'.format(len(files)))
@@ -79,12 +98,13 @@ if not len(files):
     sys.exit(0)
 
 obj = {
-    'format': 'datahog:0.1',
+    'format': 'datahog:0.2',
     'root': root_path,
     'type': 'Local folder',
     'date_scanned': datetime.datetime.now().timestamp(),
     'files': files,
-    'has_checksums': has_checksums
+    'has_checksums': has_checksums,
+    'has_users': has_users
 }
 
 with open(output_path, 'wb') as outfile:
