@@ -18,7 +18,7 @@ def create_db_backup(task):
             task.fixture.delete()
 
 
-def build_file_database(task, directory, file_objects):
+def build_file_database(task, source, file_objects):
     task.status_message = 'Analyzing files...'
     task.save()
     print('Building file tree...')
@@ -30,11 +30,11 @@ def build_file_database(task, directory, file_objects):
     folder_objects_by_path = {}
 
     # create root folder
-    folder_objects_by_path[directory.root_path] = Folder(
-        path=directory.root_path,
-        name=directory.name,
+    folder_objects_by_path[source.root_path] = Folder(
+        path=source.root_path,
+        name=source.name,
         total_size=0,
-        directory=directory
+        source=source
     )
 
     for file_obj in file_objects:
@@ -61,12 +61,12 @@ def build_file_database(task, directory, file_objects):
                     path=folder_path,
                     name=folder_name,
                     total_size=file_obj.size,
-                    directory=directory
+                    source=source
                 )
                 folder_objects_by_path[parent_path] = parent_obj
 
             child_obj.parent = parent_obj
-            if parent_path == directory.root_path: break
+            if parent_path == source.root_path: break
 
             # iterate up the hierarchy
             child_obj = parent_obj
@@ -87,18 +87,18 @@ def build_file_database(task, directory, file_objects):
             file_type = FileType(
                 extension=extension,
                 total_size=file_obj.size,
-                directory=directory
+                source=source
             )
             file_types_by_extension[extension] = file_type
         file_obj.file_type = file_type
 
     # rename top folder to include parents
-    # if directory.root_path in folder_objects_by_path:
-    #     folder_objects_by_path[directory.root_path].name = directory.name
+    # if source.root_path in folder_objects_by_path:
+    #     folder_objects_by_path[source.root_path].name = source.name
 
-    directory.folder_count = len(folder_objects_by_path.values())
-    directory.file_count = len(file_objects)
-    directory.total_size = total_size
+    source.folder_count = len(folder_objects_by_path.values())
+    source.file_count = len(file_objects)
+    source.total_size = total_size
 
     task.status_message = 'Building file database...'
     task.save()
@@ -107,5 +107,5 @@ def build_file_database(task, directory, file_objects):
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
-        directory.save()
+        source.save()
 

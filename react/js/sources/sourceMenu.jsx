@@ -54,7 +54,7 @@ export class SourceMenu extends React.Component {
                                     {this.props.sources[0].name}
                                 </span>
                                 <span className="text-gray">
-                                    &nbsp; ({this.props.sources[0].directory_type})
+                                    &nbsp; ({this.props.sources[0].source_type})
                                 </span>
                                 <span className="collapse-icon">
                                     <i className={this.state.collapsed ? 'fa fa-lg fa-caret-down' : 'fa fa-lg fa-caret-up'}></i>
@@ -64,15 +64,15 @@ export class SourceMenu extends React.Component {
                         { !this.state.collapsed && 
                             <React.Fragment>
                                 <li className="divider" key="1"></li>
-                                {this.props.sources.map((directory, index) => {
+                                {this.props.sources.map((source, index) => {
                                     if (index !== 0) return (
-                                        <li className="menu-item" key={directory.id}>
-                                            <a onClick={() => this.props.onChange(directory)}>
+                                        <li className="menu-item" key={source.id}>
+                                            <a onClick={() => this.props.onChange(source)}>
                                                 <span>
                                                     <i className="fa fa-fw fa-lg fa-folder-o"></i>
-                                                    {directory.name}
+                                                    {source.name}
                                                 </span>
-                                                <small className="text-gray">&nbsp; ({directory.directory_type})</small>
+                                                <small className="text-gray">&nbsp; ({source.source_type})</small>
                                             </a>
                                         </li>
                                     );

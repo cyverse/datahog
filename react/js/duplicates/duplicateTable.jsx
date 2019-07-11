@@ -107,7 +107,7 @@ export function DuplicateFileRow(props) {
         <tr>
             <td className="name-cell" style={{paddingLeft: 30}}>
                 {props.file.name}
-                <span className="text-gray">{' (' + props.file.directory_name + ')'}</span>
+                <span className="text-gray">{' (' + props.file.source_name + ')'}</span>
             </td>
             <td className="options-cell">
                 <ClickToCopy text={props.file.path}>Copy path</ClickToCopy>

@@ -147,7 +147,7 @@ export class SourceRow extends React.Component {
                     {this.props.source.name}
                 </td>
                 <td>
-                    {this.props.source.directory_type}
+                    {this.props.source.source_type}
                 </td>
                 <td>
                     {this.props.source.date_scanned}

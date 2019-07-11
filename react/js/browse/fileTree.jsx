@@ -214,7 +214,7 @@ export class FileTreeNode extends React.Component {
                 <tr>
                     <td className="name-cell" style={{paddingLeft: 20*this.props.depth}}>
                         {this.props.file.name}
-                        <span className="text-gray">{' (' + this.props.file.directory_name + ')'}</span>
+                        <span className="text-gray">{' (' + this.props.file.source_name + ')'}</span>
                     </td>
                     <td className="options-cell">
                         <ClickToCopy text={this.props.file.path}>Copy path</ClickToCopy>

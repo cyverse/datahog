@@ -5,7 +5,7 @@ from .models import *
 
 class FileAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'directory', 'name', 'size', 'date_created', 'file_type', 'path'
+        'id', 'source', 'name', 'size', 'date_created', 'file_type', 'path'
     )
     search_fields = (
         'id', 'name', 'path'
@@ -14,7 +14,7 @@ class FileAdmin(admin.ModelAdmin):
 
 class FolderAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'directory', 'name', 'total_size', 'path'
+        'id', 'source', 'name', 'total_size', 'path'
     )
     search_fields = (
         'id', 'name', 'path'
@@ -23,22 +23,22 @@ class FolderAdmin(admin.ModelAdmin):
 
 class FileTypeAdmin(admin.ModelAdmin):
     list_display = (
-        'extension', 'directory', 'total_size'
+        'extension', 'source', 'total_size'
     )
     search_fields = (
         'extension',
     )
 
 
-class ImportedDirectoryAdmin(admin.ModelAdmin):
+class FileSourceAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'directory_type', 'date_scanned', 'file_count', 'folder_count', 'total_size'
+        'id', 'source_type', 'date_scanned', 'file_count', 'folder_count', 'total_size'
     )
     search_fields = (
-        'directory_type',
+        'source_type',
     )
 
 admin.site.register(File, FileAdmin)
 admin.site.register(Folder, FolderAdmin)
 admin.site.register(FileType, FileTypeAdmin)
-admin.site.register(ImportedDirectory, ImportedDirectoryAdmin)
+admin.site.register(FileSource, FileSourceAdmin)

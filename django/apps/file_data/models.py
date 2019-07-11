@@ -2,8 +2,8 @@ import uuid
 from django.db import models
 
 
-class ImportedDirectory(models.Model):
-    DIRECTORY_TYPE_CHOICES = (
+class FileSource(models.Model):
+    SOURCE_TYPE_CHOICES = (
         ('iRODS', 'iRODS'),
         ('CyVerse', 'CyVerse'),
         ('Local folder', 'Local folder')
@@ -17,14 +17,14 @@ class ImportedDirectory(models.Model):
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
     has_checksums = models.BooleanField(default=True)
-    has_users = models.BooleanField(default=False)
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
     type_chart_data = models.TextField(blank=True, null=True)
-    directory_type = models.CharField(max_length=16, choices=DIRECTORY_TYPE_CHOICES, default='Local folder')
+    source_type = models.CharField(max_length=16, choices=SOURCE_TYPE_CHOICES, default='Local folder')
 
     def __str__(self):
         return self.name
+
 
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -32,7 +32,7 @@ class Folder(models.Model):
     path = models.CharField(max_length=512)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     total_size = models.BigIntegerField(default=0)
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
+    source = models.ForeignKey('FileSource', on_delete=models.CASCADE)
 
     is_folder = True
 
@@ -51,8 +51,8 @@ class File(models.Model):
     date_created = models.DateTimeField(blank=True, null=True)
     date_modified = models.DateTimeField()
     date_accessed = models.DateTimeField(blank=True, null=True)
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
-    directory_name = models.CharField(max_length=32)
+    source = models.ForeignKey('FileSource', on_delete=models.CASCADE)
+    source_name = models.CharField(max_length=32)
     owner = models.CharField(max_length=32, blank=True, null=True)
     group = models.CharField(max_length=32, blank=True, null=True)
 
@@ -66,7 +66,7 @@ class FileType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     extension = models.CharField(max_length=50, blank=True)
     total_size = models.BigIntegerField()
-    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
+    source = models.ForeignKey('FileSource', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.extension

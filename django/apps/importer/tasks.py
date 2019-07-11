@@ -23,7 +23,7 @@ def delete_source(task_id, source_id):
     task = AsyncTask.objects.get(id=task_id)
     try:
         print('Deleting source...')
-        source = ImportedDirectory.objects.get(id=source_id)
+        source = FileSource.objects.get(id=source_id)
         with transaction.atomic(using='file_data'):
             source.delete()
         
@@ -74,9 +74,9 @@ def import_files_from_irods(task_id, password):
     file_objects = []
 
     try:
-        directory = ImportedDirectory(
+        source = FileSource(
             name=attempt.irods_name,
-            directory_type='iRODS',
+            source_type='iRODS',
             date_scanned=attempt.date_imported,
             root_path=attempt.irods_root,
             has_checksums=True
@@ -89,8 +89,8 @@ def import_files_from_irods(task_id, password):
                 path=path,
                 size=size,
                 date_created=date_created,
-                directory=directory,
-                directory_name=directory.name,
+                source=source,
+                source_name=source.name,
                 checksum=checksum
             )
             file_objects.append(file_obj)
@@ -149,7 +149,7 @@ def import_files_from_irods(task_id, password):
                     for subcol in col.subcollections:
                         folder_queue.append(subcol.path)
         
-        build_file_database(task, directory, file_objects)
+        build_file_database(task, source, file_objects)
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False
@@ -172,9 +172,9 @@ def import_files_from_file(task_id, file_data):
     file_objects = []
 
     try:
-        directory = ImportedDirectory(
+        source = FileSource(
             name=task.import_attempt.file_name,
-            directory_type=file_data['type'],
+            source_type=file_data['type'],
             date_scanned=datetime.datetime.utcfromtimestamp(file_data['date_scanned']),
             root_path=file_data['root'],
             has_checksums=file_data['has_checksums'],
@@ -192,8 +192,8 @@ def import_files_from_file(task_id, file_data):
                 date_created=datetime.datetime.utcfromtimestamp(file.get('created', None)),
                 date_modified=datetime.datetime.utcfromtimestamp(file.get('modified', None)),
                 date_accessed=datetime.datetime.utcfromtimestamp(file.get('accessed', None)),
-                directory=directory,
-                directory_name=directory.name,
+                source=source,
+                source_name=source.name,
                 checksum=file['checksum'],
                 owner=file.get('owner', None),
                 group=file.get('group', None)
@@ -201,7 +201,7 @@ def import_files_from_file(task_id, file_data):
             if 'checksum' in file: file_obj.checksum = file['checksum']
             file_objects.append(file_obj)
 
-        build_file_database(task, directory, file_objects)
+        build_file_database(task, source, file_objects)
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False
@@ -225,9 +225,9 @@ def import_files_from_cyverse(task_id, auth_token):
     file_objects = []
 
     try:
-        directory = ImportedDirectory(
+        source = FileSource(
             name=attempt.cyverse_name,
-            directory_type='CyVerse',
+            source_type='CyVerse',
             date_scanned=attempt.date_imported,
             root_path=attempt.cyverse_root,
             has_checksums=False
@@ -265,8 +265,8 @@ def import_files_from_cyverse(task_id, auth_token):
                         path=hit['_source']['path'],
                         size=hit['_source']['fileSize'],
                         date_created=datetime.datetime.utcfromtimestamp(hit['_source']['dateCreated']/1000),
-                        directory=directory,
-                        directory_name=directory.name
+                        source=source,
+                        source_name=source.name
                     )
                     file_objects.append(file_obj)
 
@@ -279,7 +279,7 @@ def import_files_from_cyverse(task_id, auth_token):
             )
             page = json.loads(response.text)
 
-        build_file_database(task, directory, file_objects)
+        build_file_database(task, source, file_objects)
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False
@@ -310,9 +310,9 @@ def import_files_from_s3(task_id, secret_key):
         else:
             root_path = '/'
 
-        directory = ImportedDirectory(        
+        source = FileSource(        
             name=attempt.s3_name,
-            directory_type='S3',
+            source_type='S3',
             date_scanned=attempt.date_imported,
             root_path=root_path
         )
@@ -352,14 +352,14 @@ def import_files_from_s3(task_id, secret_key):
                     checksum=checksum[:32],
                     date_created=result['LastModified'].replace(tzinfo=None),
                     size=result['Size'],
-                    directory=directory,
-                    directory_name=directory.name
+                    source=source,
+                    source_name=source.name
                 )
                 file_objects.append(file_obj)
         
-        directory.has_checksums = has_checksums
+        source.has_checksums = has_checksums
         
-        build_file_database(task, directory, file_objects)
+        build_file_database(task, source, file_objects)
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False

@@ -27,7 +27,7 @@ root_path = os.path.abspath(sys.argv[1])
 output_path = '{}.datahog'.format(os.path.basename(root_path))
 gen_checksums = True
 has_checksums = gen_checksums
-has_users = True
+has_owners = True
 files = []
 problem_files = []
 
@@ -66,7 +66,7 @@ for dirpath, dirnames, filenames in os.walk(root_path):
         except:
             owner = None
             group = None
-            has_users = False
+            has_owners = False
         
         if gen_checksums:
             try:
@@ -104,7 +104,7 @@ obj = {
     'date_scanned': datetime.datetime.now().timestamp(),
     'files': files,
     'has_checksums': has_checksums,
-    'has_users': has_users
+    'has_owners': has_owners
 }
 
 with open(output_path, 'wb') as outfile:

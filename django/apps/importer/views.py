@@ -14,8 +14,8 @@ from .models import *
 from .serializers import *
 from .tasks import *
 from .helpers import create_db_backup
-from apps.file_data.models import ImportedDirectory
-from apps.file_data.serializers import ImportedDirectorySerializer
+from apps.file_data.models import FileSource
+from apps.file_data.serializers import FileSourceSerializer
 
 
 class GetImportContext(views.APIView):
@@ -36,12 +36,12 @@ class GetImportContext(views.APIView):
         
         attempt_serializer = ImportAttemptSerializer(last_attempt)
 
-        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
-        directory_serializer = ImportedDirectorySerializer(directories, many=True)
+        sources = FileSource.objects.order_by('-date_viewed').all()
+        source_serializer = FileSourceSerializer(sources, many=True)
         
         return Response({
             'last_attempt': attempt_serializer.data,
-            'sources': directory_serializer.data
+            'sources': source_serializer.data
         })
 
 
@@ -111,10 +111,10 @@ class RestoreDB(views.APIView):
         return Response(serializer.data, status=200)
 
 
-class DeleteDirectory(views.APIView):
+class DeleteSource(views.APIView):
     def delete(self, request):
         try:
-            source = ImportedDirectory.objects.get(id=request.data['source'])
+            source = FileSource.objects.get(id=request.data['source'])
         except:
             return Response('Source not found.', status=400)
 

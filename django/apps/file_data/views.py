@@ -58,7 +58,7 @@ class GetFileTypes(views.APIView):
         file_types = FileType.objects
 
         if 'source' in request.GET:
-            file_types = file_types.filter(directory__id=request.GET['source'])
+            file_types = file_types.filter(source__id=request.GET['source'])
 
         if 'limit' in request.GET:
             total = int(file_types.count())
@@ -95,8 +95,8 @@ class GetTopLevelFiles(views.APIView):
     def get(self, request):
         dirs = request.GET.getlist('sources[]')
         if len(dirs):
-            top_folders = Folder.objects.filter(parent=None, directory__id__in=dirs)
-            top_files   = File.objects.filter(parent=None, directory__id__in=dirs)
+            top_folders = Folder.objects.filter(parent=None, source__id__in=dirs)
+            top_files   = File.objects.filter(parent=None, source__id__in=dirs)
             folders_serialized = FolderSerializer(top_folders.all(), many=True)
             files_serialized   = FileSerializer(top_files.all(), many=True)
             return Response(folders_serialized.data + files_serialized.data)
@@ -114,7 +114,7 @@ class GetDuplicates(views.APIView):
         duped_fields = method.split('+')
 
         # find groups of alike values and calculate total size
-        files = File.objects.filter(directory__id__in=dirs)
+        files = File.objects.filter(source__id__in=dirs)
         if 'checksum' in duped_fields:
             files = files.filter(checksum__isnull=False)
         
@@ -176,44 +176,44 @@ class GetSearchCSV(views.APIView):
         return response
 
 
-class GetImportedDirectories(views.APIView):
+class GetSources(views.APIView):
     def get(self, request):
-        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
+        sources = FileSource.objects.order_by('-date_viewed').all()
 
-        for directory in directories:
-            if not directory.size_timeline_data:
-                directory.size_timeline_data = create_size_timeline_data(directory)
-                directory.save()
-            if not directory.type_chart_data:
-                directory.type_chart_data = create_type_chart_data(directory)
-                directory.save()
+        for source in sources:
+            if not source.size_timeline_data:
+                source.size_timeline_data = create_size_timeline_data(source)
+                source.save()
+            if not source.type_chart_data:
+                source.type_chart_data = create_type_chart_data(source)
+                source.save()
         
-        directories_serialized = ImportedDirectorySerializer(directories, many=True)
-        return Response(directories_serialized.data)
+        sources_serialized = FileSourceSerializer(sources, many=True)
+        return Response(sources_serialized.data)
 
 
-class ViewDirectory(views.APIView):
+class ViewSource(views.APIView):
     def post(self, request):
         try:
-            directory = ImportedDirectory.objects.get(id=request.data['id'])
-            directory.date_viewed = datetime.datetime.now()
-            directory.save()
+            source = FileSource.objects.get(id=request.data['id'])
+            source.date_viewed = datetime.datetime.now()
+            source.save()
         except:
-            directory = None
+            source = None
         
-        directories = ImportedDirectory.objects.order_by('-date_viewed').all()
-        directories_serialized = ImportedDirectorySerializer(directories, many=True)
-        return Response(directories_serialized.data)
+        sources = FileSource.objects.order_by('-date_viewed').all()
+        sources_serialized = FileSourceSerializer(sources, many=True)
+        return Response(sources_serialized.data)
 
 
 class GetBackupFile(views.APIView):
     def get(self, request):
         
         source_id = request.GET.get('source', None)
-        directory = ImportedDirectory.objects.get(id=source_id)
+        source = FileSource.objects.get(id=source_id)
         files = []
 
-        for file in File.objects.filter(directory__id=source_id).all():
+        for file in File.objects.filter(source__id=source_id).all():
             files.append({
                 'path': file.path,
                 'checksum': file.checksum,
@@ -223,15 +223,15 @@ class GetBackupFile(views.APIView):
 
         file_data = {
             'format': 'datahog:0.1',
-            'root': directory.root_path,
-            'type': directory.directory_type,
-            'date_scanned': directory.date_scanned.timestamp(),
+            'root': source.root_path,
+            'type': source.source_type,
+            'date_scanned': source.date_scanned.timestamp(),
             'files': files,
-            'has_checksums': directory.has_checksums
+            'has_checksums': source.has_checksums
         }
 
         backup_file = ContentFile(pickle.dumps(file_data))
-        file_name = '{}.datahog'.format(directory.name)
+        file_name = '{}.datahog'.format(source.name)
 
         def get_file_chunks():
             while True:

@@ -3,7 +3,7 @@ import json
 
 from django.db.models import Sum
 
-from apps.file_data.models import File, Folder, FileType, ImportedDirectory
+from apps.file_data.models import File, Folder, FileType, FileSource
 
 class EchoBuffer:
     def write(self, value):
@@ -13,10 +13,10 @@ class EchoBuffer:
 def filter_files(file_query, filters):
 
     dirs = filters.getlist('sources[]')
-    if len(dirs): file_query = file_query.filter(directory__id__in=dirs)
+    if len(dirs): file_query = file_query.filter(source__id__in=dirs)
 
     if 'source' in filters:
-        file_query = file_query.filter(directory__id=filters['source'])
+        file_query = file_query.filter(source__id=filters['source'])
 
     if 'name' in filters:
         if 'type' in filters and filters['type'] == 'regex':
@@ -62,10 +62,10 @@ def filter_files(file_query, filters):
 def filter_folders(folder_query, filters):
 
     dirs = filters.getlist('sources[]')
-    if len(dirs): folder_query = folder_query.filter(directory__id__in=dirs, parent__isnull=False)
+    if len(dirs): folder_query = folder_query.filter(source__id__in=dirs, parent__isnull=False)
 
     if 'source' in filters:
-        folder_query = folder_query.filter(directory__id=filters['source'], parent__isnull=False)
+        folder_query = folder_query.filter(source__id=filters['source'], parent__isnull=False)
     
     if 'sort' in filters:
         folder_query = folder_query.order_by(filters['sort'])
@@ -73,17 +73,17 @@ def filter_folders(folder_query, filters):
     return folder_query
 
 
-def create_size_timeline_data(directory):
+def create_size_timeline_data(source):
     try:
-        earliest_file = File.objects.filter(directory=directory).earliest('date_created')
+        earliest_file = File.objects.filter(source=source).earliest('date_created')
     except File.DoesNotExist:
         return '[]'
     
-    time_period = (directory.date_scanned - earliest_file.date_created) / 50
+    time_period = (source.date_scanned - earliest_file.date_created) / 50
 
     current_date = earliest_file.date_created
     current_size = File.objects.filter(
-        directory=directory,
+        source=source,
         date_created__gte=current_date,
         date_created__lte=current_date + time_period
     ).aggregate(Sum('size'))['size__sum'] or 0
@@ -95,10 +95,10 @@ def create_size_timeline_data(directory):
         }
     ]
 
-    while current_date + time_period < directory.date_scanned:
+    while current_date + time_period < source.date_scanned:
         current_date += time_period
         current_size += File.objects.filter(
-            directory=directory,
+            source=source,
             date_created__gt=current_date,
             date_created__lte=current_date + time_period
         ).aggregate(Sum('size'))['size__sum'] or 0
@@ -110,8 +110,8 @@ def create_size_timeline_data(directory):
     return json.dumps(files_per_period)
 
 
-def create_type_chart_data(directory):
-    all_types = FileType.objects.filter(directory=directory).order_by('-total_size')
+def create_type_chart_data(source):
+    all_types = FileType.objects.filter(source=source).order_by('-total_size')
     size_per_type = []
     
     if all_types.count() > 5:

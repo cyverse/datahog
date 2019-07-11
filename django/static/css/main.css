@@ -46,7 +46,7 @@ p {
     margin-top: 8px;
 }
 
-.directory-menu .menu-item:hover .delete-button {
+.source-menu .menu-item:hover .delete-button {
     display: inline;
 }
 
