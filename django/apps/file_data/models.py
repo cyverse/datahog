@@ -6,6 +6,7 @@ class FileSource(models.Model):
     SOURCE_TYPE_CHOICES = (
         ('iRODS', 'iRODS'),
         ('CyVerse', 'CyVerse'),
+        ('S3', 'S3'),
         ('Local folder', 'Local folder')
     )
 
@@ -17,6 +18,9 @@ class FileSource(models.Model):
     folder_count = models.IntegerField(default=0)
     file_count = models.IntegerField(default=0)
     has_checksums = models.BooleanField(default=True)
+    has_owners = models.BooleanField(default=False)
+    has_access_times = models.BooleanField(default=False)
+    has_creation_times = models.BooleanField(default=False)
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
     type_chart_data = models.TextField(blank=True, null=True)
@@ -46,7 +50,6 @@ class File(models.Model):
     path = models.CharField(max_length=512)
     parent = models.ForeignKey('Folder', on_delete=models.SET_NULL, blank=True, null=True)
     size = models.BigIntegerField(default=0)
-    file_type = models.ForeignKey('FileType', on_delete=models.SET_NULL, blank=True, null=True, related_name='files')
     checksum = models.CharField(max_length=32, blank=True, null=True)
     date_created = models.DateTimeField(blank=True, null=True)
     date_modified = models.DateTimeField()
@@ -70,3 +73,17 @@ class FileType(models.Model):
 
     def __str__(self):
         return self.extension
+
+
+class FileOwner(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=32)
+    total_size = models.BigIntegerField()
+    source = models.ForeignKey('FileSource', on_delete=models.CASCADE)
+
+
+class FileGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=32)
+    total_size = models.BigIntegerField()
+    source = models.ForeignKey('FileSource', on_delete=models.CASCADE)

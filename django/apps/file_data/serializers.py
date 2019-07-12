@@ -7,7 +7,8 @@ class FileSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileSource
         fields = ('id', 'date_scanned', 'folder_count', 'file_count', 'root_path', 'has_checksums',
-            'total_size', 'size_timeline_data', 'type_chart_data', 'name', 'source_type')
+            'has_owners', 'has_creation_times', 'has_access_times', 'total_size', 'size_timeline_data',
+            'type_chart_data', 'name', 'source_type')
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -27,3 +28,15 @@ class FileTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileType
         fields = ('id', 'extension', 'total_size')
+
+
+class FileOwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileOwner
+        fields = ('id', 'name', 'total_size')
+
+
+class FileGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileGroup
+        fields = ('id', 'name', 'total_size')
