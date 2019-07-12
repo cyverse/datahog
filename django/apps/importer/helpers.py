@@ -28,6 +28,8 @@ def build_file_database(task, source, file_objects):
     total_size = 0
     file_types_by_extension = {}
     folder_objects_by_path = {}
+    file_owners_by_name = {}
+    file_groups_by_name = {}
 
     # create root folder
     folder_objects_by_path[source.root_path] = Folder(
@@ -90,11 +92,33 @@ def build_file_database(task, source, file_objects):
                 source=source
             )
             file_types_by_extension[extension] = file_type
-        file_obj.file_type = file_type
-
-    # rename top folder to include parents
-    # if source.root_path in folder_objects_by_path:
-    #     folder_objects_by_path[source.root_path].name = source.name
+        
+        if source.has_owners:
+            # add file owner
+            if file_obj.owner in file_owners_by_name:
+                file_owner = file_owners_by_name[file_obj.owner]
+                file_owner.total_size += file_obj.size
+            else:
+                # if this file owner doesn't exist yet, create it
+                file_owner = FileOwner(
+                    name=file_obj.owner,
+                    total_size=file_obj.size,
+                    source=source
+                )
+                file_owners_by_name[file_obj.owner] = file_owner
+        
+            # add file group
+            if file_obj.group in file_groups_by_name:
+                file_group = file_groups_by_name[file_obj.group]
+                file_group.total_size += file_obj.size
+            else:
+                # if this file group doesn't exist yet, create it
+                file_group = FileGroup(
+                    name=file_obj.group,
+                    total_size=file_obj.size,
+                    source=source
+                )
+                file_groups_by_name[file_obj.group] = file_group
 
     source.folder_count = len(folder_objects_by_path.values())
     source.file_count = len(file_objects)
@@ -107,5 +131,7 @@ def build_file_database(task, source, file_objects):
         File.objects.bulk_create(file_objects)
         Folder.objects.bulk_create(folder_objects_by_path.values())
         FileType.objects.bulk_create(file_types_by_extension.values())
+        FileOwner.objects.bulk_create(file_owners_by_name.values())
+        FileGroup.objects.bulk_create(file_groups_by_name.values())
         source.save()
 

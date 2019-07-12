@@ -72,6 +72,9 @@ def import_files_from_irods(task_id, password):
     task = AsyncTask.objects.get(id=task_id)
     attempt = task.import_attempt
     file_objects = []
+    
+    owners_by_name = {}
+    groups_by_name = {}
 
     try:
         source = FileSource(
@@ -79,16 +82,20 @@ def import_files_from_irods(task_id, password):
             source_type='iRODS',
             date_scanned=attempt.date_imported,
             root_path=attempt.irods_root,
-            has_checksums=True
+            has_checksums=True,
+            has_owners=True
         )
 
-        def save_file(collection, name, size, date_created, checksum):
+        def save_file(collection, name, size, date_created, date_modified, owner, group, checksum):
             path = '{}/{}'.format(collection, name)
             file_obj = File(
                 name=name,
                 path=path,
                 size=size,
                 date_created=date_created,
+                date_modified=date_modified,
+                owner=owner,
+                group=group,
                 source=source,
                 source_name=source.name,
                 checksum=checksum
@@ -112,7 +119,10 @@ def import_files_from_irods(task_id, password):
                 DataObject.name,
                 DataObject.checksum,
                 DataObject.size,
-                DataObject.create_time
+                DataObject.create_time,
+                DataObject.modify_time,
+                DataObject.owner_name,
+                DataObject.owner_zone
             ).filter(
                 DataObject.replica_number == 0
             ).limit(1000)
@@ -128,6 +138,9 @@ def import_files_from_irods(task_id, password):
                         obj.name,
                         obj.size,
                         obj.create_time,
+                        obj.modify_time,
+                        obj.owner_name,
+                        obj.owner_zone,
                         obj.checksum
                     )
                     
@@ -140,6 +153,9 @@ def import_files_from_irods(task_id, password):
                                 row[DataObject.name],
                                 row[DataObject.size],
                                 row[DataObject.create_time],
+                                row[DataObject.modify_time],
+                                row[DataObject.owner_name],
+                                row[DataObject.owner_zone],
                                 row[DataObject.checksum]
                             )
                 except NetworkException:
