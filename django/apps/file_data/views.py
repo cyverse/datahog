@@ -93,10 +93,10 @@ class GetChildrenOfFolder(views.APIView):
 
 class GetTopLevelFiles(views.APIView):
     def get(self, request):
-        dirs = request.GET.getlist('sources[]')
-        if len(dirs):
-            top_folders = Folder.objects.filter(parent=None, source__id__in=dirs)
-            top_files   = File.objects.filter(parent=None, source__id__in=dirs)
+        sources = request.GET.getlist('sources[]')
+        if len(sources):
+            top_folders = Folder.objects.filter(parent=None, source__id__in=sources)
+            top_files   = File.objects.filter(parent=None, source__id__in=sources)
             folders_serialized = FolderSerializer(top_folders.all(), many=True)
             files_serialized   = FileSerializer(top_files.all(), many=True)
             return Response(folders_serialized.data + files_serialized.data)
@@ -106,15 +106,15 @@ class GetTopLevelFiles(views.APIView):
 
 class GetDuplicates(views.APIView):
     def get(self, request):
-        dirs = request.GET.getlist('sources[]')
-        if not len(dirs): return Response([])
+        sources = request.GET.getlist('sources[]')
+        if not len(sources): return Response([])
 
         # client can specify which fields are used to detect duplicates
         method = request.GET.get('method', 'checksum')
         duped_fields = method.split('+')
 
         # find groups of alike values and calculate total size
-        files = File.objects.filter(source__id__in=dirs)
+        files = File.objects.filter(source__id__in=sources)
         if 'checksum' in duped_fields:
             files = files.filter(checksum__isnull=False)
         
@@ -192,6 +192,49 @@ class GetSources(views.APIView):
         return Response(sources_serialized.data)
 
 
+class GetFileOwners(views.APIView):
+    def get(self, request):
+        file_owners = FileOwner.objects
+
+        if 'source' in request.GET:
+            file_owners = file_owners.filter(source__id=request.GET['source'])
+
+        if 'limit' in request.GET:
+            total = int(file_owners.count())
+            limit = int(request.GET['limit'])
+            offset = int(request.GET.get('offset', 0))
+            file_owners = file_owners.order_by('-total_size').all()[offset:offset+limit]
+            owners_serialized = FileOwnerSerializer(file_owners, many=True)
+            return Response({
+                'page': owners_serialized.data,
+                'total': total
+            })
+        else:
+            owners_serialized = 
+.data)
+
+
+class GetFileGroups(views.APIView):
+    def get(self, request):
+        file_groups = FileGroup.objects
+
+        if 'source' in request.GET:
+            file_groups = file_groups.filter(source__id=request.GET['source'])
+
+        if 'limit' in request.GET:
+            total = int(file_groups.count())
+            limit = int(request.GET['limit'])
+            offset = int(request.GET.get('offset', 0))
+            file_groups = file_groups.order_by('-total_size').all()[offset:offset+limit]
+            groups_serialized = FileGroupSerializer(file_groups, many=True)
+            return Response({
+                'page': groups_serialized.data,
+                'total': total
+            })
+        else:
+            groups_serialized = FileGroupSerializer(file_groups, many=True)
+            return Response(groups_serialized.data)
+
 class ViewSource(views.APIView):
     def post(self, request):
         try:
@@ -242,3 +285,4 @@ class GetBackupFile(views.APIView):
         response = StreamingHttpResponse(get_file_chunks(), content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
         return response
+

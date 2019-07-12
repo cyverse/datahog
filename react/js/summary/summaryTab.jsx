@@ -101,6 +101,28 @@ export class SummaryTab extends React.Component {
                                 <TypePanel source={selectedSource}/>
                             </div>
                         </div>
+                        { selectedSource.has_owners &&
+                            <div className="columns">
+                                <div className="column">
+                                    <PaginatedPanel
+                                        title={'User Breakdown'}
+                                        get="/api/filedata/owners"
+                                        params={{
+                                            source: selectedSource.id,
+                                            sort: '-total_size'
+                                        }}/>
+                                </div>
+                                <div className="column">
+                                    <PaginatedPanel
+                                        title={'Group Breakdown'}
+                                        get="/api/filedata/groups"
+                                        params={{
+                                            source: selectedSource.id,
+                                            sort: '-total_size'
+                                        }}/>
+                                </div>
+                            </div>
+                        }
                         <div className="columns">
                             <div className="column">
                                 <PaginatedPanel
