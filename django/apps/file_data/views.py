@@ -210,8 +210,8 @@ class GetFileOwners(views.APIView):
                 'total': total
             })
         else:
-            owners_serialized = 
-.data)
+            owners_serialized = FileOwnerSerializer(file_owners, many=True)
+            return Response(owners_serialized.data)
 
 
 class GetFileGroups(views.APIView):
@@ -234,6 +234,7 @@ class GetFileGroups(views.APIView):
         else:
             groups_serialized = FileGroupSerializer(file_groups, many=True)
             return Response(groups_serialized.data)
+
 
 class ViewSource(views.APIView):
     def post(self, request):
