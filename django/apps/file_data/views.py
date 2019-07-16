@@ -236,6 +236,42 @@ class GetFileGroups(views.APIView):
             return Response(groups_serialized.data)
 
 
+class GetFileActivity(views.APIView):
+    def get(self, request):
+        files = File.objects
+
+        if 'source' in request.GET:
+            files = files.filter(source__id=request.GET['source'])
+
+        total_files = files.count()
+        days = int(request.GET.get('days', 30))
+
+        files_created = files.filter(
+            date_created__isnull=False,
+            date_created__gte=datetime.datetime.now() - datetime.timedelta(days=days)
+        ).count()
+
+        files_modified = files.filter(
+            date_modified__isnull=False,
+            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=days)
+        ).count()
+
+        files_accessed = files.filter(
+            date_accessed__isnull=False,
+            date_accessed__gte=datetime.datetime.now() - datetime.timedelta(days=days)
+        ).count()
+
+        return Response(
+            {
+                'created': files_created,
+                'modified': files_modified,
+                'accessed': files_accessed,
+                'total': total_files
+            },
+            status=200
+        )
+
+
 class ViewSource(views.APIView):
     def post(self, request):
         try:

@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/filedata/types', GetFileTypes.as_view()),
     path('api/filedata/owners', GetFileOwners.as_view()),
     path('api/filedata/groups', GetFileGroups.as_view()),
+    path('api/filedata/activity', GetFileActivity.as_view()),
     path('api/filedata/top', GetTopLevelFiles.as_view()),
     path('api/filedata/searchcsv', GetSearchCSV.as_view()),
     path('api/filedata/children/<slug:folder_id>', GetChildrenOfFolder.as_view()),
