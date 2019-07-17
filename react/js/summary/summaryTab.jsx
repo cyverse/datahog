@@ -6,6 +6,7 @@ import { Size } from '../util';
 import { TypePanel } from './typePanel';
 import { LoadingWrapper } from '../loadingWrapper';
 import { SourceMenu } from '../sources/sourceMenu';
+import { ActivityPanel } from './activityPanel';
 
 /**
  * The app's "Summary" tab.
@@ -141,6 +142,11 @@ export class SummaryTab extends React.Component {
                                         source: selectedSource.id,
                                         sort: '-total_size'
                                     }}/>
+                            </div>
+                        </div>
+                        <div className="columns">
+                            <div className="column">
+                                <ActivityPanel source={selectedSource.id} />
                             </div>
                         </div>
                         <div className="columns">
