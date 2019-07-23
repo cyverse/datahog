@@ -10,16 +10,9 @@ export class ActivityTimeline extends React.Component {
         super(props);
     }
 
-    componentDidMount() {
-        // check for valid data
-        let data;
-        if (this.props.data) {
-            data = JSON.parse(this.props.data);
-            if (!data.length) return;
-        } else {
-            return;
-        }
-        // set up padding
+    componentDidUpdate() {
+        
+        let data = this.props.data;
         let svgWidth = 450, svgHeight = 290;
         let svgPadding = {top: 50, bottom: 40, left: 50, right: 30};
         
@@ -40,7 +33,7 @@ export class ActivityTimeline extends React.Component {
             .padding(0.1);
         
         let scaleY = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.accessed)])
+            .domain([0, d3.max(data, d => Math.max(d.created, d.modified, d.accessed))])
             .range([height, 0]);
         
 

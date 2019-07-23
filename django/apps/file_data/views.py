@@ -246,27 +246,41 @@ class GetFileActivity(views.APIView):
         total_files = files.count()
         days = int(request.GET.get('days', 30))
 
-        files_created = files.filter(
-            date_created__isnull=False,
-            date_created__gte=datetime.datetime.now() - datetime.timedelta(days=days)
-        ).count()
+        graph_data = []
+        today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-        files_modified = files.filter(
-            date_modified__isnull=False,
-            date_modified__gte=datetime.datetime.now() - datetime.timedelta(days=days)
-        ).count()
+        for i in range(days):
+            date_start = today - datetime.timedelta(days=i)
+            date_end  = today - datetime.timedelta(days=i-1)
+            
+            graph_data.append({
+                'date': date_start.timestamp(),
+                'created': files.filter(
+                    date_created__gte=date_start,
+                    date_created__lt=date_end
+                ).count(),
+                'modified': files.filter(
+                    date_modified__gte=date_start,
+                    date_modified__lt=date_end
+                ).count(),
+                'accessed': files.filter(
+                    date_accessed__gte=date_start,
+                    date_accessed__lt=date_end
+                ).count()
+            })
 
-        files_accessed = files.filter(
-            date_accessed__isnull=False,
-            date_accessed__gte=datetime.datetime.now() - datetime.timedelta(days=days)
-        ).count()
+        start_date = today - datetime.timedelta(days=days)
+        files_created = files.filter(date_created__isnull=False, date_created__gte=start_date).count()
+        files_modified = files.filter(date_modified__isnull=False, date_modified__gte=start_date).count()
+        files_accessed = files.filter(date_accessed__isnull=False, date_accessed__gte=start_date).count()
 
         return Response(
             {
                 'created': files_created,
                 'modified': files_modified,
                 'accessed': files_accessed,
-                'total': total_files
+                'total': total_files,
+                'graph_data': graph_data
             },
             status=200
         )

@@ -19,6 +19,7 @@ export class ActivityPanel extends React.Component {
             created: 0,
             modified: 0,
             accessed: 0,
+            graph_data: [],
             days: 30
         };
         
@@ -52,6 +53,7 @@ export class ActivityPanel extends React.Component {
             created: response.data.modified,
             modified: response.data.modified,
             accessed: response.data.accessed,
+            graph_data: response.data.graph_data,
             total: response.data.total,
             loading: false,
             error: false
@@ -85,37 +87,7 @@ export class ActivityPanel extends React.Component {
                     </select>
                 </div>
                 <div className="card-body">
-                    <ActivityTimeline data={`[{
-                            "date": 1537980210.0,
-                            "created": 200,
-                            "modified": 300,
-                            "accessed": 500
-                        },{
-                            "date": 1537990210.0,
-                            "created": 0,
-                            "modified": 200,
-                            "accessed": 1000
-                        },{
-                            "date": 1538000210.0,
-                            "created": 100,
-                            "modified": 100,
-                            "accessed": 200
-                        },{
-                            "date": 1538010210.0,
-                            "created": 400,
-                            "modified": 600,
-                            "accessed": 1000
-                        },{
-                            "date": 1538020210.0,
-                            "created": 400,
-                            "modified": 500,
-                            "accessed": 600
-                        },{
-                            "date": 1538030210.0,
-                            "created": 50,
-                            "modified": 450,
-                            "accessed": 550
-                        }]`} id="activityTimeline"/>
+                    <ActivityTimeline data={this.state.graph_data} id="activityTimeline"/>
                     Created: {this.state.created},
                     Modified: {this.state.modified},
                     Accessed: {this.state.accessed}
