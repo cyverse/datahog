@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from '../axios';
+import { ActivityTimeline } from './activityTimeline';
 
 const PIE_COLORS = [
     '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', 
@@ -84,6 +85,37 @@ export class ActivityPanel extends React.Component {
                     </select>
                 </div>
                 <div className="card-body">
+                    <ActivityTimeline data={`[{
+                            "date": 1537980210.0,
+                            "created": 200,
+                            "modified": 300,
+                            "accessed": 500
+                        },{
+                            "date": 1537990210.0,
+                            "created": 0,
+                            "modified": 200,
+                            "accessed": 1000
+                        },{
+                            "date": 1538000210.0,
+                            "created": 100,
+                            "modified": 100,
+                            "accessed": 200
+                        },{
+                            "date": 1538010210.0,
+                            "created": 400,
+                            "modified": 600,
+                            "accessed": 1000
+                        },{
+                            "date": 1538020210.0,
+                            "created": 400,
+                            "modified": 500,
+                            "accessed": 600
+                        },{
+                            "date": 1538030210.0,
+                            "created": 50,
+                            "modified": 450,
+                            "accessed": 550
+                        }]`} id="activityTimeline"/>
                     Created: {this.state.created},
                     Modified: {this.state.modified},
                     Accessed: {this.state.accessed}

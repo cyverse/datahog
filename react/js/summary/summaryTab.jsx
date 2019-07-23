@@ -69,6 +69,11 @@ export class SummaryTab extends React.Component {
                     <div className="container">
                         <div className="columns">
                             <div className="column">
+                                <ActivityPanel source={selectedSource.id} />
+                            </div>
+                        </div>
+                        <div className="columns">
+                            <div className="column">
                                 <div className="card fixed-height">
                                     <div className="card-body">
                                         <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
@@ -142,11 +147,6 @@ export class SummaryTab extends React.Component {
                                         source: selectedSource.id,
                                         sort: '-total_size'
                                     }}/>
-                            </div>
-                        </div>
-                        <div className="columns">
-                            <div className="column">
-                                <ActivityPanel source={selectedSource.id} />
                             </div>
                         </div>
                         <div className="columns">
