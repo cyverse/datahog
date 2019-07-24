@@ -11,15 +11,16 @@ export class ActivityTimeline extends React.Component {
     }
 
     componentDidUpdate() {
-        
         let data = this.props.data;
         let svgWidth = 450, svgHeight = 290;
         let svgPadding = {top: 50, bottom: 40, left: 50, right: 30};
         
         let svg = d3.select('#' + this.props.id + '>svg')
-            .attr("width", svgWidth)
-            .attr("height", svgHeight);
-            
+            .attr('width', svgWidth)
+            .attr('height', svgHeight);
+        
+        svg.selectAll('g').remove();
+        
         let graph = svg.append('g')
             .attr('transform', 'translate(' + svgPadding.left + ', ' + svgPadding.top + ')');
 
@@ -35,7 +36,10 @@ export class ActivityTimeline extends React.Component {
         let scaleY = d3.scaleLinear()
             .domain([0, d3.max(data, d => Math.max(d.created, d.modified, d.accessed))])
             .range([height, 0]);
-        
+
+        let scaleDate = d3.scaleLinear()
+            .domain(d3.extent(data, function(d) { return d.date }))
+            .rangeRound([0, width]);
 
         
         graph.append('g')
@@ -70,45 +74,24 @@ export class ActivityTimeline extends React.Component {
                 .attr('height', d => height - scaleY(d.accessed - d.modified))
                 .attr('x', (d, i) => scaleX(i))
                 .attr('y', d => scaleY(d.accessed));
-        
 
-        // set up axes and line
-        function formatSize(bytes) {
-            let coefficient, units;
-            if (bytes < 1000) {
-                coefficient = bytes;
-                units = 'B';
-            } else if (bytes < 1000000) {
-                coefficient = bytes/1000;
-                units = 'kB';
-            } else if (bytes < 1000000000) {
-                coefficient = bytes/1000000;
-                units = 'MB';
-            } else if (bytes < 1000000000000) {
-                coefficient = bytes/1000000000;
-                units = 'GB';
-            } else {
-                coefficient = bytes/1000000000000;
-                units = 'TB';
-            }
-            return Math.round(coefficient*100)/100 + ' ' + units;
-        }
 
         function formatDate(seconds) {
             let date = new Date(seconds*1000);
-            return date.toISOString().substring(0, 10);
+            return date.toISOString().substring(5, 10);
         }
 
-        // let sizeAxis = d3.axisLeft(yScale).tickFormat(formatSize).ticks(5);
-        // let dateAxis = d3.axisBottom(xScale).tickFormat(formatDate).tickValues(xScale.domain());
+        let yAxis = d3.axisLeft(scaleY).ticks(5);
+        let xAxis = d3.axisBottom(scaleDate).tickFormat(formatDate).ticks(7);
 
+        graph.append("g")
+            .call(yAxis);
+
+        graph.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
         // // add axes and line to graph
-        // graph.append("g")
-        //     .attr("transform", "translate(0," + height + ")")
-        //     .call(dateAxis);
         
-        // graph.append("g")
-        //     .call(sizeAxis);
 
         // graph.append("text")
         //     .attr("y", -25)

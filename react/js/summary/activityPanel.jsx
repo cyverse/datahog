@@ -28,18 +28,19 @@ export class ActivityPanel extends React.Component {
         this.getActivity = this.getActivity.bind(this);
         this.onChange = this.onChange.bind(this);
 
-        this.getActivity();
+        this.getActivity(30);
     }
 
     componentWillUnmount() {
         if (this.cancelToken) this.cancelToken.cancel();
     }
 
-    getActivity() {
+    getActivity(days) {
         this.cancelToken = axios.CancelToken.source();
         axios.get('/api/filedata/activity', {
             params: {
-                source: this.props.source.id
+                source: this.props.source.id,
+                days: days
             },
             cancelToken: this.cancelToken.token
         })
@@ -72,7 +73,7 @@ export class ActivityPanel extends React.Component {
             days: event.target.value,
             loading: true
         });
-        this.getActivity();
+        this.getActivity(event.target.value);
     }
 
     render() {
