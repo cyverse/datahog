@@ -107,8 +107,8 @@ export class SummaryTab extends React.Component {
                                 <TypePanel source={selectedSource}/>
                             </div>
                         </div>
-                        { selectedSource.has_owners &&
-                            <div className="columns">
+                        <div className="columns">
+                            { selectedSource.has_owners &&
                                 <div className="column">
                                     <PaginatedPanel
                                         title={'User Breakdown'}
@@ -118,6 +118,8 @@ export class SummaryTab extends React.Component {
                                             sort: '-total_size'
                                         }}/>
                                 </div>
+                            }
+                            { selectedSource.has_groups &&
                                 <div className="column">
                                     <PaginatedPanel
                                         title={'Group Breakdown'}
@@ -127,8 +129,8 @@ export class SummaryTab extends React.Component {
                                             sort: '-total_size'
                                         }}/>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                         <div className="columns">
                             <div className="column">
                                 <PaginatedPanel

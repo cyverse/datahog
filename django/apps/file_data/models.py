@@ -19,6 +19,7 @@ class FileSource(models.Model):
     file_count = models.IntegerField(default=0)
     has_checksums = models.BooleanField(default=True)
     has_owners = models.BooleanField(default=False)
+    has_groups = models.BooleanField(default=False)
     has_access_times = models.BooleanField(default=False)
     has_creation_times = models.BooleanField(default=False)
     total_size = models.BigIntegerField(default=0)
