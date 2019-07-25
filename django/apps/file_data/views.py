@@ -238,12 +238,12 @@ class GetFileGroups(views.APIView):
 
 class GetFileActivity(views.APIView):
     def get(self, request):
-        files = File.objects
 
-        if 'source' in request.GET:
-            files = files.filter(source__id=request.GET['source'])
-
-        total_files = files.count()
+        if 'source' not in request.GET:
+            return Response('No file source specified.', 400)
+        
+        source = FileSource.objects.get(id=request.GET['source'])
+        files = File.objects.filter(source=source)
         days = int(request.GET.get('days', 30))
 
         graph_data = []
@@ -251,35 +251,31 @@ class GetFileActivity(views.APIView):
 
         for i in range(days):
             date_start = today - datetime.timedelta(days=i)
-            date_end  = today - datetime.timedelta(days=i-1)
+            date_end   = today - datetime.timedelta(days=i-1)
+
+            files_created  = files.filter(date_created__gte=date_start,  date_created__lt=date_end).count()
+            files_modified = max(files.filter(date_modified__gte=date_start, date_modified__lt=date_end).count(), files_created)
+            files_accessed = max(files.filter(date_accessed__gte=date_start, date_accessed__lt=date_end).count(), files_modified)
             
             graph_data.append({
                 'date': date_start.timestamp(),
-                'created': files.filter(
-                    date_created__gte=date_start,
-                    date_created__lt=date_end
-                ).count(),
-                'modified': files.filter(
-                    date_modified__gte=date_start,
-                    date_modified__lt=date_end
-                ).count(),
-                'accessed': files.filter(
-                    date_accessed__gte=date_start,
-                    date_accessed__lt=date_end
-                ).count()
+                'created': files_created,
+                'modified': files_modified,
+                'accessed': files_accessed
             })
-
-        start_date = today - datetime.timedelta(days=days)
-        files_created = files.filter(date_created__isnull=False, date_created__gte=start_date).count()
-        files_modified = files.filter(date_modified__isnull=False, date_modified__gte=start_date).count()
-        files_accessed = files.filter(date_accessed__isnull=False, date_accessed__gte=start_date).count()
+        
+        graph_data.reverse()
+        earliest_date  = today - datetime.timedelta(days=days)
+        files_created  = files.filter(date_created__isnull=False, date_created__gte=earliest_date).count()
+        files_modified = files.filter(date_modified__isnull=False, date_modified__gte=earliest_date).count()
+        files_accessed = files.filter(date_accessed__isnull=False, date_accessed__gte=earliest_date).count()
 
         return Response(
             {
                 'created': files_created,
                 'modified': files_modified,
                 'accessed': files_accessed,
-                'total': total_files,
+                'total': source.file_count,
                 'graph_data': graph_data
             },
             status=200
