@@ -39,7 +39,7 @@ export class ActivityPanel extends React.Component {
         this.cancelToken = axios.CancelToken.source();
         axios.get('/api/filedata/activity', {
             params: {
-                source: this.props.source.id,
+                source: this.props.source,
                 days: days
             },
             cancelToken: this.cancelToken.token
@@ -81,17 +81,22 @@ export class ActivityPanel extends React.Component {
             <div className="card fixed-height">
                 <div className="card-header">
                     <div className="card-title h5">File Activity from the last</div>
-                    <select value={this.state.days} className="form-select" onChange={this.onChange}>
-                        <option value={7}>7 days</option>
-                        <option value={30}>30 days</option>
-                        <option value={90}>90 days</option>
-                    </select>
+                    
                 </div>
-                <div className="card-body">
-                    <ActivityTimeline data={this.state.graph_data} id="activityTimeline"/>
-                    Created: {this.state.created},
-                    Modified: {this.state.modified},
-                    Accessed: {this.state.accessed}
+                <div className="card-body columns">
+                    <div className="column">
+                        <select value={this.state.days} className="form-select" onChange={this.onChange}>
+                            <option value={7}>7 days</option>
+                            <option value={30}>30 days</option>
+                            <option value={90}>90 days</option>
+                        </select>
+                        Created: {this.state.created},
+                        Modified: {this.state.modified},
+                        Accessed: {this.state.accessed}
+                    </div>
+                    <div className="column">
+                        <ActivityTimeline data={this.state.graph_data} id="activityTimeline"/>
+                    </div>
                 </div>
             </div>
         );

@@ -12,7 +12,7 @@ export class ActivityTimeline extends React.Component {
 
     componentDidUpdate() {
         let data = this.props.data;
-        let svgWidth = 450, svgHeight = 290;
+        let svgWidth = 550, svgHeight = 350;
         let svgPadding = {top: 50, bottom: 40, left: 50, right: 30};
         
         let svg = d3.select('#' + this.props.id + '>svg')
@@ -23,6 +23,14 @@ export class ActivityTimeline extends React.Component {
         
         let graph = svg.append('g')
             .attr('transform', 'translate(' + svgPadding.left + ', ' + svgPadding.top + ')');
+        
+        let tooltip = d3.select('#' + this.props.id + '>.tooltip')
+            .style('visibility', 'hidden')
+            .style('position', 'absolute')
+            .style('width', 150)
+            .style('text-align', 'center')
+            .style('background-color', '#fff')
+            .style('border', '1px solid #000');
 
         // set up graph scaling
         let width = svgWidth - svgPadding.left - svgPadding.right;
@@ -40,7 +48,6 @@ export class ActivityTimeline extends React.Component {
         let scaleDate = d3.scaleLinear()
             .domain(d3.extent(data, function(d) { return d.date }))
             .rangeRound([0, width]);
-
         
         graph.append('g')
             .selectAll('rect')
@@ -51,7 +58,16 @@ export class ActivityTimeline extends React.Component {
                 .attr('width', scaleX.bandwidth())
                 .attr('height', d => height - scaleY(d.created))
                 .attr('x', (d, i) => scaleX(i))
-                .attr('y', d => scaleY(d.created));
+                .attr('y', d => scaleY(d.created))
+                .on('mouseover', (d) => {
+                    tooltip.style('visibility', 'visible')
+                        .style('left', d3.event.pageX -400)
+                        .style('top', d3.event.pageY + 'px')
+                        .html(formatDate(d.date) + '<br>' + d.created + ' files created');
+                })
+                .on('mouseout', (d) => {
+                    tooltip.style('visibility', 'hidden')
+                });
         
         graph.append('g')
             .selectAll('rect')
@@ -62,7 +78,16 @@ export class ActivityTimeline extends React.Component {
                 .attr('width', scaleX.bandwidth())
                 .attr('height', d => height - scaleY(d.modified - d.created))
                 .attr('x', (d, i) => scaleX(i))
-                .attr('y', d => scaleY(d.modified));
+                .attr('y', d => scaleY(d.modified))
+                .on('mouseover', (d) => {
+                    tooltip.style('visibility', 'visible')
+                        .style('left', d3.event.pageX -400)
+                        .style('top', d3.event.pageY + 'px')
+                        .html(formatDate(d.date) + '<br>' + d.modified + ' files modified');
+                })
+                .on('mouseout', (d) => {
+                    tooltip.style('visibility', 'hidden')
+                });
         
         graph.append('g')
             .selectAll('rect')
@@ -73,7 +98,16 @@ export class ActivityTimeline extends React.Component {
                 .attr('width', scaleX.bandwidth())
                 .attr('height', d => height - scaleY(d.accessed - d.modified))
                 .attr('x', (d, i) => scaleX(i))
-                .attr('y', d => scaleY(d.accessed));
+                .attr('y', d => scaleY(d.accessed))
+                .on('mouseover', (d) => {
+                    tooltip.style('visibility', 'visible')
+                        .style('left', d3.event.pageX -400)
+                        .style('top', d3.event.pageY + 'px')
+                        .html(formatDate(d.date) + ': ' + d.accessed + ' files accessed');
+                })
+                .on('mouseout', (d) => {
+                    tooltip.style('visibility', 'hidden')
+                });
 
 
         function formatDate(seconds) {
@@ -82,7 +116,7 @@ export class ActivityTimeline extends React.Component {
         }
 
         let yAxis = d3.axisLeft(scaleY).ticks(5);
-        let xAxis = d3.axisBottom(scaleDate).tickFormat(formatDate).ticks(7);
+        let xAxis = d3.axisBottom(scaleDate).tickFormat(formatDate).ticks(8);
 
         graph.append("g")
             .call(yAxis);
@@ -110,8 +144,8 @@ export class ActivityTimeline extends React.Component {
     render() {
         return (
             <div id={this.props.id}>
-                <svg>
-                </svg>
+                <svg></svg>
+                <div className="tooltip"></div>
             </div>
         );
     }
