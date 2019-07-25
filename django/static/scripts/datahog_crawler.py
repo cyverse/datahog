@@ -4,6 +4,7 @@ import hashlib
 import getopt
 import pickle
 import datetime
+import platform
 
 from pwd import getpwuid
 from grp import getgrgid
@@ -53,9 +54,16 @@ for dirpath, dirnames, filenames in os.walk(root_path):
         try:
             status = os.stat(path)
             size = status.st_size
-            created = status.st_ctime
+            # size = os.stat.getsize(path)
+            # modified = os.stat.getmtime(path)
             modified = status.st_mtime
-            accessed = status.st_atime
+            accessed = max(status.st_atime, modified)
+
+            if platform.system() == 'Windows':
+                created = status.st_ctime
+            else:
+                created = getattr(status, 'st_birthtime', None)
+            
         except:
             problem_files.append(path)
             continue
@@ -98,7 +106,7 @@ if not len(files):
     sys.exit(0)
 
 obj = {
-    'format': 'datahog:0.2',
+    'format': 'datahog:1.1',
     'root': root_path,
     'type': 'Local folder',
     'date_scanned': datetime.datetime.now().timestamp(),
