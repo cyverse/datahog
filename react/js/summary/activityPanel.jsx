@@ -2,10 +2,6 @@ import React from 'react';
 import axios from '../axios';
 import { ActivityTimeline } from './activityTimeline';
 
-const PIE_COLORS = [
-    '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', '#41ab5d', '#238b45', 
-];
-
 /**
  * A panel describing file creation/modification/access in the recent past.
  */
@@ -17,30 +13,25 @@ export class ActivityPanel extends React.Component {
             loading: true,
             error: false,
             created: 0,
+            show_created: true,
             modified: 0,
+            show_modified: true,
             accessed: 0,
+            show_accessed: true,
+            total: 0,
             graph_data: [],
             days: 30
         };
         
         this.onLoad = this.onLoad.bind(this);
         this.onError = this.onError.bind(this);
-        this.getActivity = this.getActivity.bind(this);
         this.onChange = this.onChange.bind(this);
 
-        this.getActivity(30);
-    }
-
-    componentWillUnmount() {
-        if (this.cancelToken) this.cancelToken.cancel();
-    }
-
-    getActivity(days) {
         this.cancelToken = axios.CancelToken.source();
         axios.get('/api/filedata/activity', {
             params: {
                 source: this.props.source,
-                days: days
+                days: this.state.days
             },
             cancelToken: this.cancelToken.token
         })
@@ -49,7 +40,6 @@ export class ActivityPanel extends React.Component {
     }
 
     onLoad(response) {
-        console.log(response);
         this.setState({
             created: response.data.modified,
             modified: response.data.modified,
@@ -60,7 +50,7 @@ export class ActivityPanel extends React.Component {
             error: false
         });
     }
-
+    
     onError(error) {
         this.setState({
             loading: false,
@@ -68,12 +58,15 @@ export class ActivityPanel extends React.Component {
         });
     }
 
+    componentWillUnmount() {
+        if (this.cancelToken) this.cancelToken.cancel();
+    }
+
     onChange(event) {
         this.setState({
             days: event.target.value,
             loading: true
         });
-        this.getActivity(event.target.value);
     }
 
     render() {
@@ -81,7 +74,6 @@ export class ActivityPanel extends React.Component {
             <div className="card fixed-height">
                 <div className="card-header">
                     <div className="card-title h5">File Activity from the last</div>
-                    
                 </div>
                 <div className="card-body columns">
                     <div className="column">
@@ -95,7 +87,11 @@ export class ActivityPanel extends React.Component {
                         Accessed: {this.state.accessed}
                     </div>
                     <div className="column">
-                        <ActivityTimeline data={this.state.graph_data} id="activityTimeline"/>
+                        <ActivityTimeline 
+                            data={this.state.graph_data}
+                            days={this.state.days}
+                            id="activityTimeline"
+                        />
                     </div>
                 </div>
             </div>
