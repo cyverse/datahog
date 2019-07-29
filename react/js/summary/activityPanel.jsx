@@ -13,14 +13,14 @@ export class ActivityPanel extends React.Component {
             loading: true,
             error: false,
             created: 0,
-            show_created: true,
             modified: 0,
-            show_modified: true,
             accessed: 0,
-            show_accessed: true,
             total: 0,
-            graph_data: [],
-            days: 30
+            data: [],
+            days: 30,
+            viewCreated: true,
+            viewModified: true,
+            viewAccessed: true
         };
         
         this.onLoad = this.onLoad.bind(this);
@@ -31,7 +31,7 @@ export class ActivityPanel extends React.Component {
         axios.get('/api/filedata/activity', {
             params: {
                 source: this.props.source,
-                days: this.state.days
+                days: 90
             },
             cancelToken: this.cancelToken.token
         })
@@ -44,7 +44,7 @@ export class ActivityPanel extends React.Component {
             created: response.data.modified,
             modified: response.data.modified,
             accessed: response.data.accessed,
-            graph_data: response.data.graph_data,
+            data: response.data.graph_data,
             total: response.data.total,
             loading: false,
             error: false
@@ -64,8 +64,8 @@ export class ActivityPanel extends React.Component {
 
     onChange(event) {
         this.setState({
-            days: event.target.value,
-            loading: true
+            [event.target.name]: (event.target.value === 'on') ? 
+                event.target.checked : event.target.value
         });
     }
 
@@ -77,19 +77,37 @@ export class ActivityPanel extends React.Component {
                 </div>
                 <div className="card-body columns">
                     <div className="column">
-                        <select value={this.state.days} className="form-select" onChange={this.onChange}>
+                        <select value={this.state.days} name='days' className="form-select" onChange={this.onChange}>
                             <option value={7}>7 days</option>
                             <option value={30}>30 days</option>
                             <option value={90}>90 days</option>
                         </select>
-                        Created: {this.state.created},
-                        Modified: {this.state.modified},
-                        Accessed: {this.state.accessed}
+                        <div className="form-group">
+                            <label className="form-checkbox">
+                                <input type="checkbox" name='viewCreated' checked={this.state.viewCreated} onChange={this.onChange}/>
+                                <i className="form-icon"></i> Created
+                            </label>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-checkbox">
+                                <input type="checkbox" name='viewModified' checked={this.state.viewModified} onChange={this.onChange}/>
+                                <i className="form-icon"></i> Modified
+                            </label>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-checkbox">
+                                <input type="checkbox" name='viewAccessed' checked={this.state.viewAccessed} onChange={this.onChange}/>
+                                <i className="form-icon"></i> Accessed
+                            </label>
+                        </div>
                     </div>
                     <div className="column">
                         <ActivityTimeline 
-                            data={this.state.graph_data}
+                            data={this.state.data}
                             days={this.state.days}
+                            viewCreated={this.state.viewCreated}
+                            viewModified={this.state.viewModified}
+                            viewAccessed={this.state.viewAccessed}
                             id="activityTimeline"
                         />
                     </div>
