@@ -25,7 +25,8 @@ export class ActivityPanel extends React.Component {
         
         this.onLoad = this.onLoad.bind(this);
         this.onError = this.onError.bind(this);
-        this.onChange = this.onChange.bind(this);
+        this.changeDays = this.changeDays.bind(this);
+        this.changeVisibility = this.changeVisibility.bind(this);
 
         this.cancelToken = axios.CancelToken.source();
         axios.get('/api/filedata/activity', {
@@ -41,16 +42,13 @@ export class ActivityPanel extends React.Component {
 
     onLoad(response) {
         this.setState({
-            created: response.data.modified,
-            modified: response.data.modified,
-            accessed: response.data.accessed,
-            data: response.data.graph_data,
-            total: response.data.total,
+            data: response.data,
             loading: false,
-            error: false
+            error: false,
+            ...countTotals(response.data, this.state.days)
         });
     }
-    
+
     onError(error) {
         this.setState({
             loading: false,
@@ -62,10 +60,16 @@ export class ActivityPanel extends React.Component {
         if (this.cancelToken) this.cancelToken.cancel();
     }
 
-    onChange(event) {
+    changeDays(event) {
         this.setState({
-            [event.target.name]: (event.target.value === 'on') ? 
-                event.target.checked : event.target.value
+            days: event.target.value,
+            ...countTotals(this.state.data, event.target.value)
+        });
+    }
+
+    changeVisibility(event) {
+        this.setState({
+            [event.target.name]: event.target.checked
         });
     }
 
@@ -77,37 +81,41 @@ export class ActivityPanel extends React.Component {
                 </div>
                 <div className="card-body columns">
                     <div className="column">
-                        <select value={this.state.days} name='days' className="form-select" onChange={this.onChange}>
+                        <select value={this.state.days} name='days' className="form-select" onChange={this.changeDays}>
                             <option value={7}>7 days</option>
                             <option value={30}>30 days</option>
                             <option value={90}>90 days</option>
                         </select>
+                        { this.props.source.has_creation_times && 
+                            <div className="form-group">
+                                <label className="form-checkbox">
+                                    <input type="checkbox" name='viewCreated' checked={this.state.viewCreated} onChange={this.changeVisibility}/>
+                                    <i className="form-icon"></i> { this.state.created } Created
+                                </label>
+                            </div>
+                        }
                         <div className="form-group">
                             <label className="form-checkbox">
-                                <input type="checkbox" name='viewCreated' checked={this.state.viewCreated} onChange={this.onChange}/>
-                                <i className="form-icon"></i> Created
+                                <input type="checkbox" name='viewModified' checked={this.state.viewModified} onChange={this.changeVisibility}/>
+                                <i className="form-icon"></i> { this.state.modified } Modified
                             </label>
                         </div>
-                        <div className="form-group">
-                            <label className="form-checkbox">
-                                <input type="checkbox" name='viewModified' checked={this.state.viewModified} onChange={this.onChange}/>
-                                <i className="form-icon"></i> Modified
-                            </label>
-                        </div>
-                        <div className="form-group">
-                            <label className="form-checkbox">
-                                <input type="checkbox" name='viewAccessed' checked={this.state.viewAccessed} onChange={this.onChange}/>
-                                <i className="form-icon"></i> Accessed
-                            </label>
-                        </div>
+                        { this.props.source.has_access_times &&    
+                            <div className="form-group">
+                                <label className="form-checkbox">
+                                    <input type="checkbox" name='viewAccessed' checked={this.state.viewAccessed} onChange={this.changeVisibility}/>
+                                    <i className="form-icon"></i> { this.state.accessed } Accessed
+                                </label>
+                            </div>
+                        }
                     </div>
                     <div className="column">
                         <ActivityTimeline 
                             data={this.state.data}
                             days={this.state.days}
-                            viewCreated={this.state.viewCreated}
+                            viewCreated={this.props.source.has_creation_times && this.state.viewCreated}
                             viewModified={this.state.viewModified}
-                            viewAccessed={this.state.viewAccessed}
+                            viewAccessed={this.props.source.has_access_times && this.state.viewAccessed}
                             id="activityTimeline"
                         />
                     </div>
@@ -115,4 +123,21 @@ export class ActivityPanel extends React.Component {
             </div>
         );
     }
+}
+
+
+function countTotals(data, days) {
+    let ctotal = 0, mtotal = 0, atotal = 0;
+
+    for (let i = data.length - days; i < data.length; i++) {
+        ctotal += data[i].created;
+        mtotal += data[i].modified;
+        atotal += data[i].accessed;
+    }
+    
+    return {
+        created: ctotal,
+        modified: mtotal,
+        accessed: atotal
+    };
 }

@@ -74,7 +74,7 @@ export class SummaryTab extends React.Component {
                         </div>
                         <div className="columns">
                             <div className="column">
-                                <div className="card fixed-height">
+                                <div className="card">
                                     <div className="card-body">
                                         <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
                                         <div  className="container">
@@ -100,7 +100,7 @@ export class SummaryTab extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                    <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/>
+                                    {/* <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/> */}
                                 </div>
                             </div>
                             <div className="column">
