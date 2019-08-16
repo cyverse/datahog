@@ -83,10 +83,11 @@ def import_files_from_irods(task_id, password):
             date_scanned=attempt.date_imported,
             root_path=attempt.irods_root,
             has_checksums=True,
-            has_owners=True
+            has_owners=True,
+            has_creation_times=True
         )
 
-        def save_file(collection, name, size, date_created, date_modified, owner, group, checksum):
+        def save_file(collection, name, size, date_created, date_modified, owner, checksum):
             path = '{}/{}'.format(collection, name)
             file_obj = File(
                 name=name,
@@ -95,7 +96,6 @@ def import_files_from_irods(task_id, password):
                 date_created=date_created,
                 date_modified=date_modified,
                 owner=owner,
-                group=group,
                 source=source,
                 source_name=source.name,
                 checksum=checksum
@@ -121,8 +121,7 @@ def import_files_from_irods(task_id, password):
                 DataObject.size,
                 DataObject.create_time,
                 DataObject.modify_time,
-                DataObject.owner_name,
-                DataObject.owner_zone
+                DataObject.owner_name
             ).filter(
                 DataObject.replica_number == 0
             ).limit(1000)
@@ -140,7 +139,6 @@ def import_files_from_irods(task_id, password):
                         obj.create_time,
                         obj.modify_time,
                         obj.owner_name,
-                        obj.owner_zone,
                         obj.checksum
                     )
                     
@@ -155,7 +153,6 @@ def import_files_from_irods(task_id, password):
                                 row[DataObject.create_time],
                                 row[DataObject.modify_time],
                                 row[DataObject.owner_name],
-                                row[DataObject.owner_zone],
                                 row[DataObject.checksum]
                             )
                 except NetworkException:
@@ -194,7 +191,10 @@ def import_files_from_file(task_id, file_data):
             date_scanned=datetime.datetime.utcfromtimestamp(file_data['date_scanned']),
             root_path=file_data['root'],
             has_checksums=file_data['has_checksums'],
-            has_users=file_data.get('has_users', False)
+            has_owners=file_data.get('has_owners', False),
+            has_groups=file_data.get('has_groups', False),
+            has_creation_times=file_data.get('has_creation_times', False),
+            has_access_times=file_data.get('has_access_times', False)
         )
 
         task.status_message = 'Reading file data...'
@@ -205,9 +205,9 @@ def import_files_from_file(task_id, file_data):
                 name=os.path.basename(file['path']),
                 size=file['size'],
                 path=file['path'],
-                date_created=datetime.datetime.utcfromtimestamp(file.get('created', None)),
-                date_modified=datetime.datetime.utcfromtimestamp(file.get('modified', None)),
-                date_accessed=datetime.datetime.utcfromtimestamp(file.get('accessed', None)),
+                date_created=datetime.datetime.utcfromtimestamp(file['created']) if file['created'] else None,
+                date_modified=datetime.datetime.utcfromtimestamp(file['modified']),
+                date_accessed=datetime.datetime.utcfromtimestamp(file['accessed']) if file['accessed'] else None,
                 source=source,
                 source_name=source.name,
                 checksum=file['checksum'],
