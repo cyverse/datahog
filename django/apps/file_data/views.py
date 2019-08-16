@@ -253,9 +253,18 @@ class GetFileActivity(views.APIView):
             date_start = today - datetime.timedelta(days=i)
             date_end   = today - datetime.timedelta(days=i-1)
 
-            files_created  = files.filter(date_created__gte=date_start,  date_created__lt=date_end).count()
-            files_modified = max(files.filter(date_modified__gte=date_start, date_modified__lt=date_end).count(), files_created)
-            files_accessed = max(files.filter(date_accessed__gte=date_start, date_accessed__lt=date_end).count(), files_modified)
+            files_created  = files.filter(
+                date_created__gte=date_start,
+                date_created__lt=date_end
+            ).count() if source.has_access_times else None
+            files_modified = files.filter(
+                date_modified__gte=date_start,
+                date_modified__lt=date_end
+            ).count()
+            files_accessed = files.filter(
+                date_accessed__gte=date_start,
+                date_accessed__lt=date_end
+            ).count() if source.has_access_times else None
             
             graph_data.append({
                 'date': date_start.timestamp(),
@@ -265,21 +274,8 @@ class GetFileActivity(views.APIView):
             })
         
         graph_data.reverse()
-        earliest_date  = today - datetime.timedelta(days=days)
-        files_created  = files.filter(date_created__isnull=False, date_created__gte=earliest_date).count()
-        files_modified = files.filter(date_modified__isnull=False, date_modified__gte=earliest_date).count()
-        files_accessed = files.filter(date_accessed__isnull=False, date_accessed__gte=earliest_date).count()
 
-        return Response(
-            {
-                'created': files_created,
-                'modified': files_modified,
-                'accessed': files_accessed,
-                'total': source.file_count,
-                'graph_data': graph_data
-            },
-            status=200
-        )
+        return Response(graph_data, status=200)
 
 
 class ViewSource(views.APIView):
