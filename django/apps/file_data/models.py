@@ -25,6 +25,7 @@ class FileSource(models.Model):
     total_size = models.BigIntegerField(default=0)
     size_timeline_data = models.TextField(blank=True, null=True)
     type_chart_data = models.TextField(blank=True, null=True)
+    activity_timeline_data = models.TextField(blank=True, null=True)
     source_type = models.CharField(max_length=16, choices=SOURCE_TYPE_CHOICES, default='Local folder')
 
     def __str__(self):
@@ -82,9 +83,15 @@ class FileOwner(models.Model):
     total_size = models.BigIntegerField()
     source = models.ForeignKey('FileSource', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 class FileGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=32)
     total_size = models.BigIntegerField()
     source = models.ForeignKey('FileSource', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name

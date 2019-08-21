@@ -187,6 +187,9 @@ class GetSources(views.APIView):
             if not source.type_chart_data:
                 source.type_chart_data = create_type_chart_data(source)
                 source.save()
+            if not source.activity_timeline_data:
+                source.activity_timeline_data = create_activity_timeline_data(source)
+                source.save()
         
         sources_serialized = FileSourceSerializer(sources, many=True)
         return Response(sources_serialized.data)
@@ -235,47 +238,6 @@ class GetFileGroups(views.APIView):
             groups_serialized = FileGroupSerializer(file_groups, many=True)
             return Response(groups_serialized.data)
 
-
-class GetFileActivity(views.APIView):
-    def get(self, request):
-
-        if 'source' not in request.GET:
-            return Response('No file source specified.', 400)
-        
-        source = FileSource.objects.get(id=request.GET['source'])
-        files = File.objects.filter(source=source)
-        days = int(request.GET.get('days', 30))
-
-        graph_data = []
-        today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-        for i in range(days):
-            date_start = today - datetime.timedelta(days=i)
-            date_end   = today - datetime.timedelta(days=i-1)
-
-            files_created  = files.filter(
-                date_created__gte=date_start,
-                date_created__lt=date_end
-            ).count() if source.has_access_times else None
-            files_modified = files.filter(
-                date_modified__gte=date_start,
-                date_modified__lt=date_end
-            ).count()
-            files_accessed = files.filter(
-                date_accessed__gte=date_start,
-                date_accessed__lt=date_end
-            ).count() if source.has_access_times else None
-            
-            graph_data.append({
-                'date': date_start.timestamp(),
-                'created': files_created,
-                'modified': files_modified,
-                'accessed': files_accessed
-            })
-        
-        graph_data.reverse()
-
-        return Response(graph_data, status=200)
 
 
 class ViewSource(views.APIView):

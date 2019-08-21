@@ -12,8 +12,8 @@ class EchoBuffer:
 
 def filter_files(file_query, filters):
 
-    dirs = filters.getlist('sources[]')
-    if len(dirs): file_query = file_query.filter(source__id__in=dirs)
+    sources = filters.getlist('sources[]')
+    if len(sources): file_query = file_query.filter(source__id__in=sources)
 
     if 'source' in filters:
         file_query = file_query.filter(source__id=filters['source'])
@@ -61,8 +61,8 @@ def filter_files(file_query, filters):
 
 def filter_folders(folder_query, filters):
 
-    dirs = filters.getlist('sources[]')
-    if len(dirs): folder_query = folder_query.filter(source__id__in=dirs, parent__isnull=False)
+    sources = filters.getlist('sources[]')
+    if len(sources): folder_query = folder_query.filter(source__id__in=sources, parent__isnull=False)
 
     if 'source' in filters:
         folder_query = folder_query.filter(source__id=filters['source'], parent__isnull=False)
@@ -75,17 +75,17 @@ def filter_folders(folder_query, filters):
 
 def create_size_timeline_data(source):
     try:
-        earliest_file = File.objects.filter(source=source).earliest('date_created')
+        earliest_file = File.objects.filter(source=source).earliest('date_modified')
     except File.DoesNotExist:
         return '[]'
     
-    time_period = (source.date_scanned - earliest_file.date_created) / 50
+    time_period = (source.date_scanned - earliest_file.date_modified) / 50
 
-    current_date = earliest_file.date_created
+    current_date = earliest_file.date_modified
     current_size = File.objects.filter(
         source=source,
-        date_created__gte=current_date,
-        date_created__lte=current_date + time_period
+        date_modified__gte=current_date,
+        date_modified__lte=current_date + time_period
     ).aggregate(Sum('size'))['size__sum'] or 0
 
     files_per_period = [
@@ -99,8 +99,8 @@ def create_size_timeline_data(source):
         current_date += time_period
         current_size += File.objects.filter(
             source=source,
-            date_created__gt=current_date,
-            date_created__lte=current_date + time_period
+            date_modified__gt=current_date,
+            date_modified__lte=current_date + time_period
         ).aggregate(Sum('size'))['size__sum'] or 0
         files_per_period.append({
             'date': current_date.timestamp(),
@@ -139,4 +139,39 @@ def create_type_chart_data(source):
             })
 
     return json.dumps(size_per_type)
+
+
+def create_activity_timeline_data(source):
+
+    files = File.objects.filter(source=source)
+
+    activity_per_date = []
+    today = source.date_scanned.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    for i in range(90):
+        date_start = today - datetime.timedelta(days=i)
+        date_end   = today - datetime.timedelta(days=i-1)
+
+        files_created  = files.filter(
+            date_created__gte=date_start,
+            date_created__lt=date_end
+        ).count() if source.has_access_times else None
+        files_modified = files.filter(
+            date_modified__gte=date_start,
+            date_modified__lt=date_end
+        ).count()
+        files_accessed = files.filter(
+            date_accessed__gte=date_start,
+            date_accessed__lt=date_end
+        ).count() if source.has_access_times else None
+        
+        activity_per_date.append({
+            'date': date_start.timestamp(),
+            'created': files_created,
+            'modified': files_modified,
+            'accessed': files_accessed
+        })
     
+    activity_per_date.reverse()
+
+    return json.dumps(activity_per_date)
