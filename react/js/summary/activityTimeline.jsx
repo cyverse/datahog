@@ -17,7 +17,7 @@ export class ActivityTimeline extends React.Component {
     }
 
     componentDidMount() {
-        let svgWidth = 550, svgHeight = 350;
+        let svgWidth = 415, svgHeight = 350;
         let svgPadding = {top: 50, bottom: 40, left: 50, right: 30};
         
         let svg = d3.select('#' + this.props.id + '>svg')

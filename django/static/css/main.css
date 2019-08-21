@@ -79,10 +79,6 @@ a:focus {
     height: 435px;
 }
 
-.card.fixed-height {
-    min-height: 535px;
-}
-
 .tooltip {
     position: relative;
 }

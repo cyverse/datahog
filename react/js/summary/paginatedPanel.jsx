@@ -44,7 +44,7 @@ export class PaginatedPanel extends React.Component {
 
     render() {
         return (
-            <div className="card fixed-height">
+            <div className="card">
                 <div className="card-header">
                     <div className="card-title h5">
                         {this.props.title}

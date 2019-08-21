@@ -75,12 +75,11 @@ export class ActivityPanel extends React.Component {
 
     render() {
         return (
-            <div className="card fixed-height">
-                <div className="card-header">
-                    <div className="card-title h5">File Activity from the last</div>
+            <div className="panel fixed-height">
+                <div className="panel-header">
+                    <div className="panel-title h5">File Activity from the last</div>
                 </div>
-                <div className="card-body columns">
-                    <div className="column">
+                <div className="panel-body">
                         <select value={this.state.days} name='days' className="form-select" onChange={this.changeDays}>
                             <option value={7}>7 days</option>
                             <option value={30}>30 days</option>
@@ -108,8 +107,6 @@ export class ActivityPanel extends React.Component {
                                 </label>
                             </div>
                         }
-                    </div>
-                    <div className="column">
                         <ActivityTimeline 
                             data={this.state.data}
                             days={this.state.days}
@@ -118,7 +115,6 @@ export class ActivityPanel extends React.Component {
                             viewAccessed={this.props.source.has_access_times && this.state.viewAccessed}
                             id="activityTimeline"
                         />
-                    </div>
                 </div>
             </div>
         );

@@ -69,15 +69,10 @@ export class SummaryTab extends React.Component {
                     <div className="container">
                         <div className="columns">
                             <div className="column">
-                                <ActivityPanel source={selectedSource.id} />
-                            </div>
-                        </div>
-                        <div className="columns">
-                            <div className="column">
                                 <div className="card">
                                     <div className="card-body">
                                         <SourceMenu sources={this.state.sources} onChange={this.switchSource}/>
-                                        <div  className="container">
+                                        <div className="container">
                                             <div className="columns" style={{marginTop: '10px'}}>
                                                 <p className="column">
                                                     <i className="fa fa-fw fa-file"></i>
@@ -100,16 +95,10 @@ export class SummaryTab extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/> */}
                                 </div>
-                            </div>
-                            <div className="column">
-                                <TypePanel source={selectedSource}/>
-                            </div>
-                        </div>
-                        <div className="columns">
-                            { selectedSource.has_owners &&
-                                <div className="column">
+                                <ActivityPanel source={selectedSource} />
+
+                                { selectedSource.has_owners &&
                                     <PaginatedPanel
                                         title={'User Breakdown'}
                                         get="/api/filedata/owners"
@@ -117,10 +106,8 @@ export class SummaryTab extends React.Component {
                                             source: selectedSource.id,
                                             sort: '-total_size'
                                         }}/>
-                                </div>
-                            }
-                            { selectedSource.has_groups &&
-                                <div className="column">
+                                }
+                                { selectedSource.has_groups &&
                                     <PaginatedPanel
                                         title={'Group Breakdown'}
                                         get="/api/filedata/groups"
@@ -128,20 +115,7 @@ export class SummaryTab extends React.Component {
                                             source: selectedSource.id,
                                             sort: '-total_size'
                                         }}/>
-                                </div>
-                            }
-                        </div>
-                        <div className="columns">
-                            <div className="column">
-                                <PaginatedPanel
-                                    title={'Biggest files in "'+selectedSource.name+'"'}
-                                    get="/api/filedata/files"
-                                    params={{
-                                        source: selectedSource.id,
-                                        sort: '-size'
-                                    }}/>
-                            </div>
-                            <div className="column">
+                                }
                                 <PaginatedPanel
                                     title={'Biggest folders in "'+selectedSource.name+'"'}
                                     get="/api/filedata/folders"
@@ -150,9 +124,16 @@ export class SummaryTab extends React.Component {
                                         sort: '-total_size'
                                     }}/>
                             </div>
-                        </div>
-                        <div className="columns">
                             <div className="column">
+                                <TypePanel source={selectedSource}/>
+                                <PaginatedPanel
+                                    title={'Biggest files in "'+selectedSource.name+'"'}
+                                    get="/api/filedata/files"
+                                    params={{
+                                        source: selectedSource.id,
+                                        sort: '-size'
+                                    }}/>
+                                    
                                 <PaginatedPanel
                                     title={'Newest files in  "'+selectedSource.name+'"'}
                                     get="/api/filedata/files"
@@ -161,8 +142,6 @@ export class SummaryTab extends React.Component {
                                         source: selectedSource.id,
                                         sort: '-date_created'
                                     }}/>
-                            </div>
-                            <div className="column">
                                 <PaginatedPanel
                                     title={'Oldest files in "'+selectedSource.name+'"'}
                                     get="/api/filedata/files"
@@ -171,6 +150,7 @@ export class SummaryTab extends React.Component {
                                         source: selectedSource.id,
                                         sort: 'date_created'
                                     }}/>
+                                {/* <SizeTimeline data={selectedSource.size_timeline_data} id="sizeTimeline"/> */}
                             </div>
                         </div>
                     </div>
