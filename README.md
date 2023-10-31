@@ -3,6 +3,8 @@ DataHog
 
 DataHog is a web application for analyzing how your storage space is being used. The app builds a database of files stored in iRODS collections (such as the CyVerse data store), Amazon S3 buckets, or directories on your device, and allows you to search, sort, and compare them. It provides information about file sizes, types, and duplicated files.
 
+<a href="https://de.cyverse.org/apps/de/d0f77e8c-392b-11e9-95ec-008cfa5ae621/launch?saved-launch-id=d34723d6-f7cc-4fe4-b39b-8b0986e43479" target="_blank" rel="noopener noreferrer"><img src="https://de.cyverse.org/Powered-By-CyVerse-blue.svg"></a>
+
 Running DataHog
 ---------------
 
