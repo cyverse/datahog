@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Switch, NavLink } from 'react-router-dom';
+import { HashRouter, Route, Routes, NavLink } from 'react-router-dom';
 import { SummaryTab } from './summary/summaryTab';
 import { DuplicatesTab } from './duplicates/duplicatesTab';
 import { BrowseTab } from './browse/browseTab';
@@ -32,13 +32,13 @@ export class TabNav extends React.Component {
                             <NavLink to='/sources'>Manage File Sources</NavLink>
                         </li>
                     </ul>
-                    <Switch>
-                        <Route path='/summary' component={SummaryTab} />
-                        <Route path='/browse' component={BrowseTab} />
-                        <Route path='/duplicates' component={DuplicatesTab} />
-                        <Route path='/sources' component={SourceTab} />
-                        <Route path='/import' component={ImportForm} />
-                    </Switch>
+                    <Routes>
+                        <Route path='/summary' element={<SummaryTab />} />
+                        <Route path='/browse' element={<BrowseTab />} />
+                        <Route path='/duplicates' element={<DuplicatesTab />} />
+                        <Route path='/sources' element={<SourceTab />} />
+                        <Route path='/import' element={<ImportForm />} />
+                    </Routes>
                 </React.Fragment>
             </HashRouter>
         );

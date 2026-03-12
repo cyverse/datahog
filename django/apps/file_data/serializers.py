@@ -27,3 +27,9 @@ class FileTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileType
         fields = ('id', 'extension', 'total_size')
+
+
+class FileMetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileMetadata
+        fields = ('id', 'attribute', 'value', 'unit')

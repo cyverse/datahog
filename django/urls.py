@@ -10,4 +10,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.file_data.urls')),
     path('', include('apps.importer.urls')),
+    path('', include('apps.browser.urls')),
 ]

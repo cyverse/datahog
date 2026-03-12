@@ -228,53 +228,88 @@ def import_files_from_cyverse(task_id, auth_token):
             has_checksums=False
         )
 
-        task.status_message = 'Downloading file data...'
+        task.status_message = 'Scanning directories...'
         task.save()
 
-        response = requests.post("https://de.cyverse.org/terrain/secured/filesystem/search",
-            headers={"authorization": auth_token},
-            json={
-                "query": {
-                    "all": [
-                        {
-                            "type": "path", 
-                            "args": {
-                                "prefix": attempt.cyverse_root
-                            }
-                        }
-                    ]
-                },
-                "size": 10000,
-                "scroll": "1m"
-            }
-        )
-        
-        page = json.loads(response.text)
-        
-        scroll_token = page['scroll_id']
-        while 'hits' in page and len(page['hits']):
-            for hit in page['hits']:
-                if hit['_type'] == 'file':
+        # Recursively crawl using paged-directory API
+        TERRAIN_BASE = 'https://de.cyverse.org'
+        dirs_to_scan = deque([attempt.cyverse_root])
+        dirs_scanned = 0
+
+        while dirs_to_scan:
+            current_dir = dirs_to_scan.popleft()
+            dirs_scanned += 1
+
+            # Update progress
+            task.status_message = 'Scanning... {} files found, {} dirs scanned'.format(
+                len(file_objects), dirs_scanned
+            )
+            task.status_subtitle = current_dir
+            task.save()
+
+            offset = 0
+            limit = 1000
+            while True:
+                try:
+                    resp = requests.get(
+                        '{}/terrain/secured/filesystem/paged-directory'.format(TERRAIN_BASE),
+                        params={
+                            'path': current_dir,
+                            'limit': limit,
+                            'offset': offset,
+                            'sort-col': 'NAME',
+                            'sort-dir': 'ASC',
+                        },
+                        headers={'Authorization': auth_token},
+                        timeout=60,
+                    )
+                except (requests.ConnectionError, requests.Timeout) as e:
+                    print('Connection error scanning {}: {}'.format(current_dir, e))
+                    break
+
+                if resp.status_code != 200:
+                    print('Error {} scanning {}'.format(resp.status_code, current_dir))
+                    break
+
+                data = resp.json()
+
+                # Process files
+                for f in data.get('files', []):
+                    ts = f.get('date-created', 0)
+                    if ts:
+                        dt = datetime.datetime.utcfromtimestamp(ts / 1000)
+                    else:
+                        dt = datetime.datetime.utcnow()
+
                     file_obj = File(
-                        name=hit['_source']['label'],
-                        path=hit['_source']['path'],
-                        size=hit['_source']['fileSize'],
-                        date_created=datetime.datetime.utcfromtimestamp(hit['_source']['dateCreated']/1000),
+                        name=f.get('label', ''),
+                        path=f.get('path', ''),
+                        size=f.get('file-size', 0),
+                        date_created=dt,
                         directory=directory,
                         directory_name=directory.name
                     )
                     file_objects.append(file_obj)
 
-            response = requests.post('https://de.cyverse.org/terrain/secured/filesystem/search',
-                headers={'authorization': auth_token},
-                json={
-                    "scroll_id": scroll_token,
-                    "scroll": "1m"
-                }
-            )
-            page = json.loads(response.text)
+                # Queue subdirectories
+                for folder in data.get('folders', []):
+                    folder_path = folder.get('path', '')
+                    if folder_path:
+                        dirs_to_scan.append(folder_path)
+
+                # Check if there are more pages
+                total = data.get('total', 0)
+                fetched = len(data.get('files', [])) + len(data.get('folders', []))
+                offset += limit
+                if fetched < limit or offset >= total:
+                    break
+
+        task.status_message = 'Building database... {} files'.format(len(file_objects))
+        task.status_subtitle = ''
+        task.save()
 
         build_file_database(task, directory, file_objects)
+
     except Exception as e:
         print('Task failed with error: {}'.format(e))
         task.in_progress = False
@@ -284,7 +319,7 @@ def import_files_from_cyverse(task_id, auth_token):
         task.status_subtitle = 'Error: {}'.format(e)
         task.save()
         return
-    
+
     print('Updating database fixture...')
     create_db_backup(task)
     task.in_progress = False

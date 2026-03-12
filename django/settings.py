@@ -19,7 +19,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'apps.file_data',
-    'apps.importer'
+    'apps.importer',
+    'apps.browser'
 ]
 
 MIDDLEWARE = [
@@ -90,7 +91,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 USE_TZ = False
 

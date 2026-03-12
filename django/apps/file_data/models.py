@@ -65,3 +65,23 @@ class FileType(models.Model):
 
     def __str__(self):
         return self.extension
+
+
+class FileMetadata(models.Model):
+    """iRODS AVU (Attribute-Value-Unit) metadata attached to a file or folder."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file = models.ForeignKey('File', on_delete=models.CASCADE, related_name='metadata', null=True, blank=True)
+    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='metadata', null=True, blank=True)
+    attribute = models.CharField(max_length=512)
+    value = models.TextField(blank=True)
+    unit = models.CharField(max_length=256, blank=True)
+    directory = models.ForeignKey('ImportedDirectory', on_delete=models.CASCADE)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['attribute']),
+            models.Index(fields=['attribute', 'value']),
+        ]
+
+    def __str__(self):
+        return '{}: {}'.format(self.attribute, self.value)

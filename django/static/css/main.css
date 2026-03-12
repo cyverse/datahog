@@ -59,7 +59,7 @@ a:focus {
     box-shadow: none;
 }
 
-#app {
+.db-analyze-wrapper > :last-child {
     position: relative;
     max-width: 1000px;
     margin-left: auto;

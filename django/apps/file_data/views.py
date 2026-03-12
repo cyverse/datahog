@@ -206,6 +206,87 @@ class ViewDirectory(views.APIView):
         return Response(directories_serialized.data)
 
 
+class GetFileMetadata(views.APIView):
+    """Get stored AVU metadata for a file or folder."""
+    def get(self, request):
+        file_id = request.GET.get('file')
+        folder_id = request.GET.get('folder')
+        source_id = request.GET.get('source')
+
+        avus = FileMetadata.objects.all()
+
+        if file_id:
+            avus = avus.filter(file__id=file_id)
+        elif folder_id:
+            avus = avus.filter(folder__id=folder_id)
+        elif source_id:
+            avus = avus.filter(directory__id=source_id)
+        else:
+            return Response([])
+
+        serializer = FileMetadataSerializer(avus, many=True)
+        return Response(serializer.data)
+
+
+class SearchByMetadata(views.APIView):
+    """Search files by metadata attribute/value."""
+    def get(self, request):
+        attr = request.GET.get('attribute', '')
+        value = request.GET.get('value', '')
+        source_id = request.GET.get('source')
+
+        if not attr:
+            return Response({'error': 'attribute parameter required'}, status=400)
+
+        avus = FileMetadata.objects.filter(attribute__icontains=attr)
+        if value:
+            avus = avus.filter(value__icontains=value)
+        if source_id:
+            avus = avus.filter(directory__id=source_id)
+
+        # Get unique files that match
+        file_ids = avus.filter(file__isnull=False).values_list('file__id', flat=True).distinct()
+        folder_ids = avus.filter(folder__isnull=False).values_list('folder__id', flat=True).distinct()
+
+        files = File.objects.filter(id__in=file_ids)
+        folders = Folder.objects.filter(id__in=folder_ids)
+
+        limit = int(request.GET.get('limit', 100))
+        offset = int(request.GET.get('offset', 0))
+
+        total_files = files.count()
+        total_folders = folders.count()
+
+        files_page = FileSerializer(files[offset:offset + limit], many=True)
+        folders_page = FolderSerializer(folders[offset:offset + limit], many=True)
+
+        return Response({
+            'files': files_page.data,
+            'folders': folders_page.data,
+            'total_files': total_files,
+            'total_folders': total_folders,
+        })
+
+
+class GetMetadataSummary(views.APIView):
+    """Get summary of unique attributes and their value counts for a source."""
+    def get(self, request):
+        source_id = request.GET.get('source')
+        if not source_id:
+            return Response([])
+
+        from django.db.models import Count
+        summary = (
+            FileMetadata.objects
+            .filter(directory__id=source_id)
+            .values('attribute')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+
+        return Response(list(summary))
+
+
 class GetBackupFile(views.APIView):
     def get(self, request):
         

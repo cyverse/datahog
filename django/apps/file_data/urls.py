@@ -12,5 +12,8 @@ urlpatterns = [
     path('api/filedata/sources', GetImportedDirectories.as_view()),
     path('api/filedata/changesource', ViewDirectory.as_view()),
     path('api/filedata/duplicates', GetDuplicates.as_view()),
-    path('api/filedata/backup', GetBackupFile.as_view())
+    path('api/filedata/backup', GetBackupFile.as_view()),
+    path('api/filedata/metadata', GetFileMetadata.as_view()),
+    path('api/filedata/metadata/search', SearchByMetadata.as_view()),
+    path('api/filedata/metadata/summary', GetMetadataSummary.as_view()),
 ]
