@@ -8,18 +8,31 @@ from django.utils.decorators import method_decorator
 from apps.importer.models import ImportAttempt, AsyncTask
 from apps.importer.tasks import import_files_from_cyverse
 
-TERRAIN_BASE = 'https://de.cyverse.org'
+TERRAIN_BASE = os.environ.get('TERRAIN_BASE', 'https://de.cyverse.org')
 
 
 class BrowseStatus(View):
-    """Return current authentication status."""
+    """Return current authentication status.
+
+    When running in CyVerse VICE, IPLANT_USER is set. If a session token
+    already exists (from auto-login or manual login), report authenticated.
+    """
 
     def get(self, request):
+        # Auto-populate from env vars if session is empty (VICE startup)
+        if not request.session.get('browse_token'):
+            env_user = os.environ.get('IPLANT_USER', '')
+            env_token = os.environ.get('IPLANT_TOKEN', '')
+            if env_user and env_token:
+                request.session['browse_username'] = env_user
+                request.session['browse_token'] = env_token
+
         username = request.session.get('browse_username')
         return JsonResponse({
             'authenticated': bool(request.session.get('browse_token')),
             'username': username or '',
             'home_path': f'/iplant/home/{username}' if username else '',
+            'is_vice': bool(os.environ.get('IPLANT_USER')),
         })
 
 
@@ -61,6 +74,57 @@ class BrowseLogin(View):
                 return JsonResponse({'error': 'Invalid credentials'}, status=401)
         except (ValueError, KeyError):
             return JsonResponse({'error': 'Invalid authentication response'}, status=502)
+
+        request.session['browse_token'] = token
+        request.session['browse_username'] = username
+
+        return JsonResponse({
+            'authenticated': True,
+            'username': username,
+            'home_path': f'/iplant/home/{username}',
+        })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class BrowseAutoLogin(View):
+    """Accept a Terrain access token obtained by the frontend via KeyCloak.
+
+    In CyVerse VICE, the user's browser already holds a valid KeyCloak
+    session.  The React frontend fetches a Terrain token from the browser
+    and POSTs it here so the Django backend can use it for Data Store calls.
+    """
+
+    def post(self, request):
+        try:
+            body = json.loads(request.body)
+        except (json.JSONDecodeError, ValueError):
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        token = body.get('token', '').strip()
+        if not token:
+            return JsonResponse({'error': 'token is required'}, status=400)
+
+        # Validate the token by calling Terrain
+        try:
+            resp = requests.get(
+                f'{TERRAIN_BASE}/terrain/secured/bootstrap',
+                headers={'Authorization': f'Bearer {token}'},
+                timeout=15,
+            )
+        except (requests.ConnectionError, requests.Timeout):
+            return JsonResponse({'error': 'Cannot connect to CyVerse'}, status=502)
+
+        if resp.status_code != 200:
+            return JsonResponse({'error': 'Invalid token'}, status=401)
+
+        try:
+            data = resp.json()
+            username = data.get('user_info', {}).get('username', '').split('@')[0]
+        except (ValueError, KeyError):
+            username = os.environ.get('IPLANT_USER', '')
+
+        if not username:
+            return JsonResponse({'error': 'Could not determine username'}, status=401)
 
         request.session['browse_token'] = token
         request.session['browse_username'] = username

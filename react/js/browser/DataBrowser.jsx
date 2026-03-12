@@ -281,18 +281,49 @@ export function DataBrowser({ onAnalyze }) {
         setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     }, []);
 
-    /* ── Auth check on mount ── */
+    /* ── Auth check on mount — auto-login when running in CyVerse VICE ── */
     useEffect(() => {
         axios.get('/api/browse/status').then(res => {
             const d = res.data;
             if (d.authenticated) {
                 setAuthState({ checking: false, authenticated: true, username: d.username, homePath: d.home_path });
+            } else if (d.is_vice) {
+                // Running in VICE — try to get a Terrain token via the
+                // browser's existing KeyCloak session (same-origin when
+                // accessed through de.cyverse.org/dl/...).
+                attemptViceAutoLogin();
             } else {
                 setAuthState({ checking: false, authenticated: false, username: '', homePath: '' });
             }
         }).catch(() => {
             setAuthState({ checking: false, authenticated: false, username: '', homePath: '' });
         });
+    }, []);
+
+    /* ── VICE auto-login: fetch Terrain token via browser KeyCloak session ── */
+    const attemptViceAutoLogin = useCallback(() => {
+        // Try fetching a Terrain token using the browser's KeyCloak cookies.
+        // This works when the app is accessed through the DE proxy at
+        // de.cyverse.org/dl/... (same origin as Terrain).
+        fetch('/terrain/token/keycloak', { credentials: 'include' })
+            .then(r => {
+                if (!r.ok) throw new Error('No KeyCloak token');
+                return r.json();
+            })
+            .then(data => {
+                const token = data.access_token;
+                if (!token) throw new Error('No access_token in response');
+                // Send the token to our backend
+                return axios.post('/api/browse/autologin', { token });
+            })
+            .then(res => {
+                const d = res.data;
+                setAuthState({ checking: false, authenticated: true, username: d.username, homePath: d.home_path });
+            })
+            .catch(() => {
+                // Auto-login failed — fall back to manual login form
+                setAuthState({ checking: false, authenticated: false, username: '', homePath: '' });
+            });
     }, []);
 
     /* ── Initialize tree when authenticated ── */
